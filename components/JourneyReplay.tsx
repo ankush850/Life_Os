@@ -264,7 +264,7 @@ export default function JourneyReplay() {
                   {viewMode === "monthly" ? "Focus Streak" : "Lifetime Focus"}
                 </span>
                 <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
-                  {viewMode === "monthly" ? (activeData as any).longestStreak : (activeData as any).focusHours} 
+                  {viewMode === "monthly" ? replayData.longestStreak : lifetimeData.focusHours} 
                   <span className="text-sm text-slate-500 font-semibold">
                     {viewMode === "monthly" ? "Max Days" : "Hours"}
                   </span>
@@ -298,7 +298,7 @@ export default function JourneyReplay() {
                 )}
                 {viewMode === "monthly" && (
                   <span className="text-[10px] font-mono text-slate-500 ml-2">
-                    COVERAGE: {Math.round(((activeData as any).totalTargets / (activeData as any).daysInMonth) * 100)}%
+                    COVERAGE: {Math.round((replayData.totalTargets / replayData.daysInMonth) * 100)}%
                   </span>
                 )}
               </div>
