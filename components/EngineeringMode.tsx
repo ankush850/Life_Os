@@ -11,6 +11,9 @@ import {
   GitCommit,
   PlusCircle,
   MinusCircle,
+  AlertTriangle,
+  BookMarked,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +25,9 @@ export default function EngineeringMode() {
   // DSA form inputs
   const [dsaTitle, setDsaTitle] = useState("");
   const [dsaDifficulty, setDsaDifficulty] = useState<"Easy" | "Medium" | "Hard">("Medium");
+
+  // Focus Debt state
+  const [courseTitle, setCourseTitle] = useState("");
 
   // Heatmap helper: Get array of the last 12 weeks (84 days)
   const heatmapDays = useMemo(() => {
@@ -77,6 +83,18 @@ export default function EngineeringMode() {
   const handleAdjustMastery = (topic: string, score: number) => {
     store.updateMasteryScore(topic, score);
   };
+
+  const handleAddCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseTitle) return;
+    store.addCourse(courseTitle);
+    setCourseTitle("");
+  };
+
+  const totalCourses = store.engineeringCourses?.length || 0;
+  const finishedCourses = store.engineeringCourses?.filter(c => c.status === "Finished").length || 0;
+  const unfinishedCourses = totalCourses - finishedCourses;
+  const focusScore = totalCourses > 0 ? Math.round((finishedCourses / totalCourses) * 100) : 100;
 
   return (
     <div className="flex flex-col gap-6 w-full text-emerald-400 font-mono select-none">
@@ -367,6 +385,112 @@ export default function EngineeringMode() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Focus Debt Tracker */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Tracker Form & List */}
+        <div className="rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
+          <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
+            <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+              <BookMarked className="w-4.5 h-4.5" /> Focus Debt Ledger
+            </h3>
+            <span className="text-[9px] text-emerald-600">Courses & Books</span>
+          </div>
+
+          <form onSubmit={handleAddCourse} className="flex gap-2">
+            <Input
+              value={courseTitle}
+              onChange={(e) => setCourseTitle(e.target.value)}
+              placeholder="e.g. Advanced React Patterns"
+              className="bg-slate-950/80 border-emerald-500/20 text-emerald-200 text-xs rounded placeholder:text-emerald-950 focus:border-emerald-500"
+              required
+            />
+            <Button
+              type="submit"
+              className="bg-emerald-900/30 border border-emerald-500/20 hover:bg-emerald-900/50 text-emerald-300 font-bold px-4 py-2"
+            >
+              Start
+            </Button>
+          </form>
+
+          <div className="max-h-[150px] overflow-y-auto space-y-1.5 pr-1 mt-2">
+            {totalCourses === 0 ? (
+              <div className="text-center py-4 text-emerald-900/60 text-[9px] uppercase font-bold tracking-widest border border-dashed border-emerald-900/20 rounded">
+                No active commitments
+              </div>
+            ) : (
+              [...(store.engineeringCourses || [])].reverse().map((course) => (
+                <div
+                  key={course.id}
+                  className="flex items-center justify-between p-2.5 rounded bg-emerald-950/10 border border-emerald-500/5 text-xs hover:bg-emerald-950/20 transition-all group"
+                >
+                  <div className="flex items-center gap-2 max-w-[70%]">
+                    <button
+                      onClick={() => store.toggleCourseStatus(course.id)}
+                      className={`w-4 h-4 flex items-center justify-center rounded border ${
+                        course.status === "Finished" 
+                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" 
+                          : "border-emerald-900 hover:border-emerald-500/50"
+                      }`}
+                    >
+                      {course.status === "Finished" && <CheckCircle className="w-3 h-3" />}
+                    </button>
+                    <span className={`truncate font-semibold ${course.status === "Finished" ? "text-emerald-700 line-through" : "text-white"}`} title={course.title}>
+                      {course.title}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${course.status === "Finished" ? "bg-emerald-500/10 text-emerald-400" : "bg-yellow-500/10 text-yellow-400"}`}>
+                      {course.status}
+                    </span>
+                    <button
+                      onClick={() => store.deleteCourse(course.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/5 text-rose-400 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Analytics Card */}
+        <div className="rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col justify-center items-center gap-4 shadow-lg min-h-[220px] relative overflow-hidden">
+          {unfinishedCourses > 3 && (
+            <div className="absolute top-0 left-0 w-full h-1 bg-rose-500 animate-pulse" />
+          )}
+          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            Focus Score
+          </span>
+          
+          <div className="flex items-baseline gap-2">
+            <h3 className={`text-5xl font-black tracking-tighter ${focusScore < 50 ? 'text-rose-400' : 'text-emerald-400'}`}>
+              {focusScore}%
+            </h3>
+          </div>
+          
+          <div className="flex items-center gap-4 text-xs font-semibold text-emerald-600 mt-2">
+            <div className="flex flex-col items-center">
+              <span className="text-white text-lg font-black">{finishedCourses}</span>
+              <span className="text-[9px] uppercase tracking-wider">Completed</span>
+            </div>
+            <div className="h-8 w-px bg-emerald-500/20"></div>
+            <div className="flex flex-col items-center">
+              <span className="text-rose-400 text-lg font-black">{unfinishedCourses}</span>
+              <span className="text-[9px] uppercase tracking-wider">Unfinished</span>
+            </div>
+          </div>
+
+          <p className="text-[10px] font-semibold text-emerald-500 mt-2 text-center max-w-[80%]">
+            {unfinishedCourses > 3 
+              ? <span className="text-rose-400 flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3"/> High Focus Debt! Finish pending courses before starting new ones.</span>
+              : "Focus Debt is manageable. Consistency is key."}
+          </p>
         </div>
       </div>
 

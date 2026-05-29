@@ -67,6 +67,12 @@ export interface TopicMastery {
   score: number; // 0-100 percentage
 }
 
+export interface Course {
+  id: string;
+  title: string;
+  status: 'Started' | 'Finished';
+}
+
 interface UserSettings {
   name: string;
   email: string;
@@ -125,6 +131,11 @@ interface LifeState {
 
   engineeringMastery: TopicMastery[];
   updateMasteryScore: (topic: string, score: number) => void;
+
+  engineeringCourses: Course[];
+  addCourse: (title: string) => void;
+  toggleCourseStatus: (id: string) => void;
+  deleteCourse: (id: string) => void;
 
   // Focus Timer
   focusSeconds: number;
@@ -330,6 +341,25 @@ export const useLifeStore = create<LifeState>()(
           ),
         })),
 
+      engineeringCourses: [],
+      addCourse: (title) =>
+        set((state) => ({
+          engineeringCourses: [
+            ...state.engineeringCourses,
+            { id: Math.random().toString(36).substring(2, 9), title, status: 'Started' },
+          ],
+        })),
+      toggleCourseStatus: (id) =>
+        set((state) => ({
+          engineeringCourses: state.engineeringCourses.map((c) =>
+            c.id === id ? { ...c, status: c.status === 'Started' ? 'Finished' : 'Started' } : c
+          ),
+        })),
+      deleteCourse: (id) =>
+        set((state) => ({
+          engineeringCourses: state.engineeringCourses.filter((c) => c.id !== id),
+        })),
+
       // Focus Timer
       focusSeconds: 0,
       focusPausedSeconds: 0,
@@ -363,6 +393,7 @@ export const useLifeStore = create<LifeState>()(
           engineeringDsa: [],
           engineeringLanguages: defaultLanguages,
           engineeringMastery: defaultMasteries,
+          engineeringCourses: [],
           projects: [],
           focusSeconds: 0,
           focusPausedSeconds: 0,
@@ -382,6 +413,7 @@ export const useLifeStore = create<LifeState>()(
         engineeringDsa: state.engineeringDsa,
         engineeringLanguages: state.engineeringLanguages,
         engineeringMastery: state.engineeringMastery,
+        engineeringCourses: state.engineeringCourses,
         projects: state.projects,
         focusSeconds: state.focusSeconds,
         focusPausedSeconds: state.focusPausedSeconds,

@@ -342,13 +342,13 @@ export default function DashboardPage() {
     return store.expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
   }, [store.expenses, currentMonthPrefix]);
 
-  const totalExpense = useMemo(() => {
-    return monthlyExpenses
-      .filter((e) => e.type === "expense")
-      .reduce((acc, curr) => acc + curr.amount, 0);
-  }, [monthlyExpenses]);
+  // const totalExpense = useMemo(() => {
+  //   return monthlyExpenses
+  //     .filter((e) => e.type === "expense")
+  //     .reduce((acc, curr) => acc + curr.amount, 0);
+  // }, [monthlyExpenses]);
 
-  const expenseLimit = store.settings.budgetLimit;
+  // const expenseLimit = store.settings.budgetLimit;
   // const expensePercent = Math.min((totalExpense / expenseLimit) * 100, 100);
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
