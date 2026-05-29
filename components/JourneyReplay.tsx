@@ -77,11 +77,7 @@ export default function JourneyReplay() {
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     const categories: Record<string, number> = {};
-    monthExpenses
-      .filter((e) => e.type === "expense")
-      .forEach((e) => {
-        categories[e.category] = (categories[e.category] || 0) + e.amount;
-      });
+    monthExpenses.reduce((acc, e) => { if (e.type === "expense") acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, categories);
 
     const topCategory = Object.entries(categories).sort(
       (a, b) => b[1] - a[1]

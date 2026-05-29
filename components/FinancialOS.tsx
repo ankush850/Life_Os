@@ -99,10 +99,10 @@ export default function FinancialOS() {
           {!isBudgetLocked ? (
             <div className="flex flex-col gap-4">
               <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Expected Income</label>
+                <label htmlFor="expected-income" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Expected Income</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                  <input 
+                  <input id="expected-income" 
                     type="number" 
                     value={incomeInput}
                     onChange={e => setIncomeInput(e.target.value)}

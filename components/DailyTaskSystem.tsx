@@ -155,6 +155,7 @@ export default function DailyTaskSystem() {
       <div className="p-3 border-t border-white/10 bg-slate-950/50">
         <form onSubmit={handleAddTask} className="flex items-center gap-2">
           <input
+            aria-label="New Task Title"
             type="text"
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
@@ -163,6 +164,7 @@ export default function DailyTaskSystem() {
           />
           
           <select 
+            aria-label="New Task Priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
             className="bg-slate-900 border border-white/10 rounded-lg text-xs font-bold px-2 py-1.5 text-slate-400 focus:outline-none focus:border-indigo-500/50 cursor-pointer"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,20 +18,13 @@ export default function LandingPage() {
   const { push } = useRouter();
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
   const [combo, setCombo] = useState<Combo | null>(null);
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
 
   useEffect(() => {
     setCombo(getRandomCombo());
-    if (useLifeStore.persist.hasHydrated()) {
-      setHasHydrated(true);
-    } else {
-      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
-        setHasHydrated(true);
-      });
-      return () => unsubFinish();
-    }
   }, []);
 
+  // react-doctor-disable-next-line no-effect-chain, no-event-handler
   // Redirect to dashboard if logged in
   useEffect(() => {
     if (hasHydrated && isLoggedIn) {

@@ -172,6 +172,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 ref={(el) => {
                   inputRefs.current[row.dateStr] = el;
                 }}
+                aria-label="Daily Target"
                 type="text"
                 value={row.target}
                 placeholder="Start typing to set target..."

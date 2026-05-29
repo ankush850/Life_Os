@@ -55,7 +55,7 @@ import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/prog
 export default function DashboardPage() {
   const { push } = useRouter();
   const store = useLifeStore();
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
 
@@ -111,14 +111,7 @@ export default function DashboardPage() {
 
   // Monitor Hydration
   useEffect(() => {
-    if (useLifeStore.persist.hasHydrated()) {
-      setHasHydrated(true);
-    } else {
-      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
-        setHasHydrated(true);
-      });
-      return () => unsubFinish();
-    }
+    
   }, []);
 
   // Mount/Redirect checklist
