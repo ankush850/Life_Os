@@ -312,3 +312,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Hide scrollbars for chrome/safari/firefox/ie */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

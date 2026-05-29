@@ -285,7 +285,7 @@ export default function EngineeringMode() {
                     </span>
                     <button type="button"
                       onClick={() => store.deleteDsaProblem(problem.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/5 text-rose-400 transition-all"
+                      className="lg:opacity-0 lg:group-hover:opacity-100 opacity-100 p-2.5 lg:p-1 rounded hover:bg-white/5 text-rose-400 transition-all cursor-pointer"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -355,7 +355,7 @@ export default function EngineeringMode() {
           <span className="text-[9px] text-emerald-600">Computer Science Mastery</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {store.engineeringMastery.map((m) => (
             <div
               key={m.topic}
@@ -448,7 +448,7 @@ export default function EngineeringMode() {
                     </span>
                     <button type="button"
                       onClick={() => store.deleteCourse(course.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/5 text-rose-400 transition-all"
+                      className="lg:opacity-0 lg:group-hover:opacity-100 opacity-100 p-2.5 lg:p-1 rounded hover:bg-white/5 text-rose-400 transition-all cursor-pointer"
                     >
                       <Trash2 className="size-3.5" />
                     </button>

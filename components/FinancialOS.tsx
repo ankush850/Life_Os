@@ -290,7 +290,7 @@ export default function FinancialOS() {
                     <span className="text-sm font-black text-rose-400">-{formatCurrency(exp.amount)}</span>
                     <button type="button"
                       onClick={() => deleteExpense(exp.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-all"
+                      className="lg:opacity-0 lg:group-hover:opacity-100 opacity-100 p-2.5 lg:p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-all cursor-pointer"
                     >
                       <Trash2 className="size-4" />
                     </button>

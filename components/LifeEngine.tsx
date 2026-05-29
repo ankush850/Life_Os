@@ -143,7 +143,7 @@ export default function LifeEngine() {
                     </div>
                     <button type="button"
                       onClick={() => store.deleteMission(mission.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/10 text-rose-400 transition-all"
+                      className="lg:opacity-0 lg:group-hover:opacity-100 opacity-100 p-2.5 lg:p-1.5 rounded-lg hover:bg-white/10 text-rose-400 transition-all cursor-pointer"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
