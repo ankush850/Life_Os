@@ -388,7 +388,7 @@ export default function DashboardPage() {
         {/* HEADER */}
         <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-6 py-4 flex items-center justify-between shadow-lg">
           {/* 1. Logo (Left Segment) */}
-          <div className="flex items-center gap-3 w-1/4">
+          <div className="flex items-center gap-3 shrink-0">
             <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
               LifeOS
@@ -396,9 +396,9 @@ export default function DashboardPage() {
           </div>
 
           {/* 2. Navigation Clusters (Center Segment) */}
-          <div className="flex items-center justify-center gap-10 flex-1">
+          <div className="flex items-center justify-center gap-8 flex-1 overflow-x-auto no-scrollbar px-2">
             {/* Primary Nav */}
-            <nav className="flex items-center gap-1">
+            <nav className="flex items-center gap-1 shrink-0">
               {[
                 { id: "dashboard", label: "Dashboard", icon: BarChart3 },
                 { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
@@ -411,21 +411,21 @@ export default function DashboardPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 whitespace-nowrap shrink-0 ${
                       activeTab === tab.id
                         ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     {tab.label}
                   </button>
                 );
               })}
             </nav>
             
-            {/* Secondary Nav */}
-            <nav className="flex items-center gap-1">
+            {/* Secondary Nav (Tools) */}
+            <nav className="flex items-center gap-1 shrink-0">
               {[
                 { id: "intelligence", label: "Life Engine", icon: Brain },
                 { id: "journey", label: "Journey Replay", icon: Sparkles },
@@ -436,13 +436,13 @@ export default function DashboardPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 whitespace-nowrap shrink-0 ${
                       activeTab === tab.id
                         ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
                         : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
                     {tab.label}
                   </button>
                 );
@@ -451,12 +451,12 @@ export default function DashboardPage() {
           </div>
 
           {/* 3. Utility & Profile (Right Segment) */}
-          <div className="flex items-center justify-end gap-6 w-1/4">
+          <div className="flex items-center justify-end gap-6 shrink-0">
             
             {/* Utilities */}
-            <div className="flex items-center gap-4 bg-slate-950/20 px-4 py-2 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
+            <div className="flex items-center gap-4 bg-slate-950/20 px-4 py-2 rounded-2xl shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
+                <span className={`text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
                   Eng
                 </span>
                 <button
@@ -466,7 +466,7 @@ export default function DashboardPage() {
                       setActiveTab("engineering");
                     }
                   }}
-                  className={`w-9 h-5 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
+                  className={`w-9 h-5 rounded-full transition-all duration-300 relative border flex items-center p-0.5 shrink-0 ${
                     isEngineeringMode
                       ? "bg-emerald-950/60 border-emerald-500/50"
                       : "bg-slate-900/60 border-white/10"
@@ -481,25 +481,25 @@ export default function DashboardPage() {
                 </button>
               </div>
               
-              <div className="w-px h-4 bg-white/5"></div>
+              <div className="w-px h-4 bg-white/5 shrink-0"></div>
               
               <button
                 onClick={() => setIsCustomizing(true)}
-                className="text-slate-400 hover:text-white transition-all"
+                className="text-slate-400 hover:text-white transition-all shrink-0"
                 title="Customize Wallpaper & Theme"
               >
-                <Sliders className="w-4 h-4" />
+                <Sliders className="w-4 h-4 shrink-0" />
               </button>
             </div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-3 bg-slate-950/30 pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group">
-              <div className="text-right hidden xl:block">
+            <div className="flex items-center gap-3 bg-slate-950/30 pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0">
+              <div className="text-right hidden xl:block whitespace-nowrap">
                 <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors">{store.settings.name}</p>
                 <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none">{store.settings.email.split('@')[0]}</p>
               </div>
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
+              <div className="flex items-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner shrink-0">
                   {store.settings.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <button
