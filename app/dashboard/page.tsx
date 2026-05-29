@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useLifeStore } from "@/store/useLifeStore";
 import { PRESET_WALLPAPERS } from "@/lib/quotes";
 import LifeGrid from "@/components/LifeGrid";
@@ -396,9 +397,7 @@ export default function DashboardPage() {
         <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-6 py-4 flex items-center justify-between shadow-lg">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center">
-              <Sparkles className="w-4.5 h-4.5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain" />
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
               LifeOS
             </span>

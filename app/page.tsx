@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useLifeStore } from "@/store/useLifeStore";
 import { getRandomCombo, Combo } from "@/lib/quotes";
 import { motion } from "framer-motion";
 import {
-  Sparkles,
   ArrowRight,
   RefreshCw,
   Clock,
@@ -72,9 +72,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="relative z-10 w-full max-w-7xl mx-auto px-8 py-6 flex items-center justify-between border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-indigo-500/10 border border-indigo-500/35 flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.15)]">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          </div>
+          <Image src="/logo.png" alt="LifeOS Logo" width={28} height={28} className="rounded-md object-contain" />
           <span className="font-extrabold text-sm uppercase tracking-[0.25em] text-white">
             LifeOS
           </span>

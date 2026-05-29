@@ -3,9 +3,10 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { useLifeStore } from "@/store/useLifeStore";
 import { getRandomCombo, Combo } from "@/lib/quotes";
-import { Sparkles, RefreshCw, Key, Mail, User, ArrowLeft, ArrowRight } from "lucide-react";
+import { RefreshCw, Key, Mail, User, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,9 +134,7 @@ function LoginContent() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
+          <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain" />
           <span className="font-extrabold text-lg tracking-tight">LifeOS</span>
         </div>
       </header>
