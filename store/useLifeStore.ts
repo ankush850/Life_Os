@@ -10,6 +10,7 @@ export interface Task {
   status: 'pending' | 'in_progress' | 'completed';
   due_date: string;
   project?: string;
+  completedAt?: string;
 }
 
 export interface Expense {
@@ -75,6 +76,7 @@ interface UserSettings {
   theme: 'light' | 'dark';
   isLoggedIn: boolean;
   budgetLimit: number;
+  isFocusMode: boolean;
 }
 
 interface LifeState {
@@ -129,6 +131,8 @@ interface LifeState {
   setFocusPausedSeconds: (seconds: number) => void;
   setIsFocusRunning: (running: boolean) => void;
   resetFocusTimer: () => void;
+  focusTaskId: string | null;
+  setFocusTaskId: (taskId: string | null) => void;
 
   // Projects
   projects: Project[];
@@ -148,6 +152,7 @@ const initialSettings: UserSettings = {
   theme: 'dark', // default dark-theme
   isLoggedIn: false,
   budgetLimit: 1500,
+  isFocusMode: false,
 };
 
 const defaultLanguages: LanguageProgress[] = [
@@ -327,6 +332,8 @@ export const useLifeStore = create<LifeState>()(
       setFocusPausedSeconds: (seconds) => set({ focusPausedSeconds: seconds }),
       setIsFocusRunning: (running) => set({ isFocusRunning: running }),
       resetFocusTimer: () => set({ focusSeconds: 0, focusPausedSeconds: 0, isFocusRunning: false }),
+      focusTaskId: null,
+      setFocusTaskId: (taskId) => set({ focusTaskId: taskId }),
 
       // Projects
       projects: [],
@@ -372,6 +379,7 @@ export const useLifeStore = create<LifeState>()(
         projects: state.projects,
         focusSeconds: state.focusSeconds,
         focusPausedSeconds: state.focusPausedSeconds,
+        focusTaskId: state.focusTaskId,
       }),
     }
   )

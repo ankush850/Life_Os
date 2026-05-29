@@ -8,6 +8,9 @@ import { PRESET_WALLPAPERS } from "@/lib/quotes";
 import LifeGrid from "@/components/LifeGrid";
 import JourneyReplay from "@/components/JourneyReplay";
 import EngineeringMode from "@/components/EngineeringMode";
+import FocusMode from "@/components/FocusMode";
+import DailyTaskSystem from "@/components/DailyTaskSystem";
+import MonthlyPlanner from "@/components/MonthlyPlanner";
 import {
   Sparkles,
   CheckCircle2,
@@ -381,14 +384,16 @@ export default function DashboardPage() {
 
       {/* Dynamic Overlay & Blur */}
       <div
-        className="absolute inset-0 bg-black z-0 pointer-events-none transition-all duration-500"
+        className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none transition-opacity duration-1000"
         style={{
-          opacity: isEngineeringMode ? 0.95 : store.settings.bgOpacity / 100,
-          backdropFilter: isEngineeringMode
-            ? "blur(2px) saturate(80%)"
-            : `blur(${store.settings.bgBlur}px) saturate(140%)`,
+          backgroundImage: `url(${store.settings.bgImage || PRESET_WALLPAPERS[0].url})`,
+          opacity: 1,
+          filter: `blur(${store.settings.bgBlur}px) brightness(${100 - store.settings.bgOpacity}%)`,
         }}
       />
+
+      {/* Focus Mode Overlay */}
+      <FocusMode />
 
       {/* Main Grid Wrapper */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex flex-col flex-1 gap-6">
@@ -407,7 +412,8 @@ export default function DashboardPage() {
           <nav className="flex items-center gap-1.5 bg-slate-950/40 p-1 rounded-full border border-white/5">
             {[
               { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-              { id: "tasks", label: "Tasks", icon: CheckCircle2 },
+              { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
+              { id: "planner", label: "Planner", icon: CalendarIcon },
               { id: "grid", label: "Life Grid", icon: Layers },
               { id: "expenses", label: "Expenses", icon: Wallet },
               { id: "journey", label: "Journey Replay", icon: Sparkles },
@@ -913,95 +919,8 @@ export default function DashboardPage() {
           {activeTab === "tasks" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
               {/* Tasks Workspace (Span 8) */}
-              <div className="lg:col-span-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-6 min-h-[500px]">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div>
-                    <h2 className="text-xl font-black text-white">Task Management Workspace</h2>
-                    <p className="text-xs text-slate-400 font-semibold mt-1">Manage and track your milestones across priority categories</p>
-                  </div>
-                  <Button onClick={() => setTaskModalOpen(true)} className="bg-indigo-500 hover:bg-indigo-600 gap-1.5 font-bold rounded-xl px-5">
-                    <Plus className="w-4 h-4" /> Add Task
-                  </Button>
-                </div>
-
-                {/* Tasks List Table */}
-                <div className="flex-1 overflow-x-auto">
-                  {store.tasks.length === 0 ? (
-                    <div className="text-center py-12 flex flex-col items-center justify-center gap-2">
-                      <span className="text-4xl">📝</span>
-                      <p className="text-sm text-slate-400 font-semibold">No tasks scheduled yet. Build your roadmap now!</p>
-                    </div>
-                  ) : (
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-white/10 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                          <th className="pb-3 pl-2">Status</th>
-                          <th className="pb-3">Task Title & Description</th>
-                          <th className="pb-3">Category</th>
-                          <th className="pb-3">Priority</th>
-                          <th className="pb-3">Due Date</th>
-                          <th className="pb-3 text-right pr-2">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5 text-xs">
-                        {store.tasks.map((task) => (
-                          <tr key={task.id} className="hover:bg-white/3 transition-all group">
-                            <td className="py-4 pl-2">
-                              <input
-                                type="checkbox"
-                                checked={task.status === "completed"}
-                                onChange={() =>
-                                  store.updateTask(task.id, {
-                                    status: task.status === "completed" ? "pending" : "completed",
-                                  })
-                                }
-                                className="w-4.5 h-4.5 rounded border-white/20 text-indigo-500 focus:ring-0 bg-transparent cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-4">
-                              <div className="flex flex-col max-w-sm">
-                                <span className={`font-black ${task.status === "completed" ? "line-through text-slate-500" : "text-white"}`}>
-                                  {task.title}
-                                </span>
-                                {task.description && (
-                                  <span className={`text-[10px] mt-0.5 line-clamp-1 ${task.status === "completed" ? "text-slate-600" : "text-slate-400"}`}>
-                                    {task.description}
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="py-4">
-                              <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/25 rounded text-[10px] font-bold text-indigo-300">
-                                {task.category}
-                              </span>
-                            </td>
-                            <td className="py-4 font-bold">
-                              <span className={`text-[10px] uppercase ${
-                                task.priority === "high"
-                                  ? "text-red-400"
-                                  : task.priority === "medium"
-                                  ? "text-amber-400"
-                                  : "text-slate-400"
-                              }`}>
-                                {task.priority}
-                              </span>
-                            </td>
-                            <td className="py-4 font-semibold text-slate-400">{task.due_date}</td>
-                            <td className="py-4 text-right pr-2">
-                              <button
-                                onClick={() => store.deleteTask(task.id)}
-                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-500/10 rounded-lg text-red-400 transition-all"
-                                title="Delete Task"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
+              <div className="lg:col-span-8 flex flex-col gap-6 h-full">
+                <DailyTaskSystem />
               </div>
 
               {/* Habits Workspace (Span 4) */}
@@ -1063,6 +982,13 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* TAB: PLANNER */}
+          {activeTab === "planner" && (
+            <div className="w-full">
+              <MonthlyPlanner />
             </div>
           )}
 
