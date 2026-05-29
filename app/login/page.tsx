@@ -84,7 +84,7 @@ function LoginContent() {
         name: isSignUp ? name : (name || email.split("@")[0] || "User"),
         email: email,
       });
-      router.push("/dashboard");
+      push("/dashboard");
     }, 1000);
   };
 

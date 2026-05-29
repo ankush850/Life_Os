@@ -478,7 +478,7 @@ export default function DashboardPage() {
                 <button type="button"
                   onClick={() => {
                     store.logout();
-                    router.push("/login");
+                    push("/login");
                   }}
                   className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
                   title="Sign Out"
