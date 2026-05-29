@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useLifeStore } from "@/store/useLifeStore";
@@ -55,7 +55,18 @@ import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/prog
 export default function DashboardPage() {
   const { push } = useRouter();
   const store = useLifeStore();
-  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
+    }
+  }, []);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
 

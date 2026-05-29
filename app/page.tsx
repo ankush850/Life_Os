@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,7 +18,18 @@ export default function LandingPage() {
   const { push } = useRouter();
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
   const [combo, setCombo] = useState<Combo | null>(null);
-  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
+    }
+  }, []);
 
   useEffect(() => {
     setCombo(getRandomCombo());

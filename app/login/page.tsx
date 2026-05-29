@@ -19,7 +19,18 @@ function LoginContent() {
 
   const [isSignUp, setIsSignUp] = useState(() => searchParams.get("signup") === "true");
   const [combo, setCombo] = useState<Combo | null>(null);
-  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
+    }
+  }, []);
 
   // Form Fields
   const [name, setName] = useState("");
