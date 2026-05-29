@@ -54,8 +54,8 @@ import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/prog
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { push } = router;
   const store = useLifeStore();
-  const [isMounted, setIsMounted] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
@@ -124,14 +124,10 @@ export default function DashboardPage() {
 
   // Mount/Redirect checklist
   useEffect(() => {
-    if (hasHydrated) {
-      setIsMounted(true);
-      // Redirect if not logged in
-      if (!store.settings.isLoggedIn) {
-        router.push("/login");
-      }
+    if (hasHydrated && !store.settings.isLoggedIn) {
+      push("/login");
     }
-  }, [hasHydrated, store.settings.isLoggedIn, router]);
+  }, [hasHydrated, store.settings.isLoggedIn, push]);
 
   // Focus Timer Clock ticking logic
   const isFocusRunning = store.isFocusRunning;
@@ -347,7 +343,7 @@ export default function DashboardPage() {
   if (!hasHydrated || !isMounted || !store.settings.isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+        <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -381,7 +377,7 @@ export default function DashboardPage() {
       <FocusMode />
 
       {/* Main Grid Wrapper */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-4 flex flex-col flex-1 gap-4">
+      <div className="relative z-10 w-full max-w-7xl mx-auto p-4 flex flex-col flex-1 gap-4">
         
         {/* HEADER */}
         <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 flex items-center justify-between shadow-lg gap-4">
@@ -409,7 +405,7 @@ export default function DashboardPage() {
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
-                  <button
+                  <button type="button"
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap shrink-0 transition-all duration-300 ${
@@ -418,7 +414,7 @@ export default function DashboardPage() {
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="size-3.5" />
                     {tab.label}
                   </button>
                 );
@@ -430,7 +426,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-end shrink-0 xl:gap-6 gap-3">
             
             {/* Dev Console Button */}
-            <button
+            <button type="button"
               onClick={() => setActiveTab("engineering")}
               className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
                 activeTab === "engineering"
@@ -438,7 +434,7 @@ export default function DashboardPage() {
                   : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
               }`}
             >
-              <Terminal className="w-3.5 h-3.5" />
+              <Terminal className="size-3.5" />
               <span className="hidden lg:inline">Dev Console</span>
             </button>
             
@@ -448,7 +444,7 @@ export default function DashboardPage() {
                 <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
                   Eng
                 </span>
-                <button
+                <button type="button"
                   onClick={() => {
                     setIsEngineeringMode(!isEngineeringMode);
                     if (!isEngineeringMode) {
@@ -463,7 +459,7 @@ export default function DashboardPage() {
                   title="Toggle Engineering Monochrome Terminal HUD"
                 >
                   <div
-                    className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${
+                    className={`size-3.5 rounded-full transition-all duration-300 ${
                       isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
                     }`}
                   />
@@ -472,12 +468,12 @@ export default function DashboardPage() {
               
               <div className="w-px h-4 bg-white/5 shrink-0"></div>
               
-              <button
+              <button type="button"
                 onClick={() => setIsCustomizing(true)}
                 className="shrink-0 text-slate-400 hover:text-white transition-all"
                 title="Customize Wallpaper & Theme"
               >
-                <Sliders className="w-4 h-4" />
+                <Sliders className="size-4" />
               </button>
             </div>
 
@@ -488,10 +484,10 @@ export default function DashboardPage() {
                 <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
               </div>
               <div className="flex items-center shrink-0">
-                <div className="w-8 h-8 shrink-0 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
+                <div className="size-8 shrink-0 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
                   {store.settings.name.split(" ").map((n) => n[0]).join("")}
                 </div>
-                <button
+                <button type="button"
                   onClick={() => {
                     store.logout();
                     router.push("/login");
@@ -499,7 +495,7 @@ export default function DashboardPage() {
                   className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
                   title="Sign Out"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="size-3.5" />
                 </button>
               </div>
             </div>
@@ -518,7 +514,7 @@ export default function DashboardPage() {
                 <div className="col-span-12 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
                   <div className="text-left">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-indigo-400" /> Welcome to your Cockpit
+                      <Sparkles className="size-4 text-indigo-400" /> Welcome to your Cockpit
                     </h3>
                     <p className="text-xs text-slate-300 font-light mt-1">
                       Your LifeOS console starts clean. Start building your system by setting daily targets or task checklists.
@@ -543,8 +539,8 @@ export default function DashboardPage() {
                       <div className="bg-rose-500 h-full transition-all" style={{ width: `${100 - activePercent}%` }}></div>
                     </div>
                     <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase">
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Active ({Math.round(activePercent)}%)</span>
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Paused ({Math.round(100 - activePercent)}%)</span>
+                      <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-emerald-400"></span>Active ({Math.round(activePercent)}%)</span>
+                      <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-rose-400"></span>Paused ({Math.round(100 - activePercent)}%)</span>
                     </div>
                   </div>
 
@@ -557,15 +553,15 @@ export default function DashboardPage() {
                           : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
                       }`}
                     >
-                      {store.isFocusRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                      {store.isFocusRunning ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
                       {store.isFocusRunning ? "Pause timer" : "Resume session"}
                     </Button>
-                    <button
+                    <button type="button"
                       onClick={store.resetFocusTimer}
                       className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-slate-300"
                       title="Reset Session Timer"
                     >
-                      <RotateCcw className="w-4.5 h-4.5" />
+                      <RotateCcw className="size-4.5" />
                     </button>
                   </div>
                 </div>
@@ -573,7 +569,7 @@ export default function DashboardPage() {
                 {/* Today's Target Planner Card */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-4 min-h-[180px]">
                   <div className="flex items-center gap-1.5">
-                    <Target className="w-4 h-4 text-indigo-400 animate-pulse" />
+                    <Target className="size-4 text-indigo-400 animate-pulse" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
                   </div>
 
@@ -584,11 +580,11 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1.5 mt-2.5 text-[9px] font-bold uppercase">
                           {todayTarget.completed ? (
                             <span className="text-emerald-400 flex items-center gap-1">
-                              <Check className="w-3 h-3 text-emerald-400" /> Completed Target
+                              <Check className="size-3 text-emerald-400" /> Completed Target
                             </span>
                           ) : (
                             <span className="text-slate-400 flex items-center gap-1">
-                              <AlertCircle className="w-3 h-3 text-slate-500" /> Goal Pending
+                              <AlertCircle className="size-3 text-slate-500" /> Goal Pending
                             </span>
                           )}
                         </div>
@@ -607,7 +603,7 @@ export default function DashboardPage() {
                         </Button>
                         <Button
                           onClick={() => handleDayClick(todayStr)}
-                          className="bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 py-4 px-4 rounded-xl"
+                          className="bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 p-4 rounded-xl"
                         >
                           Edit
                         </Button>
@@ -636,11 +632,11 @@ export default function DashboardPage() {
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s tasks</span>
-                    <button
+                    <button type="button"
                       onClick={() => setTaskModalOpen(true)}
                       className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
                     >
-                      <Plus className="w-3 h-3" /> Add
+                      <Plus className="size-3" /> Add
                     </button>
                   </div>
 
@@ -683,11 +679,11 @@ export default function DashboardPage() {
                       })
                     )}
 
-                    <button
+                    <button type="button"
                       onClick={() => setTaskModalOpen(true)}
                       className="p-4 rounded-xl border border-dashed border-white/15 hover:border-indigo-400/40 bg-white/3 hover:bg-white/5 transition-all text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5"
                     >
-                      <Plus className="w-4.5 h-4.5" />
+                      <Plus className="size-4.5" />
                       Add new task
                     </button>
                   </div>
@@ -711,7 +707,7 @@ export default function DashboardPage() {
 
                     <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
                       {["Week", "Month", "Year"].map((filter) => (
-                        <button
+                        <button type="button"
                           key={filter}
                           onClick={() => alert(`Applied ${filter} filter`)}
                           className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-wider uppercase transition-all ${
@@ -771,7 +767,7 @@ export default function DashboardPage() {
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-xl bg-white/2 min-h-[220px]">
-                        <AlertCircle className="w-8 h-8 text-indigo-400/60 mb-2 animate-pulse" />
+                        <AlertCircle className="size-8 text-indigo-400/60 mb-2 animate-pulse" />
                         <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Awaiting Telemetry Data</h4>
                         <p className="text-[10px] text-slate-500 font-semibold mt-1 max-w-[200px] leading-relaxed">
                           Set targets or log transactions for at least 3 days to unlock analytics graphs.
@@ -783,7 +779,7 @@ export default function DashboardPage() {
                   {/* Metrics Footer */}
                   <div className="flex items-center justify-between border-t border-white/10 pt-4 text-xs font-semibold text-slate-400">
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4 text-indigo-400" />
+                      <TrendingUp className="size-4 text-indigo-400" />
                       <span>Today focus indicator</span>
                     </div>
                     <span>Weekly Target: 40h</span>
@@ -802,7 +798,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Custom Recharts Gauge Pie */}
-                  <div className="relative w-36 h-36 flex items-center justify-center">
+                  <div className="relative size-36 flex items-center justify-center">
                     {hasTelemetryData ? (
                       <>
                         <ResponsiveContainer width="100%" height="100%">
@@ -828,7 +824,7 @@ export default function DashboardPage() {
                         </div>
                       </>
                     ) : (
-                      <div className="w-32 h-32 rounded-full border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-2 bg-white/2">
+                      <div className="size-32 rounded-full border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-2 bg-white/2">
                         <span className="text-[8px] text-slate-500 font-black uppercase">Awaiting Telemetry</span>
                       </div>
                     )}
@@ -876,11 +872,11 @@ export default function DashboardPage() {
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">By project</span>
-                    <button
+                    <button type="button"
                       onClick={() => setProjectModalOpen(true)}
                       className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
                     >
-                      <Plus className="w-3 h-3" /> New
+                      <Plus className="size-3" /> New
                     </button>
                   </div>
 
@@ -894,20 +890,20 @@ export default function DashboardPage() {
                           className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
                         >
                           <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
+                            <div className="size-2 rounded-full bg-indigo-400"></div>
                             <div className="text-left">
                               <h4 className="text-xs font-bold leading-tight">{project.name}</h4>
                             </div>
                           </div>
 
-                          <button
+                          <button type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               store.deleteProject(project.id);
                             }}
                             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="size-3" />
                           </button>
                         </div>
                       ))
@@ -935,11 +931,11 @@ export default function DashboardPage() {
                     <h2 className="text-lg font-black text-white">Daily Habits</h2>
                     <p className="text-xs text-slate-400 font-semibold mt-0.5">Toggle checkboxes to build streaks</p>
                   </div>
-                  <button
+                  <button type="button"
                     onClick={() => setHabitModalOpen(true)}
                     className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add
+                    <Plus className="size-3.5" /> Add
                   </button>
                 </div>
 
@@ -955,9 +951,9 @@ export default function DashboardPage() {
                           className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
                         >
                           <div className="flex items-center gap-3">
-                            <button
+                            <button type="button"
                               onClick={() => store.toggleHabit(habit.id, todayStr)}
-                              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                              className={`size-4 rounded border-2 flex items-center justify-center transition-all ${
                                 isCompletedToday
                                   ? "bg-emerald-500 border-emerald-400 text-white"
                                   : "border-white/20 hover:border-white/40"
@@ -974,11 +970,11 @@ export default function DashboardPage() {
                             <span className="text-[10px] font-black text-emerald-400 flex items-center gap-0.5">
                               🔥 {habit.streak}
                             </span>
-                            <button
+                            <button type="button"
                               onClick={() => store.deleteHabit(habit.id)}
                               className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="size-3.5" />
                             </button>
                           </div>
                         </div>
@@ -1037,7 +1033,7 @@ export default function DashboardPage() {
       </div>
 
       {/* FOOTER */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">
         &copy; {new Date().getFullYear()} LifeOS — Day-by-Day performance tracker
       </footer>
 
@@ -1075,7 +1071,7 @@ export default function DashboardPage() {
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
                 <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                  <Upload className="w-4 h-4 text-indigo-400" />
+                  <Upload className="size-4 text-indigo-400" />
                   <span>Choose local file...</span>
                 </div>
               </div>
@@ -1086,7 +1082,7 @@ export default function DashboardPage() {
               <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Select Preset Wallpaper</Label>
               <div className="grid grid-cols-4 gap-2">
                 {PRESET_WALLPAPERS.map((wp) => (
-                  <button
+                  <button type="button"
                     key={wp.title}
                     onClick={() => setBgInput(wp.url)}
                     className={`aspect-video rounded-lg bg-cover bg-center border transition-all ${
@@ -1359,7 +1355,7 @@ export default function DashboardPage() {
         <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-black flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5 text-indigo-400" />
+              <CalendarIcon className="size-5 text-indigo-400" />
               Planner: {selectedCalendarDate}
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
@@ -1372,7 +1368,7 @@ export default function DashboardPage() {
             {/* Daily Target Section */}
             <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-slate-950/40 border border-white/5">
               <Label className="text-[10px] font-black uppercase text-indigo-300 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-indigo-400" />
+                <Target className="size-3.5 text-indigo-400" />
                 Daily Target Goal
               </Label>
               <Input
@@ -1387,7 +1383,7 @@ export default function DashboardPage() {
                   id="dayTargetCompleted"
                   checked={dayTargetCompleted}
                   onChange={(e) => setDayTargetCompleted(e.target.checked)}
-                  className="w-4 h-4 rounded border-white/20 text-emerald-500 focus:ring-0 bg-transparent cursor-pointer"
+                  className="size-4 rounded border-white/20 text-emerald-500 focus:ring-0 bg-transparent cursor-pointer"
                 />
                 <Label htmlFor="dayTargetCompleted" className="text-slate-300 text-xs font-bold cursor-pointer">
                   Mark daily target as completed
@@ -1415,17 +1411,17 @@ export default function DashboardPage() {
                         className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 text-xs"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                          <span className="size-1.5 rounded-full bg-indigo-400"></span>
                           <span className="font-bold text-slate-200">{evt.title}</span>
                           <span className="text-[8px] bg-indigo-500/25 px-1.5 py-0.5 rounded text-indigo-300 font-bold">
                             {evt.category}
                           </span>
                         </div>
-                        <button
+                        <button type="button"
                           onClick={() => store.deleteEvent(evt.id)}
                           className="p-1 hover:bg-white/5 rounded text-red-400 transition-all"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="size-3.5" />
                         </button>
                       </div>
                     ))

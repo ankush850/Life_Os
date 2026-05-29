@@ -64,11 +64,11 @@ export default function FocusMode() {
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className="fixed inset-0 z-[100] bg-black text-white flex flex-col items-center justify-center p-8"
       >
-        <button 
+        <button type="button" 
           onClick={handleClose}
           className="absolute top-8 right-8 p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
         >
-          <X className="w-6 h-6" />
+          <X className="size-6" />
         </button>
 
         <div className="flex flex-col items-center max-w-2xl w-full text-center space-y-12">
@@ -110,32 +110,32 @@ export default function FocusMode() {
             transition={{ delay: 0.5 }}
             className="flex items-center gap-6"
           >
-            <button
+            <button type="button"
               onClick={() => setIsFocusRunning(!isFocusRunning)}
-              className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center border border-white/20 hover:bg-white/20 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+              className="size-20 rounded-full bg-white/10 flex items-center justify-center border border-white/20 hover:bg-white/20 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)]"
             >
               {isFocusRunning ? (
-                <Pause className="w-8 h-8 text-white fill-white" />
+                <Pause className="size-8 text-white fill-white" />
               ) : (
-                <Play className="w-8 h-8 text-white fill-white translate-x-1" />
+                <Play className="size-8 text-white fill-white translate-x-1" />
               )}
             </button>
 
-            <button
+            <button type="button"
               onClick={resetFocusTimer}
-              className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/50 hover:text-rose-400 transition-all text-slate-400"
+              className="size-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/50 hover:text-rose-400 transition-all text-slate-400"
               title="Reset Timer"
             >
-              <Square className="w-6 h-6" />
+              <Square className="size-6" />
             </button>
 
             {activeTask && activeTask.status !== 'completed' && (
-              <button
+              <button type="button"
                 onClick={handleComplete}
-                className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50 hover:bg-emerald-500/40 hover:scale-105 transition-all text-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+                className="size-20 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50 hover:bg-emerald-500/40 hover:scale-105 transition-all text-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.2)]"
                 title="Complete Task"
               >
-                <CheckCircle2 className="w-10 h-10" />
+                <CheckCircle2 className="size-10" />
               </button>
             )}
           </motion.div>

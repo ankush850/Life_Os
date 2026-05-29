@@ -56,7 +56,7 @@ export default function MonthlyPlanner() {
     const isSelected = selectedDate === dateStr;
 
     gridCells.push(
-      <button
+      <button type="button"
         key={dateStr}
         onClick={() => setSelectedDate(dateStr)}
         className={`relative h-24 p-2 border transition-all flex flex-col text-left overflow-hidden ${
@@ -88,18 +88,18 @@ export default function MonthlyPlanner() {
       <div className="flex-1 flex flex-col bg-slate-900/60 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-indigo-400" />
+            <CalendarIcon className="size-5 text-indigo-400" />
             Monthly Planner
           </h2>
           <div className="flex items-center gap-2 bg-slate-950/50 p-1 rounded-xl border border-white/5">
-            <button onClick={handlePrevMonth} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
-              <ChevronLeft className="w-4 h-4" />
+            <button type="button" onClick={handlePrevMonth} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
+              <ChevronLeft className="size-4" />
             </button>
             <span className="font-bold text-sm tracking-widest uppercase min-w-[140px] text-center text-slate-200">
               {monthLabel}
             </span>
-            <button onClick={handleNextMonth} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
-              <ChevronRight className="w-4 h-4" />
+            <button type="button" onClick={handleNextMonth} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
+              <ChevronRight className="size-4" />
             </button>
           </div>
         </div>
@@ -130,8 +130,8 @@ export default function MonthlyPlanner() {
                   {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                 </h3>
               </div>
-              <button onClick={() => setSelectedDate(null)} className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400">
-                <X className="w-4 h-4" />
+              <button type="button" onClick={() => setSelectedDate(null)} className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-400">
+                <X className="size-4" />
               </button>
             </div>
 
@@ -140,8 +140,8 @@ export default function MonthlyPlanner() {
                 <div key={e.id} className="p-3 rounded-xl bg-slate-950/50 border border-white/5 flex flex-col gap-1 group">
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{e.category}</span>
-                    <button onClick={() => deleteEvent(e.id)} className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-300 transition-opacity">
-                      <Trash2 className="w-3.5 h-3.5" />
+                    <button type="button" onClick={() => deleteEvent(e.id)} className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-300 transition-opacity">
+                      <Trash2 className="size-3.5" />
                     </button>
                   </div>
                   <p className="text-sm font-semibold text-slate-200">{e.title}</p>
@@ -168,7 +168,7 @@ export default function MonthlyPlanner() {
                   <select 
                     value={newEventCategory}
                     onChange={e => setNewEventCategory(e.target.value)}
-                    className="flex-1 bg-slate-900 border border-white/10 rounded-lg text-xs font-bold px-2 py-2 text-slate-400 focus:outline-none focus:border-indigo-500/50"
+                    className="flex-1 bg-slate-900 border border-white/10 rounded-lg text-xs font-bold p-2 text-slate-400 focus:outline-none focus:border-indigo-500/50"
                   >
                     <option>Task</option>
                     <option>Goal</option>
@@ -180,7 +180,7 @@ export default function MonthlyPlanner() {
                     disabled={!newEventTitle.trim()}
                     className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add
+                    <Plus className="size-3.5" /> Add
                   </button>
                 </div>
               </form>
