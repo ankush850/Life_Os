@@ -45,7 +45,7 @@ export default function LandingPage() {
 
   if (!hasHydrated || !combo || isLoggedIn) {
     return (
-      <div className="min-h-screen bg-black text-slate-400 flex items-center justify-center font-mono">
+      <div className="min-h-screen bg-slate-950 text-slate-400 flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">
           <div className="size-6 border border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-[11px] uppercase tracking-[0.2em] text-indigo-400 animate-pulse">Initializing LifeOS HUD...</span>
@@ -60,7 +60,7 @@ export default function LandingPage() {
       style={{ backgroundImage: `url(${combo.wallpaper.url})` }}
     >
       {/* Cinematic Pitch-black ambient filter with blur */}
-      <div className="absolute inset-0 bg-black/65 backdrop-blur-[6px] z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-[6px] z-0 pointer-events-none" />
 
       {/* Futuristic Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-0 opacity-40" />
@@ -112,7 +112,7 @@ export default function LandingPage() {
           >
             A cinematic operating <br />
             system for{" "}
-            <span className="font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="font-extrabold text-indigo-400">
               managing life.
             </span>
           </motion.h1>
@@ -157,7 +157,7 @@ export default function LandingPage() {
           className="flex-1 w-full max-w-lg lg:max-w-xl relative flex justify-center"
         >
           {/* Glassmorphic border container */}
-          <div className="w-full rounded-lg border border-white/10 bg-black/60 backdrop-blur-2xl p-5 shadow-2xl relative overflow-hidden group">
+          <div className="w-full rounded-lg border border-white/10 bg-slate-950/60 backdrop-blur-2xl p-5 shadow-2xl relative overflow-hidden group">
             {/* HUD Scan Line Effect */}
             <div className="absolute inset-x-0 top-0 h-0.5 bg-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.5)] pointer-events-none animate-scan z-20"></div>
 
@@ -205,7 +205,7 @@ export default function LandingPage() {
                       <div
                         key={i}
                         className={`aspect-square rounded-[2px] border border-white/5 flex items-center justify-center text-[7px] font-bold ${
-                          i === 12 ? "border-indigo-500/50 bg-indigo-500/5 text-indigo-400" : "bg-black/10"
+                          i === 12 ? "border-indigo-500/50 bg-indigo-500/5 text-indigo-400" : "bg-slate-950/10"
                         }`}
                       >
                         {i + 1}

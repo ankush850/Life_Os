@@ -62,7 +62,7 @@ export default function FocusMode() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
-        className="fixed inset-0 z-[100] bg-black text-white flex flex-col items-center justify-center p-8"
+        className="fixed inset-0 z-[100] bg-slate-950 text-white flex flex-col items-center justify-center p-8"
       >
         <button type="button" 
           onClick={handleClose}
@@ -98,7 +98,7 @@ export default function FocusMode() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, type: "spring" }}
-            className="text-[8rem] md:text-[12rem] font-mono font-black tracking-tighter leading-none bg-gradient-to-b from-white to-slate-500 bg-clip-text text-transparent drop-shadow-2xl"
+            className="text-[8rem] md:text-[12rem] font-mono font-black tracking-tighter leading-none text-indigo-400 drop-shadow-2xl"
           >
             {formatTime(focusSeconds)}
           </motion.div>

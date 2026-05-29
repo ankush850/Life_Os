@@ -116,7 +116,7 @@ export default function EngineeringMode() {
       </div>
 
       {/* GitHub-style Heatmap */}
-      <div className="p-5 rounded-2xl border border-emerald-500/20 bg-black/80 shadow-lg shadow-emerald-950/10">
+      <div className="p-5 rounded-2xl border border-emerald-500/20 bg-slate-950/80 shadow-lg shadow-emerald-950/10">
         <div className="flex items-center justify-between border-b border-emerald-500/10 pb-3 mb-4">
           <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider">
             <GitCommit className="size-4 text-emerald-400" />
@@ -141,7 +141,7 @@ export default function EngineeringMode() {
           {/* Columns (Weeks) */}
           <div className="flex gap-1">
             {heatmapWeeks.map((week, wIdx) => (
-              <div key={wIdx} className="grid grid-rows-7 gap-1">
+              <div key={`week-${wIdx}`} className="grid grid-rows-7 gap-1">
                 {week.map((day, dIdx) => {
                   let bgColor = "bg-slate-900/50 border border-emerald-950/25";
                   let hoverShadow = "";
@@ -156,13 +156,13 @@ export default function EngineeringMode() {
                   }
 
                   return (
-                    <div key={dIdx} className="relative group">
+                    <div key={day.dateStr || `day-${dIdx}`} className="relative group">
                       <div
                         className={`size-3.5 rounded-[1px] transition-all cursor-pointer ${bgColor} ${hoverShadow}`}
                       />
                       
                       {/* Custom Monospace Tooltip */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 bg-black border border-emerald-500/35 text-[9px] p-2 rounded whitespace-nowrap text-left text-emerald-300 shadow-xl">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-50 bg-slate-950 border border-emerald-500/35 text-[9px] p-2 rounded whitespace-nowrap text-left text-emerald-300 shadow-xl">
                         <p className="font-bold border-b border-emerald-500/20 pb-0.5 text-white">{day.dateStr}</p>
                         {day.targetText ? (
                           <p className="mt-1 max-w-[150px] truncate">
@@ -197,7 +197,7 @@ export default function EngineeringMode() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Left Side: LeetCode DSA Tracker (Col 7) */}
-        <div className="lg:col-span-7 rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
+        <div className="lg:col-span-7 rounded-2xl border border-emerald-500/20 bg-slate-950/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
               <Cpu className="size-4.5" /> DSA Problem Log
@@ -297,7 +297,7 @@ export default function EngineeringMode() {
         </div>
 
         {/* Right Side: Language Hours Tracker (Col 5) */}
-        <div className="lg:col-span-5 rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
+        <div className="lg:col-span-5 rounded-2xl border border-emerald-500/20 bg-slate-950/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
               <Code className="size-4.5" /> Languages Cockpit
@@ -347,7 +347,7 @@ export default function EngineeringMode() {
       </div>
 
       {/* Mastery Scores */}
-      <div className="p-5 rounded-2xl border border-emerald-500/20 bg-black/80 shadow-lg flex flex-col gap-4">
+      <div className="p-5 rounded-2xl border border-emerald-500/20 bg-slate-950/80 shadow-lg flex flex-col gap-4">
         <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
           <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
             <BookOpen className="size-4.5" /> Topic Mastery Assessment
@@ -391,7 +391,7 @@ export default function EngineeringMode() {
       {/* Focus Debt Tracker */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Tracker Form & List */}
-        <div className="rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
+        <div className="rounded-2xl border border-emerald-500/20 bg-slate-950/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
               <BookMarked className="size-4.5" /> Focus Debt Ledger
@@ -460,7 +460,7 @@ export default function EngineeringMode() {
         </div>
 
         {/* Analytics Card */}
-        <div className="rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col justify-center items-center gap-4 shadow-lg min-h-[220px] relative overflow-hidden">
+        <div className="rounded-2xl border border-emerald-500/20 bg-slate-950/80 p-5 flex flex-col justify-center items-center gap-4 shadow-lg min-h-[220px] relative overflow-hidden">
           {unfinishedCourses > 3 && (
             <div className="absolute top-0 left-0 w-full h-1 bg-rose-500 animate-pulse" />
           )}
