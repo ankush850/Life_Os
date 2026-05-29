@@ -34,6 +34,8 @@ import {
   Terminal,
   Layers,
   Brain,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -51,6 +53,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardPage() {
   const { push } = useRouter();
@@ -69,6 +72,7 @@ export default function DashboardPage() {
   }, []);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Customization Dialog State
   const [isCustomizing, setIsCustomizing] = useState(false);
@@ -378,7 +382,8 @@ export default function DashboardPage() {
       <div className="relative z-10 w-full max-w-7xl mx-auto p-4 flex flex-col flex-1 gap-4">
         
         {/* HEADER */}
-        <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 flex items-center justify-between shadow-lg gap-4">
+        {/* Desktop Header Layout */}
+        <header className="hidden lg:flex w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 items-center justify-between shadow-lg gap-4">
           
           {/* Left Section: Logo + Nav */}
           <div className="flex items-center flex-1 min-w-0 xl:gap-8 gap-4">
@@ -433,7 +438,7 @@ export default function DashboardPage() {
               }`}
             >
               <Terminal className="size-3.5" />
-              <span className="hidden lg:inline">Dev Console</span>
+              <span>Dev Console</span>
             </button>
             
             {/* Utilities (ENG Toggle & Settings) */}
@@ -450,7 +455,7 @@ export default function DashboardPage() {
                       setActiveTab("engineering");
                     }
                   }}
-                  className={`w-9 h-5 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
+                  className={`w-9 h-5 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 cursor-pointer ${
                     isEngineeringMode
                       ? "bg-emerald-950/60 border-emerald-500/50"
                       : "bg-slate-900/60 border-white/10"
@@ -469,7 +474,7 @@ export default function DashboardPage() {
               
               <button type="button"
                 onClick={() => setIsCustomizing(true)}
-                className="shrink-0 text-slate-400 hover:text-white transition-all"
+                className="shrink-0 text-slate-400 hover:text-white transition-all cursor-pointer"
                 title="Customize Wallpaper & Theme"
               >
                 <Sliders className="size-4" />
@@ -478,7 +483,7 @@ export default function DashboardPage() {
 
             {/* User Profile */}
             <div className="flex items-center gap-3 bg-slate-950/30 pl-3 xl:pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0 max-w-[140px] xl:max-w-[200px]">
-              <div className="text-right hidden lg:block overflow-hidden min-w-0">
+              <div className="text-right hidden xl:block overflow-hidden min-w-0">
                 <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors truncate">{store.settings.name}</p>
                 <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
               </div>
@@ -491,7 +496,7 @@ export default function DashboardPage() {
                     store.logout();
                     push("/login");
                   }}
-                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
+                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300 cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="size-3.5" />
@@ -500,6 +505,140 @@ export default function DashboardPage() {
             </div>
           </div>
         </header>
+
+        {/* Mobile Header Layout */}
+        <header className="lg:hidden flex w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-3 items-center justify-between shadow-lg z-30">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="LifeOS Logo" width={28} height={28} className="rounded-lg object-contain" />
+            <span className="font-extrabold text-lg tracking-tight text-indigo-400">
+              LifeOS
+            </span>
+          </div>
+
+          <button type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </header>
+
+        {/* Mobile Slide-out Menu Drawer */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="lg:hidden fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-2xl pt-24 px-6 pb-6 flex flex-col justify-between overflow-y-auto"
+            >
+              <div className="flex flex-col gap-6">
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] border-b border-white/5 pb-2">
+                  System Navigation
+                </span>
+                
+                {/* Navigation Links */}
+                <nav className="flex flex-col gap-2">
+                  {[
+                    { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+                    { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
+                    { id: "planner", label: "Planner", icon: CalendarIcon },
+                    { id: "grid", label: "Life Grid", icon: Layers },
+                    { id: "expenses", label: "Expenses", icon: Wallet },
+                    { id: "intelligence", label: "Life Engine", icon: Brain },
+                    { id: "journey", label: "Journey Replay", icon: Sparkles },
+                    { id: "engineering", label: "Dev Console", icon: Terminal },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button type="button"
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer ${
+                          activeTab === tab.id
+                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10 border border-indigo-500/20"
+                            : "text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-transparent"
+                        }`}
+                      >
+                        <Icon className="size-4" />
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+
+                {/* System Controls */}
+                <div className="flex flex-col gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl mt-2">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
+                    System Controls
+                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-300">Engineering Mode</span>
+                    <button type="button"
+                      aria-label="Toggle Engineering Mode"
+                      onClick={() => {
+                        setIsEngineeringMode(!isEngineeringMode);
+                        if (!isEngineeringMode) {
+                          setActiveTab("engineering");
+                        }
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-10 h-6 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 cursor-pointer ${
+                        isEngineeringMode
+                          ? "bg-emerald-950/60 border-emerald-500/50"
+                          : "bg-slate-900/60 border-white/10"
+                      }`}
+                    >
+                      <div
+                        className={`size-4.5 rounded-full transition-all duration-300 ${
+                          isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="h-px bg-white/5"></div>
+                  <button type="button"
+                    onClick={() => {
+                      setIsCustomizing(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white cursor-pointer"
+                  >
+                    <span>Customize Wallpaper & Theme</span>
+                    <Sliders className="size-4 text-slate-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile User Profile Section */}
+              <div className="flex items-center justify-between bg-white/5 border border-white/5 p-4 rounded-2xl mt-6">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-sm text-indigo-200 shadow-inner">
+                    {store.settings.name.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  <div className="text-left overflow-hidden max-w-[150px]">
+                    <p className="text-xs font-bold leading-none mb-1 text-slate-200 truncate">{store.settings.name}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase truncate">{store.settings.email}</p>
+                  </div>
+                </div>
+                <button type="button"
+                  onClick={() => {
+                    store.logout();
+                    push("/login");
+                  }}
+                  className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <LogOut className="size-3.5" />
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* MAIN BODY CONTENTS */}
         <div className="flex-1 flex flex-col gap-4">
@@ -720,7 +859,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Recharts Bar Chart */}
-                  <div className="flex-1 w-full min-h-[260px] pt-4 flex flex-col justify-center">
+                  <div className="w-full h-[260px] pt-4 flex flex-col justify-center">
                     {hasTelemetryData ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

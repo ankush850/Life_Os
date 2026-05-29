@@ -66,7 +66,7 @@ export default function FocusMode() {
       >
         <button type="button" 
           onClick={handleClose}
-          className="absolute top-8 right-8 p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
+          className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
         >
           <X className="size-6" />
         </button>
@@ -98,7 +98,7 @@ export default function FocusMode() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, type: "spring" }}
-            className="text-[8rem] md:text-[12rem] font-mono font-black tracking-tighter leading-none text-indigo-400 drop-shadow-2xl"
+            className="text-6xl sm:text-[8rem] md:text-[12rem] font-mono font-black tracking-tighter leading-none text-indigo-400 drop-shadow-2xl"
           >
             {formatTime(focusSeconds)}
           </motion.div>

@@ -59,7 +59,7 @@ export default function MonthlyPlanner() {
       <button type="button"
         key={dateStr}
         onClick={() => setSelectedDate(dateStr)}
-        className={`relative h-24 p-2 border transition-all flex flex-col text-left overflow-hidden ${
+        className={`relative h-12 sm:h-24 p-1.5 sm:p-2 border transition-all flex flex-col text-left overflow-hidden cursor-pointer ${
           isSelected 
             ? "border-indigo-500/50 bg-indigo-500/10 shadow-[inset_0_0_15px_rgba(99,102,241,0.2)]" 
             : isToday 
@@ -67,16 +67,27 @@ export default function MonthlyPlanner() {
               : "border-white/5 bg-slate-950/40 hover:bg-slate-900/80 hover:border-white/10"
         }`}
       >
-        <span className={`text-xs font-bold ${isToday ? "text-indigo-400" : "text-slate-400"}`}>
+        <span className={`text-[10px] sm:text-xs font-bold ${isToday ? "text-indigo-400" : "text-slate-400"}`}>
           {day}
         </span>
         
-        <div className="flex-1 overflow-y-auto mt-1 flex flex-col gap-1 w-full no-scrollbar">
+        {/* Desktop Event Title List */}
+        <div className="hidden sm:flex flex-1 overflow-y-auto mt-1 flex-col gap-1 w-full no-scrollbar">
           {dayEvents.map(e => (
             <div key={e.id} className="text-[9px] font-semibold bg-white/10 px-1.5 py-0.5 rounded truncate text-slate-300">
               {e.title}
             </div>
           ))}
+        </div>
+
+        {/* Mobile Event Indicator Dots */}
+        <div className="flex sm:hidden justify-center gap-0.5 mt-auto w-full">
+          {dayEvents.slice(0, 3).map(e => (
+            <div key={e.id} className="size-1 rounded-full bg-indigo-400" />
+          ))}
+          {dayEvents.length > 3 && (
+            <div className="size-1 rounded-full bg-slate-500" />
+          )}
         </div>
       </button>
     );

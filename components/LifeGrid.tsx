@@ -341,7 +341,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       {/* Grid Container */}
       <div className="border border-white/10 rounded-xl overflow-hidden bg-slate-950/15 backdrop-blur-md">
         <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[650px] text-left border-collapse">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr

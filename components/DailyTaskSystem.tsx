@@ -116,7 +116,7 @@ export default function DailyTaskSystem() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 flex-shrink-0 lg:opacity-0 lg:group-hover:opacity-100 opacity-100 transition-opacity">
                 <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${getPriorityColor(task.priority)}`}>
                   {task.priority}
                 </span>
@@ -124,7 +124,7 @@ export default function DailyTaskSystem() {
                 {task.status !== 'completed' && (
                   <button type="button" 
                     onClick={() => startFocus(task.id)}
-                    className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-colors"
+                    className="p-2.5 lg:p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-colors cursor-pointer"
                     title="Focus Mode"
                   >
                     <Clock className="size-3.5" />
@@ -133,7 +133,7 @@ export default function DailyTaskSystem() {
                 
                 <button type="button" 
                   onClick={() => deleteTask(task.id)}
-                  className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors"
+                  className="p-2.5 lg:p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
                   title="Delete"
                 >
                   <Trash2 className="size-3.5" />

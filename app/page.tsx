@@ -70,7 +70,7 @@ export default function LandingPage() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-0 opacity-40" />
 
       {/* Header */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-8 py-6 flex items-center justify-between border-b border-white/5">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 py-6 flex items-center justify-between border-b border-white/5">
         <div className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="LifeOS Logo" width={28} height={28} className="rounded-md object-contain" />
           <span className="font-extrabold text-sm uppercase tracking-[0.25em] text-white">
@@ -95,7 +95,7 @@ export default function LandingPage() {
       </header>
 
       {/* Main Section */}
-      <main className="relative z-10 w-full max-w-7xl mx-auto px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-16 flex-1">
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-16 flex-1">
         {/* Left Column: Cinematic Headline */}
         <div className="flex-1 flex flex-col items-start max-w-2xl">
           <motion.div
@@ -178,7 +178,7 @@ export default function LandingPage() {
             {/* Pristine Empty Mockup Interface */}
             <div className="grid grid-cols-12 gap-4 text-slate-400 font-mono">
               {/* Left Wing (Focus, Target) */}
-              <div className="col-span-4 flex flex-col gap-4">
+              <div className="col-span-12 sm:col-span-4 flex flex-col gap-4">
                 <div className="p-3 rounded border border-white/5 bg-white/2 backdrop-blur-md flex flex-col gap-2">
                   <div className="flex items-center gap-1.5 text-[8px] tracking-wider text-indigo-400 font-bold uppercase">
                     <Clock className="size-3" /> FOCUS.LOG
@@ -197,7 +197,7 @@ export default function LandingPage() {
               </div>
 
               {/* Center Wing (Planning Grid / Empty Grid Structure) */}
-              <div className="col-span-8 flex flex-col gap-4">
+              <div className="col-span-12 sm:col-span-8 flex flex-col gap-4">
                 <div className="p-3.5 rounded border border-white/5 bg-white/2 backdrop-blur-md flex flex-col justify-between h-full min-h-[196px]">
                   <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-[8px] tracking-wider text-indigo-400 font-bold uppercase">LIFE.GRID</span>
@@ -233,7 +233,7 @@ export default function LandingPage() {
       </main>
 
       {/* Quote Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto p-8 border-t border-white/5">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 border-t border-white/5">
         <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center md:items-start text-center md:text-left gap-1">
             <span className="text-indigo-400 font-bold text-[9px] uppercase tracking-[0.25em]">Motivational Core</span>

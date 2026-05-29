@@ -108,7 +108,7 @@ function LoginContent() {
       <div className="absolute inset-0 bg-black/45 backdrop-blur-[5px] z-0 pointer-events-none" />
 
       {/* Header */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto p-6 flex items-center justify-between">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="size-8 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center backdrop-blur-md transition-all">
             <ArrowLeft className="size-4 text-white group-hover:-translate-x-0.5 transition-transform" />
@@ -268,7 +268,7 @@ function LoginContent() {
       </main>
 
       {/* Quote / Background credit footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button type="button"
             onClick={handleCycleInspiration}
