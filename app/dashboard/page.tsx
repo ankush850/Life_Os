@@ -340,9 +340,7 @@ export default function DashboardPage() {
     return `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
   }, [currentMonth]);
 
-  const monthlyExpenses = useMemo(() => {
-    return store.expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
-  }, [store.expenses, currentMonthPrefix]);
+
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
