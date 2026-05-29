@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useLifeStore } from "@/store/useLifeStore";
@@ -800,7 +800,7 @@ export default function DashboardPage() {
                               paddingAngle={3}
                               dataKey="value"
                             >
-                              {performancePieData.map((entry, index) => (
+                              {performancePieData.map((entry) => (
                                 <Cell key={`cell-${entry.name}`} fill={entry.color} />
                               ))}
                             </Pie>
