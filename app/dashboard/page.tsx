@@ -11,6 +11,7 @@ import EngineeringMode from "@/components/EngineeringMode";
 import FocusMode from "@/components/FocusMode";
 import DailyTaskSystem from "@/components/DailyTaskSystem";
 import MonthlyPlanner from "@/components/MonthlyPlanner";
+import FinancialOS from "@/components/FinancialOS";
 import {
   Sparkles,
   CheckCircle2,
@@ -25,7 +26,6 @@ import {
   RotateCcw,
   TrendingUp,
   Trash2,
-  AlertTriangle,
   Upload,
   Target,
   Check,
@@ -342,12 +342,6 @@ export default function DashboardPage() {
     return store.expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
   }, [store.expenses, currentMonthPrefix]);
 
-  const totalIncome = useMemo(() => {
-    return monthlyExpenses
-      .filter((e) => e.type === "income")
-      .reduce((acc, curr) => acc + curr.amount, 0);
-  }, [monthlyExpenses]);
-
   const totalExpense = useMemo(() => {
     return monthlyExpenses
       .filter((e) => e.type === "expense")
@@ -355,7 +349,7 @@ export default function DashboardPage() {
   }, [monthlyExpenses]);
 
   const expenseLimit = store.settings.budgetLimit;
-  const expensePercent = Math.min((totalExpense / expenseLimit) * 100, 100);
+  // const expensePercent = Math.min((totalExpense / expenseLimit) * 100, 100);
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
@@ -1001,118 +995,8 @@ export default function DashboardPage() {
 
           {/* TAB 4: EXPENSES */}
           {activeTab === "expenses" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-6 min-h-[500px]">
-              
-              {/* Financial Balance Summary Card */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-b border-white/10 pb-6">
-                <div className="p-4 rounded-2xl bg-slate-950/40 border border-white/5 flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Available Budget</span>
-                  <span className="text-2xl font-black text-white">${(totalIncome - totalExpense).toLocaleString()}</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-950/40 border border-white/5 flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Monthly Income</span>
-                  <span className="text-2xl font-black text-emerald-400">+${totalIncome.toLocaleString()}</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-950/40 border border-white/5 flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Total Expenses</span>
-                  <span className="text-2xl font-black text-rose-400">-${totalExpense.toLocaleString()}</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-slate-950/40 border border-white/5 flex flex-col gap-1.5 justify-center">
-                  <div className="flex justify-between text-[10px] font-bold uppercase text-slate-400 leading-none">
-                    <span>Limit Limit (${expenseLimit})</span>
-                    <span className={expensePercent > 85 ? "text-red-400 font-extrabold" : ""}>
-                      {Math.round(expensePercent)}%
-                    </span>
-                  </div>
-                  <Progress value={expensePercent} className="w-full flex-col gap-0 bg-transparent">
-                    <ProgressTrack className="bg-white/5 h-2">
-                      <ProgressIndicator className={expensePercent > 85 ? "bg-red-500" : "bg-indigo-500"} />
-                    </ProgressTrack>
-                  </Progress>
-                </div>
-              </div>
-
-              {expensePercent > 85 && (
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/25 text-red-200 text-xs font-bold flex items-center gap-2 animate-bounce">
-                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <span>Budget warning: You have exhausted over 85% of your customized monthly spending budget. Avoid additional impulse expenses!</span>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
-                {/* List Log */}
-                <div className="lg:col-span-8 flex flex-col gap-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-black text-white uppercase tracking-wider">Transaction Ledger</h3>
-                    <Button onClick={() => setExpenseModalOpen(true)} className="bg-indigo-500 hover:bg-indigo-600 gap-1 rounded-xl text-xs py-4 px-4 font-bold">
-                      <Plus className="w-3.5 h-3.5" /> Add Ledger Item
-                    </Button>
-                  </div>
-
-                  <div className="max-h-[300px] overflow-y-auto pr-1 space-y-2">
-                    {monthlyExpenses.length === 0 ? (
-                      <div className="text-center py-10 text-slate-500 font-bold text-xs">No transactions recorded this month. Keep financial integrity!</div>
-                    ) : (
-                      monthlyExpenses.map((exp) => (
-                        <div
-                          key={exp.id}
-                          className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-base">{exp.type === "income" ? "📈" : "📉"}</span>
-                            <div className="text-left">
-                              <h4 className="text-xs font-black text-white">{exp.description || exp.category}</h4>
-                              <span className="text-[9px] text-slate-400 font-semibold">{exp.date} &bull; {exp.category}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 font-extrabold text-sm">
-                            <span className={exp.type === "income" ? "text-emerald-400" : "text-rose-400"}>
-                              {exp.type === "income" ? "+" : "-"}${exp.amount}
-                            </span>
-                            <button
-                              onClick={() => store.deleteExpense(exp.id)}
-                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Category breakdown */}
-                <div className="lg:col-span-4 rounded-2xl border border-white/5 bg-slate-950/20 p-5 flex flex-col gap-4">
-                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">Expense Breakdown</h3>
-                  
-                  <div className="space-y-3">
-                    {["Food", "Travel", "Shopping", "Education", "Bills", "Entertainment"].map((cat) => {
-                      const amount = monthlyExpenses
-                        .filter((e) => e.category === cat && e.type === "expense")
-                        .reduce((acc, curr) => acc + curr.amount, 0);
-                      const percent = totalExpense ? Math.round((amount / totalExpense) * 100) : 0;
-                      return (
-                        <div key={cat} className="space-y-1 text-[10px] font-bold uppercase text-slate-400">
-                          <div className="flex justify-between">
-                            <span>{cat}</span>
-                            <span>${amount} ({percent}%)</span>
-                          </div>
-                          <Progress value={percent} className="w-full flex-col gap-0 bg-transparent">
-                            <ProgressTrack className="bg-white/5 h-1">
-                              <ProgressIndicator className="bg-indigo-400" />
-                            </ProgressTrack>
-                          </Progress>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-              </div>
-
+            <div className="w-full">
+              <FinancialOS />
             </div>
           )}
 

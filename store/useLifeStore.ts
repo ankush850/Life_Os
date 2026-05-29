@@ -77,6 +77,9 @@ interface UserSettings {
   isLoggedIn: boolean;
   budgetLimit: number;
   isFocusMode: boolean;
+  monthlyIncome: number;
+  savingsGoal: number;
+  lockedMonth: string;
 }
 
 interface LifeState {
@@ -153,6 +156,9 @@ const initialSettings: UserSettings = {
   isLoggedIn: false,
   budgetLimit: 1500,
   isFocusMode: false,
+  monthlyIncome: 0,
+  savingsGoal: 0,
+  lockedMonth: "",
 };
 
 const defaultLanguages: LanguageProgress[] = [
