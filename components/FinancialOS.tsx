@@ -82,13 +82,13 @@ export default function FinancialOS() {
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
   return (
-    <div className="flex flex-col gap-6 w-full h-full">
+    <div className="flex flex-col gap-4 w-full h-full">
       
       {/* 1. Header & Budget Lock System */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
         {/* Budget Lock Card */}
-        <div className="lg:col-span-1 rounded-2xl bg-slate-900/60 border border-white/10 p-6 backdrop-blur-xl shadow-lg relative overflow-hidden">
+        <div className="lg:col-span-1 rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-indigo-500" />
           
           <div className="flex items-center gap-2 mb-6">
@@ -163,10 +163,10 @@ export default function FinancialOS() {
         </div>
 
         {/* Intelligence Engine - Core Stats */}
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           
           {/* Daily Spending Allowance */}
-          <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-6 backdrop-blur-xl shadow-lg flex flex-col justify-center relative overflow-hidden group">
+          <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg flex flex-col justify-center relative overflow-hidden group">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
               <Wallet className="w-3.5 h-3.5" /> Daily Allowance
@@ -196,7 +196,7 @@ export default function FinancialOS() {
           </div>
 
           {/* Financial Health Score */}
-          <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-6 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center text-center">
+          <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center text-center">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Financial Health Score</span>
             
             <div className="relative w-32 h-32 flex items-center justify-center">
@@ -224,10 +224,10 @@ export default function FinancialOS() {
       </div>
 
       {/* 2. Lower Section: Predictor & Tracker */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
         {/* Tracker */}
-        <div className="lg:col-span-2 rounded-2xl bg-slate-900/60 border border-white/10 p-6 backdrop-blur-xl shadow-lg flex flex-col gap-4">
+        <div className="lg:col-span-2 rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <h3 className="text-sm font-black text-white uppercase tracking-wider">Expense Tracker</h3>
             <span className="text-xs font-bold text-rose-400">Total: {formatCurrency(totalExpenses)}</span>
@@ -302,7 +302,7 @@ export default function FinancialOS() {
         </div>
 
         {/* Intelligence Module */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           
           {/* Overspending Predictor */}
           <div className={`rounded-2xl border p-5 backdrop-blur-xl shadow-lg relative overflow-hidden transition-colors ${
