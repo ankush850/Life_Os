@@ -381,66 +381,44 @@ export default function DashboardPage() {
       <FocusMode />
 
       {/* Main Grid Wrapper */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex flex-col flex-1 gap-6">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-4 flex flex-col flex-1 gap-4">
         
         {/* HEADER */}
-        <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-6 py-4 flex items-center justify-between shadow-lg">
-          {/* 1. Logo (Left Segment) */}
-          <div className="flex items-center gap-3 shrink-0">
-            <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
-              LifeOS
-            </span>
-          </div>
+        <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 flex items-center justify-between shadow-lg gap-4">
+          
+          {/* Left Section: Logo + Nav */}
+          <div className="flex items-center flex-1 min-w-0 xl:gap-8 gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-3 shrink-0">
+              <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
+              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
+                LifeOS
+              </span>
+            </div>
 
-          {/* 2. Navigation Clusters (Center Segment) */}
-          <div className="flex items-center justify-center gap-8 flex-1 overflow-x-auto no-scrollbar px-2">
-            {/* Primary Nav */}
-            <nav className="flex items-center gap-1 shrink-0">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar pr-2">
               {[
                 { id: "dashboard", label: "Dashboard", icon: BarChart3 },
                 { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
                 { id: "planner", label: "Planner", icon: CalendarIcon },
                 { id: "grid", label: "Life Grid", icon: Layers },
                 { id: "expenses", label: "Expenses", icon: Wallet },
+                { id: "intelligence", label: "Life Engine", icon: Brain },
+                { id: "journey", label: "Journey Replay", icon: Sparkles },
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 whitespace-nowrap shrink-0 ${
+                    className={`flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap shrink-0 transition-all duration-300 ${
                       activeTab === tab.id
                         ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
-            
-            {/* Secondary Nav (Tools) */}
-            <nav className="flex items-center gap-1 shrink-0">
-              {[
-                { id: "intelligence", label: "Life Engine", icon: Brain },
-                { id: "journey", label: "Journey Replay", icon: Sparkles },
-                { id: "engineering", label: "Dev Console", icon: Terminal },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 whitespace-nowrap shrink-0 ${
-                      activeTab === tab.id
-                        ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
-                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <Icon className="w-3.5 h-3.5" />
                     {tab.label}
                   </button>
                 );
@@ -448,13 +426,26 @@ export default function DashboardPage() {
             </nav>
           </div>
 
-          {/* 3. Utility & Profile (Right Segment) */}
-          <div className="flex items-center justify-end gap-6 shrink-0">
+          {/* Right Section: Dev Console, Utils, Profile */}
+          <div className="flex items-center justify-end shrink-0 xl:gap-6 gap-3">
             
-            {/* Utilities */}
-            <div className="flex items-center gap-4 bg-slate-950/20 px-4 py-2 rounded-2xl shrink-0">
-              <div className="flex items-center gap-2 shrink-0">
-                <span className={`text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
+            {/* Dev Console Button */}
+            <button
+              onClick={() => setActiveTab("engineering")}
+              className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                activeTab === "engineering"
+                  ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Dev Console</span>
+            </button>
+            
+            {/* Utilities (ENG Toggle & Settings) */}
+            <div className="flex items-center gap-3 xl:gap-4 bg-slate-950/20 px-3 py-2 rounded-2xl shrink-0">
+              <div className="flex items-center gap-2">
+                <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
                   Eng
                 </span>
                 <button
@@ -464,7 +455,7 @@ export default function DashboardPage() {
                       setActiveTab("engineering");
                     }
                   }}
-                  className={`w-9 h-5 rounded-full transition-all duration-300 relative border flex items-center p-0.5 shrink-0 ${
+                  className={`w-9 h-5 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
                     isEngineeringMode
                       ? "bg-emerald-950/60 border-emerald-500/50"
                       : "bg-slate-900/60 border-white/10"
@@ -483,21 +474,21 @@ export default function DashboardPage() {
               
               <button
                 onClick={() => setIsCustomizing(true)}
-                className="text-slate-400 hover:text-white transition-all shrink-0"
+                className="shrink-0 text-slate-400 hover:text-white transition-all"
                 title="Customize Wallpaper & Theme"
               >
-                <Sliders className="w-4 h-4 shrink-0" />
+                <Sliders className="w-4 h-4" />
               </button>
             </div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-3 bg-slate-950/30 pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0">
-              <div className="text-right hidden xl:block whitespace-nowrap">
-                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors">{store.settings.name}</p>
-                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none">{store.settings.email.split('@')[0]}</p>
+            <div className="flex items-center gap-3 bg-slate-950/30 pl-3 xl:pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0 max-w-[140px] xl:max-w-[200px]">
+              <div className="text-right hidden lg:block overflow-hidden min-w-0">
+                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors truncate">{store.settings.name}</p>
+                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
               </div>
               <div className="flex items-center shrink-0">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner shrink-0">
+                <div className="w-8 h-8 shrink-0 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
                   {store.settings.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <button
@@ -505,7 +496,7 @@ export default function DashboardPage() {
                     store.logout();
                     router.push("/login");
                   }}
-                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
+                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
                   title="Sign Out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -516,15 +507,15 @@ export default function DashboardPage() {
         </header>
 
         {/* MAIN BODY CONTENTS */}
-        <div className="flex-1 flex flex-col gap-6">
+        <div className="flex-1 flex flex-col gap-4">
 
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
               {/* Pristine Empty State Banner */}
               {store.tasks.length === 0 && Object.keys(store.dailyTargets).length === 0 && (
-                <div className="col-span-12 p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
+                <div className="col-span-12 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
                   <div className="text-left">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4 text-indigo-400" /> Welcome to your Cockpit
@@ -537,10 +528,10 @@ export default function DashboardPage() {
               )}
               
               {/* Left Column (Span 3) */}
-              <div className="lg:col-span-3 flex flex-col gap-6">
+              <div className="lg:col-span-3 flex flex-col gap-4">
                 
                 {/* Focus Hour Tracker */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s working hours</span>
                     <span className="text-3xl font-extrabold tracking-tight mt-1">{formatTime(store.focusSeconds)}</span>
@@ -580,7 +571,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Today's Target Planner Card */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-5 min-h-[220px]">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-4 min-h-[180px]">
                   <div className="flex items-center gap-1.5">
                     <Target className="w-4 h-4 text-indigo-400 animate-pulse" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
@@ -881,8 +872,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* By Project Folders */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
+                {/* By project */}
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">By project</span>
                     <button
@@ -893,17 +884,17 @@ export default function DashboardPage() {
                     </button>
                   </div>
 
-                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                  <div className="space-y-1.5 max-h-[130px] overflow-y-auto pr-1">
                     {store.projects.length === 0 ? (
-                      <div className="text-center py-4 text-slate-500 font-semibold text-[10px] uppercase">No active projects</div>
+                      <div className="text-center py-3 text-slate-500 font-semibold text-[10px] uppercase">No active projects</div>
                     ) : (
                       store.projects.map((project) => (
                         <div
                           key={project.id}
-                          className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
+                          className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-indigo-400"></div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
                             <div className="text-left">
                               <h4 className="text-xs font-bold leading-tight">{project.name}</h4>
                             </div>
@@ -916,7 +907,7 @@ export default function DashboardPage() {
                             }}
                             className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
                       ))
@@ -931,18 +922,18 @@ export default function DashboardPage() {
 
           {/* TAB 2: TASKS & HABITS */}
           {activeTab === "tasks" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start w-full">
               {/* Tasks Workspace (Span 8) */}
-              <div className="lg:col-span-8 flex flex-col gap-6 h-full">
+              <div className="lg:col-span-8 flex flex-col gap-4 h-full">
                 <DailyTaskSystem />
               </div>
 
               {/* Habits Workspace (Span 4) */}
-              <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-6 min-h-[500px] w-full">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[400px] w-full">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div>
-                    <h2 className="text-xl font-black text-white">Daily Habits</h2>
-                    <p className="text-xs text-slate-400 font-semibold mt-1">Toggle checkboxes to build streaks</p>
+                    <h2 className="text-lg font-black text-white">Daily Habits</h2>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Toggle checkboxes to build streaks</p>
                   </div>
                   <button
                     onClick={() => setHabitModalOpen(true)}
@@ -952,21 +943,21 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {store.habits.length === 0 ? (
-                    <div className="text-center py-6 text-slate-500 font-semibold text-[10px] uppercase">No habits set. Initiate streaks!</div>
+                    <div className="text-center py-5 text-slate-500 font-semibold text-[10px] uppercase">No habits set. Initiate streaks!</div>
                   ) : (
                     store.habits.map((habit) => {
                       const isCompletedToday = habit.completedDates.includes(todayStr);
                       return (
                         <div
                           key={habit.id}
-                          className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
+                          className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
                         >
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => store.toggleHabit(habit.id, todayStr)}
-                              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
                                 isCompletedToday
                                   ? "bg-emerald-500 border-emerald-400 text-white"
                                   : "border-white/20 hover:border-white/40"
@@ -980,7 +971,7 @@ export default function DashboardPage() {
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="text-xs font-black text-emerald-400 flex items-center gap-0.5">
+                            <span className="text-[10px] font-black text-emerald-400 flex items-center gap-0.5">
                               🔥 {habit.streak}
                             </span>
                             <button
@@ -1008,7 +999,7 @@ export default function DashboardPage() {
 
           {/* TAB 3: LIFE GRID */}
           {activeTab === "grid" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-6 min-h-[500px] w-full">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[400px] w-full">
               <LifeGrid onOpenDayDetails={handleDayClick} />
             </div>
           )}
@@ -1022,14 +1013,14 @@ export default function DashboardPage() {
 
           {/* TAB 5: JOURNEY REPLAY */}
           {activeTab === "journey" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg min-h-[500px] w-full">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg min-h-[400px] w-full">
               <JourneyReplay />
             </div>
           )}
 
           {/* TAB 6: ENGINEERING MODE */}
           {activeTab === "engineering" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg min-h-[500px] w-full">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg min-h-[400px] w-full">
               <EngineeringMode />
             </div>
           )}

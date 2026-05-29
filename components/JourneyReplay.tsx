@@ -215,7 +215,7 @@ export default function JourneyReplay() {
           className="max-w-3xl mx-auto w-full print-card"
         >
           {/* Replay Visual Card */}
-          <div className="relative rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-slate-950 via-slate-950 to-indigo-950/20 p-8 shadow-2xl overflow-hidden group print-bg">
+          <div className="relative rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-slate-950 via-slate-950 to-indigo-950/20 p-6 shadow-2xl overflow-hidden group print-bg">
             <div className="absolute -right-20 -top-20 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/15 transition-all no-print"></div>
             <div className="absolute -left-20 -bottom-20 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl pointer-events-none no-print"></div>
 
