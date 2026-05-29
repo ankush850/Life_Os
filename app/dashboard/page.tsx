@@ -55,7 +55,7 @@ import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/prog
 export default function DashboardPage() {
   const { push } = useRouter();
   const store = useLifeStore();
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
 
@@ -111,14 +111,7 @@ export default function DashboardPage() {
 
   // Monitor Hydration
   useEffect(() => {
-    if (useLifeStore.persist.hasHydrated()) {
-      setHasHydrated(true);
-    } else {
-      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
-        setHasHydrated(true);
-      });
-      return () => unsubFinish();
-    }
+    
   }, []);
 
   // Mount/Redirect checklist
@@ -381,7 +374,7 @@ export default function DashboardPage() {
             {/* Logo */}
             <div className="flex items-center gap-3 shrink-0">
               <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
+              <span className="font-extrabold text-xl tracking-tight text-indigo-400 hidden sm:block">
                 LifeOS
               </span>
             </div>
@@ -743,7 +736,7 @@ export default function DashboardPage() {
                           <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
                             {activityData.map((entry, index) => (
                               <Cell
-                                key={`cell-${index}`}
+                                key={`cell-${entry.name}`}
                                 fill={
                                   index === mappedIndex
                                     ? "url(#blueGrad)" // highlight Wednesday dynamically
@@ -808,7 +801,7 @@ export default function DashboardPage() {
                               dataKey="value"
                             >
                               {performancePieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                <Cell key={`cell-${entry.name}`} fill={entry.color} />
                               ))}
                             </Pie>
                           </PieChart>

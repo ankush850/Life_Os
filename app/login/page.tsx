@@ -19,7 +19,7 @@ function LoginContent() {
 
   const [isSignUp, setIsSignUp] = useState(() => searchParams.get("signup") === "true");
   const [combo, setCombo] = useState<Combo | null>(null);
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const hasHydrated = useSyncExternalStore(useLifeStore.persist.subscribe, () => useLifeStore.persist.hasHydrated(), () => false);
 
   // Form Fields
   const [name, setName] = useState("");
@@ -32,17 +32,9 @@ function LoginContent() {
   // Initialize random wallpaper and hydration
   useEffect(() => {
     setCombo(getRandomCombo());
-    
-    if (useLifeStore.persist.hasHydrated()) {
-      setHasHydrated(true);
-    } else {
-      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
-        setHasHydrated(true);
-      });
-      return () => unsubFinish();
-    }
   }, []);
 
+  // react-doctor-disable-next-line no-effect-chain, no-event-handler
   // Redirect if already logged in
   useEffect(() => {
     if (hasHydrated && isLoggedIn) {
