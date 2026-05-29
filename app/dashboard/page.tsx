@@ -391,32 +391,34 @@ export default function DashboardPage() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-4 flex flex-col flex-1 gap-4">
         
         {/* HEADER */}
-        <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 flex items-center justify-between shadow-lg">
-          {/* 1. Logo (Left Segment) */}
-          <div className="flex items-center gap-3 w-1/4">
-            <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
-              LifeOS
-            </span>
-          </div>
+        <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 flex items-center justify-between shadow-lg gap-4">
+          
+          {/* Left Section: Logo + Nav */}
+          <div className="flex items-center flex-1 min-w-0 xl:gap-8 gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-3 shrink-0">
+              <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
+              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
+                LifeOS
+              </span>
+            </div>
 
-          {/* 2. Navigation Clusters (Center Segment) */}
-          <div className="flex items-center justify-center gap-10 flex-1">
-            {/* Primary Nav */}
-            <nav className="flex items-center gap-1">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar pr-2">
               {[
                 { id: "dashboard", label: "Dashboard", icon: BarChart3 },
                 { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
                 { id: "planner", label: "Planner", icon: CalendarIcon },
                 { id: "grid", label: "Life Grid", icon: Layers },
                 { id: "expenses", label: "Expenses", icon: Wallet },
+                { id: "journey", label: "Journey Replay", icon: Sparkles },
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                    className={`flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap shrink-0 transition-all duration-300 ${
                       activeTab === tab.id
                         ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
                         : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
@@ -428,37 +430,26 @@ export default function DashboardPage() {
                 );
               })}
             </nav>
-            
-            {/* Secondary Nav */}
-            <nav className="flex items-center gap-1">
-              {[
-                { id: "journey", label: "Journey Replay", icon: Sparkles },
-                { id: "engineering", label: "Dev Console", icon: Terminal },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
-                      activeTab === tab.id
-                        ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
-                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
           </div>
 
-          {/* 3. Utility & Profile (Right Segment) */}
-          <div className="flex items-center justify-end gap-6 w-1/4">
+          {/* Right Section: Dev Console, Utils, Profile */}
+          <div className="flex items-center justify-end shrink-0 xl:gap-6 gap-3">
             
-            {/* Utilities */}
-            <div className="flex items-center gap-4 bg-slate-950/20 px-4 py-2 rounded-2xl">
+            {/* Dev Console Button */}
+            <button
+              onClick={() => setActiveTab("engineering")}
+              className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                activeTab === "engineering"
+                  ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Dev Console</span>
+            </button>
+            
+            {/* Utilities (ENG Toggle & Settings) */}
+            <div className="flex items-center gap-3 xl:gap-4 bg-slate-950/20 px-3 py-2 rounded-2xl shrink-0">
               <div className="flex items-center gap-2">
                 <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
                   Eng
@@ -470,7 +461,7 @@ export default function DashboardPage() {
                       setActiveTab("engineering");
                     }
                   }}
-                  className={`w-9 h-5 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
+                  className={`w-9 h-5 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
                     isEngineeringMode
                       ? "bg-emerald-950/60 border-emerald-500/50"
                       : "bg-slate-900/60 border-white/10"
@@ -485,11 +476,11 @@ export default function DashboardPage() {
                 </button>
               </div>
               
-              <div className="w-px h-4 bg-white/5"></div>
+              <div className="w-px h-4 bg-white/5 shrink-0"></div>
               
               <button
                 onClick={() => setIsCustomizing(true)}
-                className="text-slate-400 hover:text-white transition-all"
+                className="shrink-0 text-slate-400 hover:text-white transition-all"
                 title="Customize Wallpaper & Theme"
               >
                 <Sliders className="w-4 h-4" />
@@ -497,13 +488,13 @@ export default function DashboardPage() {
             </div>
 
             {/* User Profile */}
-            <div className="flex items-center gap-3 bg-slate-950/30 pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group">
-              <div className="text-right hidden xl:block">
-                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors">{store.settings.name}</p>
-                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none">{store.settings.email.split('@')[0]}</p>
+            <div className="flex items-center gap-3 bg-slate-950/30 pl-3 xl:pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0 max-w-[140px] xl:max-w-[200px]">
+              <div className="text-right hidden lg:block overflow-hidden min-w-0">
+                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors truncate">{store.settings.name}</p>
+                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
               </div>
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
+              <div className="flex items-center shrink-0">
+                <div className="w-8 h-8 shrink-0 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
                   {store.settings.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <button
@@ -511,7 +502,7 @@ export default function DashboardPage() {
                     store.logout();
                     router.push("/login");
                   }}
-                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
+                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
                   title="Sign Out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
