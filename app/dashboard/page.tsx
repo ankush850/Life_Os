@@ -394,100 +394,131 @@ export default function DashboardPage() {
         
         {/* HEADER */}
         <header className="w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-6 py-4 flex items-center justify-between shadow-lg">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain" />
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          {/* 1. Logo (Left Segment) */}
+          <div className="flex items-center gap-3 w-1/4">
+            <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
+            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent hidden sm:block">
               LifeOS
             </span>
           </div>
 
-          {/* Navigation Pill Tabs */}
-          <nav className="flex items-center gap-1.5 bg-slate-950/40 p-1 rounded-full border border-white/5">
-            {[
-              { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-              { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
-              { id: "planner", label: "Planner", icon: CalendarIcon },
-              { id: "grid", label: "Life Grid", icon: Layers },
-              { id: "expenses", label: "Expenses", icon: Wallet },
-              { id: "journey", label: "Journey Replay", icon: Sparkles },
-              { id: "engineering", label: "Dev Console", icon: Terminal },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-xs transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? "bg-white text-slate-950 shadow-md scale-105"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
+          {/* 2. Navigation Clusters (Center Segment) */}
+          <div className="flex items-center justify-center gap-10 flex-1">
+            {/* Primary Nav */}
+            <nav className="flex items-center gap-1">
+              {[
+                { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+                { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
+                { id: "planner", label: "Planner", icon: CalendarIcon },
+                { id: "grid", label: "Life Grid", icon: Layers },
+                { id: "expenses", label: "Expenses", icon: Wallet },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                      activeTab === tab.id
+                        ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+            
+            {/* Secondary Nav */}
+            <nav className="flex items-center gap-1">
+              {[
+                { id: "journey", label: "Journey Replay", icon: Sparkles },
+                { id: "engineering", label: "Dev Console", icon: Terminal },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
+                      activeTab === tab.id
+                        ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
-          {/* User Profile / Customizer Trigger */}
-          <div className="flex items-center gap-4">
-            {/* Engineering Mode Switch */}
-            <div className="flex items-center gap-2 border-r border-white/10 pr-4">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isEngineeringMode ? "text-emerald-400" : "text-slate-400"}`}>
-                Eng Mode
-              </span>
-              <button
-                onClick={() => {
-                  setIsEngineeringMode(!isEngineeringMode);
-                  if (!isEngineeringMode) {
-                    setActiveTab("engineering");
-                  }
-                }}
-                className={`w-10 h-6 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
-                  isEngineeringMode
-                    ? "bg-emerald-950/45 border-emerald-500/50"
-                    : "bg-slate-950/40 border-white/10"
-                }`}
-                title="Toggle Engineering Monochrome Terminal HUD"
-              >
-                <div
-                  className={`w-4 h-4 rounded-full transition-all duration-300 ${
-                    isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
+          {/* 3. Utility & Profile (Right Segment) */}
+          <div className="flex items-center justify-end gap-6 w-1/4">
+            
+            {/* Utilities */}
+            <div className="flex items-center gap-4 bg-slate-950/20 px-4 py-2 rounded-2xl">
+              <div className="flex items-center gap-2">
+                <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
+                  Eng
+                </span>
+                <button
+                  onClick={() => {
+                    setIsEngineeringMode(!isEngineeringMode);
+                    if (!isEngineeringMode) {
+                      setActiveTab("engineering");
+                    }
+                  }}
+                  className={`w-9 h-5 rounded-full transition-all duration-300 relative border flex items-center p-0.5 ${
+                    isEngineeringMode
+                      ? "bg-emerald-950/60 border-emerald-500/50"
+                      : "bg-slate-900/60 border-white/10"
                   }`}
-                />
+                  title="Toggle Engineering Monochrome Terminal HUD"
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${
+                      isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
+                    }`}
+                  />
+                </button>
+              </div>
+              
+              <div className="w-px h-4 bg-white/5"></div>
+              
+              <button
+                onClick={() => setIsCustomizing(true)}
+                className="text-slate-400 hover:text-white transition-all"
+                title="Customize Wallpaper & Theme"
+              >
+                <Sliders className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Customize Trigger */}
-            <button
-              onClick={() => setIsCustomizing(true)}
-              className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 backdrop-blur-md transition-all"
-              title="Customize Wallpaper & Theme"
-            >
-              <Sliders className="w-4 h-4 text-slate-300" />
-            </button>
-
-            {/* User Meta */}
-            <div className="flex items-center gap-3 border-l border-white/10 pl-4">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-bold leading-none mb-0.5">{store.settings.name}</p>
-                <p className="text-[10px] text-slate-400 font-semibold leading-none">{store.settings.email}</p>
+            {/* User Profile */}
+            <div className="flex items-center gap-3 bg-slate-950/30 pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group">
+              <div className="text-right hidden xl:block">
+                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors">{store.settings.name}</p>
+                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none">{store.settings.email.split('@')[0]}</p>
               </div>
-              <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center font-bold text-sm text-white shadow-md border border-white/10 overflow-hidden">
-                {store.settings.name.split(" ").map((n) => n[0]).join("")}
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
+                  {store.settings.name.split(" ").map((n) => n[0]).join("")}
+                </div>
+                <button
+                  onClick={() => {
+                    store.logout();
+                    router.push("/login");
+                  }}
+                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  store.logout();
-                  router.push("/login");
-                }}
-                className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all ml-1"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4 text-red-400" />
-              </button>
             </div>
           </div>
         </header>
