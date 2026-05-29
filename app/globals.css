@@ -251,3 +251,55 @@
   background-color: rgba(16, 185, 129, 0.1) !important;
   border: 1px solid rgba(52, 211, 153, 0.3) !important;
 }
+
+/* Print Styles for Legacy PDF Export */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print, header, aside {
+    display: none !important;
+  }
+  .print-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .print-card {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+  }
+  .print-bg {
+    background: white !important;
+  }
+  .print-text-black {
+    color: black !important;
+  }
+  .print-border-black {
+    border-color: #e2e8f0 !important;
+  }
+  .print-text-slate-600 {
+    color: #475569 !important;
+  }
+  .print-text-indigo-600 {
+    color: #4f46e5 !important;
+  }
+  .print-text-emerald-600 {
+    color: #059669 !important;
+  }
+  .print-text-rose-600 {
+    color: #e11d48 !important;
+  }
+  .print-text-yellow-600 {
+    color: #d97706 !important;
+  }
+  .print-opacity-100 {
+    opacity: 1 !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
