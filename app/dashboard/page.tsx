@@ -154,12 +154,12 @@ export default function DashboardPage() {
 
   // Update input states when store loads from hydration
   useEffect(() => {
-    if (hasHydrated && isMounted) {
+    if (hasHydrated) {
       setBgInput(store.settings.bgImage);
       setBlurVal(store.settings.bgBlur);
       setOpacityVal(store.settings.bgOpacity);
     }
-  }, [hasHydrated, isMounted, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
+  }, [hasHydrated, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
 
   // Format focus hours
   const formatTime = (totalSecs: number) => {
@@ -332,15 +332,10 @@ export default function DashboardPage() {
   ];
 
   // Expenses calculations (filtered by current selected month)
-  const currentMonthPrefix = useMemo(() => {
-    return `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
-  }, [currentMonth]);
-
-
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
-  if (!hasHydrated || !isMounted || !store.settings.isLoggedIn) {
+  if (!hasHydrated || !store.settings.isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
