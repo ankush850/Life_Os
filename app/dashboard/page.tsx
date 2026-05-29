@@ -53,8 +53,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { push } = router;
+  const { push } = useRouter();
   const store = useLifeStore();
   const [hasHydrated, setHasHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -440,6 +439,7 @@ export default function DashboardPage() {
                   Eng
                 </span>
                 <button type="button"
+                  aria-label="Toggle Engineering Mode"
                   onClick={() => {
                     setIsEngineeringMode(!isEngineeringMode);
                     if (!isEngineeringMode) {
@@ -1029,7 +1029,7 @@ export default function DashboardPage() {
 
       {/* FOOTER */}
       <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">
-        &copy; {new Date().getFullYear()} LifeOS — Day-by-Day performance tracker
+        &copy; {new Date().getFullYear()} LifeOS - Day-by-Day performance tracker
       </footer>
 
       {/* DIALOG 1: BACKGROUND CUSTOMIZER */}

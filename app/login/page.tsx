@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function LoginContent() {
-  const router = useRouter();
+  const { push } = useRouter();
   const searchParams = useSearchParams();
   const updateSettings = useLifeStore((state) => state.updateSettings);
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
@@ -28,7 +28,6 @@ function LoginContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { push } = router;
 
   // Initialize random wallpaper and hydration
   useEffect(() => {
@@ -279,7 +278,7 @@ function LoginContent() {
             <p className="text-xs text-slate-200 italic font-medium max-w-lg truncate">
               &ldquo;{combo.quote.text}&rdquo;
             </p>
-            <p className="text-[10px] text-slate-400 font-bold">— {combo.quote.author}</p>
+            <p className="text-[10px] text-slate-400 font-bold">- {combo.quote.author}</p>
           </div>
         </div>
 
