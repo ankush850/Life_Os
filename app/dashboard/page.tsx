@@ -501,7 +501,7 @@ export default function DashboardPage() {
 
               {/* Pristine Empty State Banner */}
               {store.tasks.length === 0 && Object.keys(store.dailyTargets).length === 0 && (
-                <div className="col-span-12 p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="col-span-12 p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
                   <div className="text-left">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4 text-indigo-400" /> Welcome to your Cockpit
@@ -509,9 +509,6 @@ export default function DashboardPage() {
                     <p className="text-xs text-slate-300 font-light mt-1">
                       Your LifeOS console starts clean. Start building your system by setting daily targets or task checklists.
                     </p>
-                  </div>
-                  <div className="text-indigo-400 font-mono text-xs uppercase tracking-widest font-extrabold italic pr-2">
-                    “Start building your system.”
                   </div>
                 </div>
               )}
@@ -540,10 +537,10 @@ export default function DashboardPage() {
                   <div className="flex gap-2">
                     <Button
                       onClick={() => store.setIsFocusRunning(!store.isFocusRunning)}
-                      className={`flex-1 font-bold py-5 rounded-xl border text-xs gap-1.5 transition-all ${
+                      className={`flex-1 font-bold py-5 rounded-xl text-xs gap-1.5 transition-all shadow-lg ${
                         store.isFocusRunning
-                          ? "bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/20 text-rose-200"
-                          : "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-200"
+                          ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
+                          : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
                       }`}
                     >
                       {store.isFocusRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -560,7 +557,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Today's Target Planner Card */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-5 min-h-[220px]">
                   <div className="flex items-center gap-1.5">
                     <Target className="w-4 h-4 text-indigo-400 animate-pulse" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
@@ -611,10 +608,10 @@ export default function DashboardPage() {
                         value={todayTargetInputText}
                         onChange={(e) => setTodayTargetInputText(e.target.value)}
                         placeholder="Write today's focus target..."
-                        className="bg-white/5 border-white/10 text-xs rounded-xl"
+                        className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white font-bold placeholder:text-slate-500 transition-all"
                         required
                       />
-                      <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs">
+                      <Button type="submit" className="mt-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs shadow-lg shadow-indigo-500/20">
                         Set Today&apos;s Goal
                       </Button>
                     </form>
@@ -689,7 +686,7 @@ export default function DashboardPage() {
                 
                 {/* Activity Tracker Component */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-4 h-full min-h-[400px]">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Activity</span>
                       <h3 className="text-lg font-black tracking-tight text-white mt-1">Focus Analytics</h3>
@@ -698,7 +695,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
 
-                    <div className="flex bg-slate-950/60 p-0.5 rounded-lg border border-white/5">
+                    <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
                       {["Week", "Month", "Year"].map((filter) => (
                         <button
                           key={filter}
