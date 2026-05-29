@@ -73,6 +73,13 @@ export interface Course {
   status: 'Started' | 'Finished';
 }
 
+export interface MonthlyMission {
+  id: string;
+  title: string;
+  status: 'Pending' | 'Completed';
+  targetMonth: string; // YYYY-MM
+}
+
 interface UserSettings {
   name: string;
   email: string;
@@ -136,6 +143,12 @@ interface LifeState {
   addCourse: (title: string) => void;
   toggleCourseStatus: (id: string) => void;
   deleteCourse: (id: string) => void;
+
+  // Intelligence Engine
+  monthlyMissions: MonthlyMission[];
+  addMission: (title: string, targetMonth: string) => void;
+  toggleMissionStatus: (id: string) => void;
+  deleteMission: (id: string) => void;
 
   // Focus Timer
   focusSeconds: number;
@@ -360,6 +373,26 @@ export const useLifeStore = create<LifeState>()(
           engineeringCourses: state.engineeringCourses.filter((c) => c.id !== id),
         })),
 
+      // Intelligence Engine
+      monthlyMissions: [],
+      addMission: (title, targetMonth) =>
+        set((state) => ({
+          monthlyMissions: [
+            ...state.monthlyMissions,
+            { id: Math.random().toString(36).substring(2, 9), title, status: 'Pending', targetMonth },
+          ],
+        })),
+      toggleMissionStatus: (id) =>
+        set((state) => ({
+          monthlyMissions: state.monthlyMissions.map((m) =>
+            m.id === id ? { ...m, status: m.status === 'Pending' ? 'Completed' : 'Pending' } : m
+          ),
+        })),
+      deleteMission: (id) =>
+        set((state) => ({
+          monthlyMissions: state.monthlyMissions.filter((m) => m.id !== id),
+        })),
+
       // Focus Timer
       focusSeconds: 0,
       focusPausedSeconds: 0,
@@ -394,6 +427,7 @@ export const useLifeStore = create<LifeState>()(
           engineeringLanguages: defaultLanguages,
           engineeringMastery: defaultMasteries,
           engineeringCourses: [],
+          monthlyMissions: [],
           projects: [],
           focusSeconds: 0,
           focusPausedSeconds: 0,
@@ -414,6 +448,7 @@ export const useLifeStore = create<LifeState>()(
         engineeringLanguages: state.engineeringLanguages,
         engineeringMastery: state.engineeringMastery,
         engineeringCourses: state.engineeringCourses,
+        monthlyMissions: state.monthlyMissions,
         projects: state.projects,
         focusSeconds: state.focusSeconds,
         focusPausedSeconds: state.focusPausedSeconds,

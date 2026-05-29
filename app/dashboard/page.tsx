@@ -8,6 +8,7 @@ import { PRESET_WALLPAPERS } from "@/lib/quotes";
 import LifeGrid from "@/components/LifeGrid";
 import JourneyReplay from "@/components/JourneyReplay";
 import EngineeringMode from "@/components/EngineeringMode";
+import LifeEngine from "@/components/LifeEngine";
 import FocusMode from "@/components/FocusMode";
 import DailyTaskSystem from "@/components/DailyTaskSystem";
 import MonthlyPlanner from "@/components/MonthlyPlanner";
@@ -32,6 +33,7 @@ import {
   AlertCircle,
   Terminal,
   Layers,
+  Brain,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -342,15 +344,6 @@ export default function DashboardPage() {
     return store.expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
   }, [store.expenses, currentMonthPrefix]);
 
-  // const totalExpense = useMemo(() => {
-  //   return monthlyExpenses
-  //     .filter((e) => e.type === "expense")
-  //     .reduce((acc, curr) => acc + curr.amount, 0);
-  // }, [monthlyExpenses]);
-
-  // const expenseLimit = store.settings.budgetLimit;
-  // const expensePercent = Math.min((totalExpense / expenseLimit) * 100, 100);
-
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
   if (!hasHydrated || !isMounted || !store.settings.isLoggedIn) {
@@ -434,6 +427,7 @@ export default function DashboardPage() {
             {/* Secondary Nav */}
             <nav className="flex items-center gap-1">
               {[
+                { id: "intelligence", label: "Life Engine", icon: Brain },
                 { id: "journey", label: "Journey Replay", icon: Sparkles },
                 { id: "engineering", label: "Dev Console", icon: Terminal },
               ].map((tab) => {
@@ -1039,6 +1033,13 @@ export default function DashboardPage() {
           {activeTab === "engineering" && (
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg min-h-[500px] w-full">
               <EngineeringMode />
+            </div>
+          )}
+
+          {/* TAB 7: INTELLIGENCE (LIFE ENGINE) */}
+          {activeTab === "intelligence" && (
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg min-h-[500px] w-full">
+              <LifeEngine />
             </div>
           )}
 
