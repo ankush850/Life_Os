@@ -53,8 +53,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { push } = router;
+  const { push } = useRouter();
   const store = useLifeStore();
   const [hasHydrated, setHasHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -154,12 +153,12 @@ export default function DashboardPage() {
 
   // Update input states when store loads from hydration
   useEffect(() => {
-    if (hasHydrated && isMounted) {
+    if (hasHydrated) {
       setBgInput(store.settings.bgImage);
       setBlurVal(store.settings.bgBlur);
       setOpacityVal(store.settings.bgOpacity);
     }
-  }, [hasHydrated, isMounted, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
+  }, [hasHydrated, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
 
   // Format focus hours
   const formatTime = (totalSecs: number) => {
@@ -332,15 +331,10 @@ export default function DashboardPage() {
   ];
 
   // Expenses calculations (filtered by current selected month)
-  const currentMonthPrefix = useMemo(() => {
-    return `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
-  }, [currentMonth]);
-
-
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
-  if (!hasHydrated || !isMounted || !store.settings.isLoggedIn) {
+  if (!hasHydrated || !store.settings.isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
@@ -445,6 +439,7 @@ export default function DashboardPage() {
                   Eng
                 </span>
                 <button type="button"
+                  aria-label="Toggle Engineering Mode"
                   onClick={() => {
                     setIsEngineeringMode(!isEngineeringMode);
                     if (!isEngineeringMode) {
@@ -1034,7 +1029,7 @@ export default function DashboardPage() {
 
       {/* FOOTER */}
       <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">
-        &copy; {new Date().getFullYear()} LifeOS — Day-by-Day performance tracker
+        &copy; {new Date().getFullYear()} LifeOS - Day-by-Day performance tracker
       </footer>
 
       {/* DIALOG 1: BACKGROUND CUSTOMIZER */}

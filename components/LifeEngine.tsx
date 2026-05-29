@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useLifeStore } from "@/store/useLifeStore";
 import { Brain, Target, Activity, Clock, AlertTriangle, TrendingDown, TrendingUp, CheckCircle, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";

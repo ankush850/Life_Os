@@ -15,10 +15,9 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
-  const router = useRouter();
+  const { push } = useRouter();
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
   const [combo, setCombo] = useState<Combo | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
@@ -35,19 +34,16 @@ export default function LandingPage() {
 
   // Redirect to dashboard if logged in
   useEffect(() => {
-    if (hasHydrated) {
-      setIsMounted(true);
-      if (isLoggedIn) {
-        router.push("/dashboard");
-      }
+    if (hasHydrated && isLoggedIn) {
+      push("/dashboard");
     }
-  }, [hasHydrated, isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, push]);
 
   const handleCycleInspiration = () => {
     setCombo(getRandomCombo());
   };
 
-  if (!hasHydrated || !isMounted || !combo || isLoggedIn) {
+  if (!hasHydrated || !combo || isLoggedIn) {
     return (
       <div className="min-h-screen bg-black text-slate-400 flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">
@@ -240,7 +236,7 @@ export default function LandingPage() {
             <p className="text-sm italic font-light text-slate-100 max-w-2xl leading-relaxed">
               &ldquo;{combo.quote.text}&rdquo;
             </p>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">— {combo.quote.author}</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">- {combo.quote.author}</span>
           </div>
 
           <div className="flex flex-col items-center md:items-end text-slate-500 text-[10px] font-mono tracking-widest uppercase gap-1">
@@ -249,7 +245,7 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="text-center text-slate-600 text-[9px] font-mono tracking-widest uppercase mt-8">
-          &copy; {new Date().getFullYear()} LifeOS — Futuristic Command Cockpit
+          &copy; {new Date().getFullYear()} LifeOS - Futuristic Command Cockpit
         </div>
       </footer>
     </div>
