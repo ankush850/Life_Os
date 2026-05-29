@@ -19,24 +19,35 @@ export default function LandingPage() {
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
   const [combo, setCombo] = useState<Combo | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
     setCombo(getRandomCombo());
-    setIsMounted(true);
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
+    }
   }, []);
 
   // Redirect to dashboard if logged in
   useEffect(() => {
-    if (isMounted && isLoggedIn) {
-      router.push("/dashboard");
+    if (hasHydrated) {
+      setIsMounted(true);
+      if (isLoggedIn) {
+        router.push("/dashboard");
+      }
     }
-  }, [isMounted, isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const handleCycleInspiration = () => {
     setCombo(getRandomCombo());
   };
 
-  if (!isMounted || !combo) {
+  if (!hasHydrated || !isMounted || !combo || isLoggedIn) {
     return (
       <div className="min-h-screen bg-black text-slate-400 flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">

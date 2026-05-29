@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLifeStore } from "@/store/useLifeStore";
 import { PRESET_WALLPAPERS } from "@/lib/quotes";
@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const store = useLifeStore();
   const [isMounted, setIsMounted] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
 
@@ -65,9 +66,6 @@ export default function DashboardPage() {
     const expensesCount = store.expenses.length;
     return targetsCount >= 3 || expensesCount >= 3;
   }, [store.dailyTargets, store.expenses]);
-
-  // Focus Timer interval ref
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Form states for creating new items
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -106,50 +104,60 @@ export default function DashboardPage() {
   // Calendar month state
   const [currentMonth] = useState(new Date());
 
-  // Mount checklist
+  // Monitor Hydration
   useEffect(() => {
-    setIsMounted(true);
-    // Redirect if not logged in
-    if (!store.settings.isLoggedIn) {
-      router.push("/login");
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
     }
-  }, [store.settings.isLoggedIn, router]);
+  }, []);
+
+  // Mount/Redirect checklist
+  useEffect(() => {
+    if (hasHydrated) {
+      setIsMounted(true);
+      // Redirect if not logged in
+      if (!store.settings.isLoggedIn) {
+        router.push("/login");
+      }
+    }
+  }, [hasHydrated, store.settings.isLoggedIn, router]);
 
   // Focus Timer Clock ticking logic
   const isFocusRunning = store.isFocusRunning;
-  const focusSeconds = store.focusSeconds;
-  const setFocusSeconds = store.setFocusSeconds;
+  const isFocusTimerStarted = store.focusSeconds > 0;
 
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
     if (isFocusRunning) {
-      timerRef.current = setInterval(() => {
-        setFocusSeconds(focusSeconds + 1);
+      interval = setInterval(() => {
+        const latestSeconds = useLifeStore.getState().focusSeconds;
+        useLifeStore.getState().setFocusSeconds(latestSeconds + 1);
       }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+    } else if (isFocusTimerStarted) {
+      interval = setInterval(() => {
+        const latestPaused = useLifeStore.getState().focusPausedSeconds;
+        useLifeStore.getState().setFocusPausedSeconds(latestPaused + 1);
+      }, 1000);
     }
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (interval) clearInterval(interval);
     };
-  }, [isFocusRunning, focusSeconds, setFocusSeconds]);
+  }, [isFocusRunning, isFocusTimerStarted]);
 
   // Update input states when store loads from hydration
   useEffect(() => {
-    if (isMounted) {
+    if (hasHydrated && isMounted) {
       setBgInput(store.settings.bgImage);
       setBlurVal(store.settings.bgBlur);
       setOpacityVal(store.settings.bgOpacity);
     }
-  }, [isMounted, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
-
-  if (!isMounted || !store.settings.isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
-      </div>
-    );
-  }
+  }, [hasHydrated, isMounted, store.settings.bgImage, store.settings.bgBlur, store.settings.bgOpacity]);
 
   // Format focus hours
   const formatTime = (totalSecs: number) => {
@@ -321,17 +329,39 @@ export default function DashboardPage() {
     { name: "Remaining Days", value: Math.max(0, daysInMonth - completedTargetsThisMonth) || 1, color: "rgba(255,255,255,0.05)" },
   ];
 
-  // Expenses calculations
-  const totalIncome = store.expenses
-    .filter((e) => e.type === "income")
-    .reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = store.expenses
-    .filter((e) => e.type === "expense")
-    .reduce((acc, curr) => acc + curr.amount, 0);
+  // Expenses calculations (filtered by current selected month)
+  const currentMonthPrefix = useMemo(() => {
+    return `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
+  }, [currentMonth]);
+
+  const monthlyExpenses = useMemo(() => {
+    return store.expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
+  }, [store.expenses, currentMonthPrefix]);
+
+  const totalIncome = useMemo(() => {
+    return monthlyExpenses
+      .filter((e) => e.type === "income")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+  }, [monthlyExpenses]);
+
+  const totalExpense = useMemo(() => {
+    return monthlyExpenses
+      .filter((e) => e.type === "expense")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+  }, [monthlyExpenses]);
+
   const expenseLimit = store.settings.budgetLimit;
   const expensePercent = Math.min((totalExpense / expenseLimit) * 100, 100);
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
+
+  if (!hasHydrated || !isMounted || !store.settings.isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -1096,10 +1126,10 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="max-h-[300px] overflow-y-auto pr-1 space-y-2">
-                    {store.expenses.length === 0 ? (
-                      <div className="text-center py-10 text-slate-500 font-bold text-xs">No transactions recorded. Keep financial integrity!</div>
+                    {monthlyExpenses.length === 0 ? (
+                      <div className="text-center py-10 text-slate-500 font-bold text-xs">No transactions recorded this month. Keep financial integrity!</div>
                     ) : (
-                      store.expenses.map((exp) => (
+                      monthlyExpenses.map((exp) => (
                         <div
                           key={exp.id}
                           className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
@@ -1135,7 +1165,7 @@ export default function DashboardPage() {
                   
                   <div className="space-y-3">
                     {["Food", "Travel", "Shopping", "Education", "Bills", "Entertainment"].map((cat) => {
-                      const amount = store.expenses
+                      const amount = monthlyExpenses
                         .filter((e) => e.category === cat && e.type === "expense")
                         .reduce((acc, curr) => acc + curr.amount, 0);
                       const percent = totalExpense ? Math.round((amount / totalExpense) * 100) : 0;

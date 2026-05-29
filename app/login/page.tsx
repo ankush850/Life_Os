@@ -19,6 +19,7 @@ function LoginContent() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [combo, setCombo] = useState<Combo | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   // Form Fields
   const [name, setName] = useState("");
@@ -31,32 +32,51 @@ function LoginContent() {
   // Initialize random wallpaper and quote
   useEffect(() => {
     setCombo(getRandomCombo());
-    setIsMounted(true);
-
-    // Read initial signup view from query param
-    const signupParam = searchParams.get("signup");
-    if (signupParam === "true") {
-      setIsSignUp(true);
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+    
+    if (useLifeStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    } else {
+      const unsubFinish = useLifeStore.persist.onFinishHydration(() => {
+        setHasHydrated(true);
+      });
+      return () => unsubFinish();
     }
-  }, [searchParams]);
+  }, []);
+
+  // Read query params after hydration
+  useEffect(() => {
+    if (hasHydrated) {
+      const signupParam = searchParams.get("signup");
+      if (signupParam === "true") {
+        setIsSignUp(true);
+        setName("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+      }
+    }
+  }, [hasHydrated, searchParams]);
 
   // Redirect if already logged in
   useEffect(() => {
-    if (isMounted && isLoggedIn) {
-      router.push("/dashboard");
+    if (hasHydrated) {
+      setIsMounted(true);
+      if (isLoggedIn) {
+        router.push("/dashboard");
+      }
     }
-  }, [isMounted, isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, router]);
 
   const handleCycleInspiration = () => {
     setCombo(getRandomCombo());
   };
 
-  if (!isMounted || !combo) {
-    return null;
+  if (!hasHydrated || !isMounted || !combo || isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+      </div>
+    );
   }
 
   const handleSubmit = (e: React.FormEvent) => {
