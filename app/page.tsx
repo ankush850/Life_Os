@@ -51,7 +51,7 @@ export default function LandingPage() {
     return (
       <div className="min-h-screen bg-black text-slate-400 flex items-center justify-center font-mono">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-6 h-6 border border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="size-6 border border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-[11px] uppercase tracking-[0.2em] text-indigo-400 animate-pulse">Initializing LifeOS HUD...</span>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded bg-indigo-500/5 border border-indigo-500/20 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-400 mb-8"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+            <span className="size-1.5 rounded-full bg-indigo-400 animate-ping"></span>
             SYS-ACTIVE // TELEMETRY OK
           </motion.div>
 
@@ -141,13 +141,13 @@ export default function LandingPage() {
               className="px-7 py-4 rounded bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5"
             >
               Start Building Your System
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="size-3.5" />
             </Link>
-            <button
+            <button type="button"
               onClick={handleCycleInspiration}
               className="px-6 py-4 rounded bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 font-bold text-xs uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-2 backdrop-blur-md transform hover:-translate-y-0.5"
             >
-              <RefreshCw className="w-3 h-3 text-slate-400 animate-spin-slow" />
+              <RefreshCw className="size-3 text-slate-400 animate-spin-slow" />
               Cycle HUD Preset
             </button>
           </motion.div>
@@ -168,9 +168,9 @@ export default function LandingPage() {
             {/* Simulated browser header */}
             <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-5 text-[10px] uppercase font-mono tracking-widest text-slate-500">
               <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-white/5"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-white/5"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-white/5"></div>
+                <div className="size-2.5 rounded-full bg-slate-800 border border-white/5"></div>
+                <div className="size-2.5 rounded-full bg-slate-800 border border-white/5"></div>
+                <div className="size-2.5 rounded-full bg-slate-800 border border-white/5"></div>
               </div>
               <span className="text-[9px] text-slate-400 font-light">SYSTEM-HUD-BOOT-V1</span>
             </div>
@@ -181,7 +181,7 @@ export default function LandingPage() {
               <div className="col-span-4 flex flex-col gap-4">
                 <div className="p-3 rounded border border-white/5 bg-white/2 backdrop-blur-md flex flex-col gap-2">
                   <div className="flex items-center gap-1.5 text-[8px] tracking-wider text-indigo-400 font-bold uppercase">
-                    <Clock className="w-3 h-3" /> FOCUS.LOG
+                    <Clock className="size-3" /> FOCUS.LOG
                   </div>
                   <span className="text-lg font-light text-white tracking-wide">0.0h</span>
                   <span className="text-[7px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">Ready for check-in</span>
@@ -225,7 +225,7 @@ export default function LandingPage() {
 
             {/* Bottom hud alert */}
             <div className="mt-4 p-2.5 rounded border border-indigo-500/10 bg-indigo-500/5 flex items-center justify-between text-[8px] font-mono tracking-widest uppercase text-indigo-400">
-              <span className="flex items-center gap-1.5"><Terminal className="w-3.5 h-3.5" /> Awaiting Telemetry</span>
+              <span className="flex items-center gap-1.5"><Terminal className="size-3.5" /> Awaiting Telemetry</span>
               <span>0% Month Consistency</span>
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function LandingPage() {
       </main>
 
       {/* Quote Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-8 py-8 border-t border-white/5">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto p-8 border-t border-white/5">
         <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center md:items-start text-center md:text-left gap-1">
             <span className="text-indigo-400 font-bold text-[9px] uppercase tracking-[0.25em]">Motivational Core</span>

@@ -82,7 +82,7 @@ export default function FinancialOS() {
   const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
   return (
-    <div className="flex flex-col gap-4 w-full h-full">
+    <div className="flex flex-col gap-4 size-full">
       
       {/* 1. Header & Budget Lock System */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -92,7 +92,7 @@ export default function FinancialOS() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-indigo-500" />
           
           <div className="flex items-center gap-2 mb-6">
-            {isBudgetLocked ? <Lock className="w-5 h-5 text-emerald-400" /> : <ShieldCheck className="w-5 h-5 text-indigo-400" />}
+            {isBudgetLocked ? <Lock className="size-5 text-emerald-400" /> : <ShieldCheck className="size-5 text-indigo-400" />}
             <h2 className="text-lg font-black text-white">Budget Lock</h2>
           </div>
 
@@ -126,7 +126,7 @@ export default function FinancialOS() {
                 </div>
               </div>
 
-              <button 
+              <button type="button" 
                 onClick={handleLockBudget}
                 disabled={!incomeInput || !savingsInput}
                 className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20"
@@ -137,7 +137,7 @@ export default function FinancialOS() {
           ) : (
             <div className="flex flex-col gap-6 h-full justify-center">
               <div className="flex flex-col items-center justify-center text-center p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                <ShieldCheck className="w-8 h-8 text-emerald-400 mb-2" />
+                <ShieldCheck className="size-8 text-emerald-400 mb-2" />
                 <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Month Locked</span>
                 <p className="text-xs font-semibold text-slate-300 mt-2 leading-relaxed">
                   Your budget is locked. Discipline is the bridge between goals and accomplishment.
@@ -167,9 +167,9 @@ export default function FinancialOS() {
           
           {/* Daily Spending Allowance */}
           <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg flex flex-col justify-center relative overflow-hidden group">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all" />
+            <div className="absolute -right-4 -top-4 size-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <Wallet className="w-3.5 h-3.5" /> Daily Allowance
+              <Wallet className="size-3.5" /> Daily Allowance
             </span>
             <div className="flex items-baseline gap-2">
               <h3 className="text-5xl font-black tracking-tighter text-white">
@@ -199,8 +199,8 @@ export default function FinancialOS() {
           <div className="rounded-2xl bg-slate-900/60 border border-white/10 p-4 backdrop-blur-xl shadow-lg flex flex-col items-center justify-center text-center">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Financial Health Score</span>
             
-            <div className="relative w-32 h-32 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
+            <div className="relative size-32 flex items-center justify-center">
+              <svg className="size-full transform -rotate-90">
                 <circle cx="64" cy="64" r="56" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
                 <motion.circle 
                   cx="64" cy="64" r="56" fill="none" 
@@ -262,7 +262,7 @@ export default function FinancialOS() {
               disabled={!expenseAmount}
               className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white p-2 rounded-lg transition-colors flex items-center justify-center w-full sm:w-12"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="size-5" />
             </button>
           </form>
 
@@ -278,8 +278,8 @@ export default function FinancialOS() {
                   className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-white/10 text-slate-300">
-                      <PieChart className="w-4 h-4" />
+                    <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center border border-white/10 text-slate-300">
+                      <PieChart className="size-4" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">{exp.description || exp.category}</h4>
@@ -288,11 +288,11 @@ export default function FinancialOS() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-black text-rose-400">-{formatCurrency(exp.amount)}</span>
-                    <button
+                    <button type="button"
                       onClick={() => deleteExpense(exp.id)}
                       className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-all"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="size-4" />
                     </button>
                   </div>
                 </motion.div>
@@ -310,16 +310,16 @@ export default function FinancialOS() {
             willOverspend ? "bg-rose-950/30 border-rose-500/30" : "bg-emerald-950/20 border-emerald-500/20"
           }`}>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-3">
-              <Info className="w-3.5 h-3.5" /> Predictor
+              <Info className="size-3.5" /> Predictor
             </span>
             
             {isBudgetLocked ? (
               <>
                 <div className="flex items-center gap-3 mb-2">
                   {willOverspend ? (
-                    <AlertTriangle className="w-8 h-8 text-rose-400" />
+                    <AlertTriangle className="size-8 text-rose-400" />
                   ) : (
-                    <TrendingUp className="w-8 h-8 text-emerald-400" />
+                    <TrendingUp className="size-8 text-emerald-400" />
                   )}
                   <h3 className={`text-lg font-black ${willOverspend ? "text-rose-400" : "text-emerald-400"}`}>
                     {willOverspend ? "Overspend Risk" : "On Track"}
@@ -340,7 +340,7 @@ export default function FinancialOS() {
           {/* Wealth Forecast */}
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-xl shadow-lg flex-1 flex flex-col">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-4">
-              <TrendingUp className="w-3.5 h-3.5" /> Savings Forecast
+              <TrendingUp className="size-3.5" /> Savings Forecast
             </span>
             
             {isBudgetLocked ? (

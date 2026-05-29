@@ -138,7 +138,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
           return (
             <div className="flex items-center gap-2 py-1">
               <span
-                className={`font-mono text-xs font-bold w-6 h-6 rounded flex items-center justify-center border transition-all ${
+                className={`font-mono text-xs font-bold size-6 rounded flex items-center justify-center border transition-all ${
                   isToday
                     ? "bg-indigo-500/20 border-indigo-400 text-indigo-300 shadow-[0_0_8px_rgba(99,102,241,0.3)]"
                     : "bg-slate-950/40 border-white/5 text-slate-400"
@@ -216,12 +216,12 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
             >
               {row.completed ? (
                 <>
-                  <Check className="w-3 h-3 text-emerald-400" />
+                  <Check className="size-3 text-emerald-400" />
                   Completed
                 </>
               ) : (
                 <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                  <span className="size-1.5 rounded-full bg-indigo-400 animate-pulse" />
                   Pending
                 </>
               )}
@@ -274,7 +274,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-4">
         <div>
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-400" />
+            <Calendar className="size-5 text-indigo-400" />
             Life Grid Console
           </h2>
           <p className="text-xs text-slate-400 font-semibold mt-1">
@@ -291,20 +291,20 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
         </div>
 
         <div className="flex items-center gap-3 bg-slate-950/30 border border-white/5 p-1 rounded-xl">
-          <button
+          <button type="button"
             onClick={handlePrevMonth}
             className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="size-4" />
           </button>
           <span className="font-extrabold text-xs uppercase tracking-[0.15em] text-slate-200 px-2 min-w-[120px] text-center">
             {monthLabel}
           </span>
-          <button
+          <button type="button"
             onClick={handleNextMonth}
             className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="size-4" />
           </button>
         </div>
       </div>

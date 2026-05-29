@@ -17,9 +17,8 @@ function LoginContent() {
   const updateSettings = useLifeStore((state) => state.updateSettings);
   const isLoggedIn = useLifeStore((state) => state.settings.isLoggedIn);
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(() => searchParams.get("signup") === "true");
   const [combo, setCombo] = useState<Combo | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   // Form Fields
@@ -29,8 +28,9 @@ function LoginContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { push } = router;
 
-  // Initialize random wallpaper and quote
+  // Initialize random wallpaper and hydration
   useEffect(() => {
     setCombo(getRandomCombo());
     
@@ -44,38 +44,21 @@ function LoginContent() {
     }
   }, []);
 
-  // Read query params after hydration
-  useEffect(() => {
-    if (hasHydrated) {
-      const signupParam = searchParams.get("signup");
-      if (signupParam === "true") {
-        setIsSignUp(true);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-      }
-    }
-  }, [hasHydrated, searchParams]);
-
   // Redirect if already logged in
   useEffect(() => {
-    if (hasHydrated) {
-      setIsMounted(true);
-      if (isLoggedIn) {
-        router.push("/dashboard");
-      }
+    if (hasHydrated && isLoggedIn) {
+      push("/dashboard");
     }
-  }, [hasHydrated, isLoggedIn, router]);
+  }, [hasHydrated, isLoggedIn, push]);
 
   const handleCycleInspiration = () => {
     setCombo(getRandomCombo());
   };
 
-  if (!hasHydrated || !isMounted || !combo || isLoggedIn) {
+  if (!hasHydrated || !combo || isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+        <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -123,10 +106,10 @@ function LoginContent() {
       <div className="absolute inset-0 bg-black/45 backdrop-blur-[5px] z-0 pointer-events-none" />
 
       {/* Header */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+      <header className="relative z-10 w-full max-w-7xl mx-auto p-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center backdrop-blur-md transition-all">
-            <ArrowLeft className="w-4 h-4 text-white group-hover:-translate-x-0.5 transition-transform" />
+          <div className="size-8 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center backdrop-blur-md transition-all">
+            <ArrowLeft className="size-4 text-white group-hover:-translate-x-0.5 transition-transform" />
           </div>
           <span className="font-semibold text-sm text-slate-200 group-hover:text-white transition-colors">
             Back to Home
@@ -166,7 +149,7 @@ function LoginContent() {
                   Full Name
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                  <User className="absolute left-3 top-2.5 size-4 text-slate-500" />
                   <Input
                     id="name"
                     type="text"
@@ -184,7 +167,7 @@ function LoginContent() {
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                <Mail className="absolute left-3 top-2.5 size-4 text-slate-500" />
                 <Input
                   id="email"
                   type="email"
@@ -212,7 +195,7 @@ function LoginContent() {
                 )}
               </div>
               <div className="relative">
-                <Key className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                <Key className="absolute left-3 top-2.5 size-4 text-slate-500" />
                 <Input
                   id="password"
                   type="password"
@@ -230,7 +213,7 @@ function LoginContent() {
                   Confirm Password
                 </Label>
                 <div className="relative">
-                  <Key className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                  <Key className="absolute left-3 top-2.5 size-4 text-slate-500" />
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -249,14 +232,14 @@ function LoginContent() {
               className="w-full mt-2 py-6 rounded-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300 text-white shadow-xl shadow-indigo-950/20"
             >
               {isLoading ? (
-                <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                <div className="size-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
               ) : isSignUp ? (
                 <span className="flex items-center gap-2">
-                  Launch My LifeOS <ArrowRight className="w-4 h-4" />
+                  Launch My LifeOS <ArrowRight className="size-4" />
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Enter Dashboard <ArrowRight className="w-4 h-4" />
+                  Enter Dashboard <ArrowRight className="size-4" />
                 </span>
               )}
             </Button>
@@ -270,7 +253,7 @@ function LoginContent() {
             </span>
           </div>
 
-          <button
+          <button type="button"
             onClick={() => {
               setIsSignUp(!isSignUp);
               setError("");
@@ -283,14 +266,14 @@ function LoginContent() {
       </main>
 
       {/* Quote / Background credit footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button
+          <button type="button"
             onClick={handleCycleInspiration}
-            className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center backdrop-blur-md transition-all animate-pulse"
+            className="size-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center backdrop-blur-md transition-all animate-pulse"
             title="Cycle background and quote"
           >
-            <RefreshCw className="w-4 h-4 animate-spin-slow" />
+            <RefreshCw className="size-4 animate-spin-slow" />
           </button>
           <div className="text-left">
             <p className="text-xs text-slate-200 italic font-medium max-w-lg truncate">
@@ -312,7 +295,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+        <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
       </div>
     }>
       <LoginContent />

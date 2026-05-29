@@ -153,7 +153,7 @@ export default function JourneyReplay() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-4 no-print">
         <div>
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Award className="w-5 h-5 text-indigo-400" />
+            <Award className="size-5 text-indigo-400" />
             {viewMode === "monthly" ? "Monthly Journey Replay" : "Lifetime Legacy Archives"}
           </h2>
           <p className="text-xs text-slate-400 font-semibold mt-1">
@@ -164,13 +164,13 @@ export default function JourneyReplay() {
         <div className="flex items-center gap-4">
           {/* Toggle View Mode */}
           <div className="flex items-center bg-slate-950/40 p-1 rounded-xl border border-white/5">
-            <button
+            <button type="button"
               onClick={() => setViewMode("monthly")}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "monthly" ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}
             >
               Monthly
             </button>
-            <button
+            <button type="button"
               onClick={() => setViewMode("lifetime")}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "lifetime" ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}
             >
@@ -180,14 +180,14 @@ export default function JourneyReplay() {
 
           {viewMode === "monthly" && (
             <div className="flex items-center gap-3 bg-slate-950/30 border border-white/5 p-1 rounded-xl">
-              <button onClick={handlePrevMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
-                <ChevronLeft className="w-4 h-4" />
+              <button type="button" onClick={handlePrevMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
+                <ChevronLeft className="size-4" />
               </button>
               <span className="font-extrabold text-xs uppercase tracking-[0.15em] text-slate-200 px-2 min-w-[120px] text-center">
                 {monthLabel}
               </span>
-              <button onClick={handleNextMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
-                <ChevronRight className="w-4 h-4" />
+              <button type="button" onClick={handleNextMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
+                <ChevronRight className="size-4" />
               </button>
             </div>
           )}
@@ -196,8 +196,8 @@ export default function JourneyReplay() {
 
       {!activeData.hasData ? (
         <div className="rounded-2xl border border-white/5 bg-slate-950/20 p-12 text-center flex flex-col items-center justify-center gap-4 no-print">
-          <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500">
-            <Calendar className="w-6 h-6" />
+          <div className="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500">
+            <Calendar className="size-6" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">No Telemetry Recorded</h3>
@@ -216,11 +216,11 @@ export default function JourneyReplay() {
         >
           {/* Replay Visual Card */}
           <div className="relative rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-slate-950 via-slate-950 to-indigo-950/20 p-6 shadow-2xl overflow-hidden group print-bg">
-            <div className="absolute -right-20 -top-20 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/15 transition-all no-print"></div>
-            <div className="absolute -left-20 -bottom-20 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl pointer-events-none no-print"></div>
+            <div className="absolute -right-20 -top-20 size-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/15 transition-all no-print"></div>
+            <div className="absolute -left-20 -bottom-20 size-48 bg-purple-500/5 rounded-full blur-3xl pointer-events-none no-print"></div>
 
             <div className="absolute right-6 top-6 flex items-center gap-1.5 opacity-20 print-opacity-100">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <Sparkles className="size-4 text-indigo-400" />
               <span className="font-extrabold text-[10px] tracking-[0.2em] text-white print-text-black uppercase">LifeOS Snapshot</span>
             </div>
 
@@ -242,7 +242,7 @@ export default function JourneyReplay() {
               
               <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
                 <span className="text-[10px] font-black text-emerald-400 print-text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-4 h-4" /> {viewMode === "monthly" ? "Monthly Achievements" : "Lifetime Achievements"}
+                  <Award className="size-4" /> {viewMode === "monthly" ? "Monthly Achievements" : "Lifetime Achievements"}
                 </span>
                 <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
                   {activeData.achievements} <span className="text-sm text-slate-500 font-semibold">Targets Hit</span>
@@ -251,7 +251,7 @@ export default function JourneyReplay() {
 
               <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
                 <span className="text-[10px] font-black text-rose-400 print-text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertTriangle className="w-4 h-4" /> {viewMode === "monthly" ? "Unfinished Targets" : "Lifetime Misses"}
+                  <AlertTriangle className="size-4" /> {viewMode === "monthly" ? "Unfinished Targets" : "Lifetime Misses"}
                 </span>
                 <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
                   {activeData.failures} <span className="text-sm text-slate-500 font-semibold">Targets Missed</span>
@@ -260,7 +260,7 @@ export default function JourneyReplay() {
 
               <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
                 <span className="text-[10px] font-black text-indigo-400 print-text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
-                  {viewMode === "monthly" ? <Zap className="w-4 h-4" /> : <Globe className="w-4 h-4" />} 
+                  {viewMode === "monthly" ? <Zap className="size-4" /> : <Globe className="size-4" />} 
                   {viewMode === "monthly" ? "Focus Streak" : "Lifetime Focus"}
                 </span>
                 <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
@@ -273,7 +273,7 @@ export default function JourneyReplay() {
 
               <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
                 <span className="text-[10px] font-black text-yellow-400 print-text-yellow-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <DollarSign className="w-4 h-4" /> Ledger Overhead
+                  <DollarSign className="size-4" /> Ledger Overhead
                 </span>
                 <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
                   ${activeData.totalSpent.toLocaleString()}{" "}
@@ -289,11 +289,11 @@ export default function JourneyReplay() {
               <div className="flex items-center gap-2">
                 {activeData.totalSpent > activeData.totalIncome && activeData.totalIncome > 0 ? (
                   <span className="text-[10px] font-black uppercase text-rose-400 print-text-rose-600 flex items-center gap-1 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-full">
-                    <TrendingUp className="w-3.5 h-3.5" /> Deficit {viewMode === "monthly" ? "Month" : "Overall"}
+                    <TrendingUp className="size-3.5" /> Deficit {viewMode === "monthly" ? "Month" : "Overall"}
                   </span>
                 ) : (
                   <span className="text-[10px] font-black uppercase text-emerald-400 print-text-emerald-600 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                    <TrendingDown className="w-3.5 h-3.5" /> Financial Stability
+                    <TrendingDown className="size-3.5" /> Financial Stability
                   </span>
                 )}
                 {viewMode === "monthly" && (
@@ -308,7 +308,7 @@ export default function JourneyReplay() {
                   onClick={handleExportPDF}
                   className="flex-1 sm:flex-none bg-indigo-500 hover:bg-indigo-600 font-bold py-5 px-6 text-xs gap-2 rounded-xl shadow-lg shadow-indigo-500/20"
                 >
-                  <Download className="w-4 h-4" /> Export as PDF
+                  <Download className="size-4" /> Export as PDF
                 </Button>
               </div>
             </div>

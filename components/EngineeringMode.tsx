@@ -103,7 +103,7 @@ export default function EngineeringMode() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-emerald-500/20 pb-4 gap-4">
         <div>
           <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Terminal className="w-5 h-5 text-emerald-400" />
+            <Terminal className="size-5 text-emerald-400" />
             ENGINEERING MODE v1.0
           </h2>
           <p className="text-[10px] text-emerald-600 font-semibold mt-1">
@@ -119,7 +119,7 @@ export default function EngineeringMode() {
       <div className="p-5 rounded-2xl border border-emerald-500/20 bg-black/80 shadow-lg shadow-emerald-950/10">
         <div className="flex items-center justify-between border-b border-emerald-500/10 pb-3 mb-4">
           <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider">
-            <GitCommit className="w-4 h-4 text-emerald-400" />
+            <GitCommit className="size-4 text-emerald-400" />
             Target Check-in Contribution Map
           </div>
           <span className="text-[9px] text-emerald-600">84 Day Consistency Telemetry</span>
@@ -158,7 +158,7 @@ export default function EngineeringMode() {
                   return (
                     <div key={dIdx} className="relative group">
                       <div
-                        className={`w-3.5 h-3.5 rounded-[1px] transition-all cursor-pointer ${bgColor} ${hoverShadow}`}
+                        className={`size-3.5 rounded-[1px] transition-all cursor-pointer ${bgColor} ${hoverShadow}`}
                       />
                       
                       {/* Custom Monospace Tooltip */}
@@ -185,9 +185,9 @@ export default function EngineeringMode() {
           <span>{heatmapDays[0]?.dateStr} to {heatmapDays[heatmapDays.length-1]?.dateStr}</span>
           <div className="flex items-center gap-1.5">
             <span>Less</span>
-            <div className="w-2.5 h-2.5 rounded-[1px] bg-slate-900 border border-emerald-950/50"></div>
-            <div className="w-2.5 h-2.5 rounded-[1px] bg-emerald-900/40 border border-emerald-800/45"></div>
-            <div className="w-2.5 h-2.5 rounded-[1px] bg-emerald-400 border border-emerald-300"></div>
+            <div className="size-2.5 rounded-[1px] bg-slate-900 border border-emerald-950/50"></div>
+            <div className="size-2.5 rounded-[1px] bg-emerald-900/40 border border-emerald-800/45"></div>
+            <div className="size-2.5 rounded-[1px] bg-emerald-400 border border-emerald-300"></div>
             <span>More</span>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function EngineeringMode() {
         <div className="lg:col-span-7 rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
-              <Cpu className="w-4.5 h-4.5" /> DSA Problem Log
+              <Cpu className="size-4.5" /> DSA Problem Log
             </h3>
             <span className="text-[9px] text-emerald-600">Total Solved: {dsaStats.total}</span>
           </div>
@@ -264,7 +264,7 @@ export default function EngineeringMode() {
                   className="flex items-center justify-between p-2.5 rounded bg-emerald-950/10 border border-emerald-500/5 text-xs hover:bg-emerald-950/20 transition-all group"
                 >
                   <div className="flex items-center gap-2 max-w-[70%]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span className="text-white truncate font-semibold" title={problem.title}>
                       {problem.title}
                     </span>
@@ -283,11 +283,11 @@ export default function EngineeringMode() {
                     >
                       {problem.difficulty}
                     </span>
-                    <button
+                    <button type="button"
                       onClick={() => store.deleteDsaProblem(problem.id)}
                       className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/5 text-rose-400 transition-all"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="size-3.5" />
                     </button>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export default function EngineeringMode() {
         <div className="lg:col-span-5 rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
-              <Code className="w-4.5 h-4.5" /> Languages Cockpit
+              <Code className="size-4.5" /> Languages Cockpit
             </h3>
             <span className="text-[9px] text-emerald-600">Hours Tracking</span>
           </div>
@@ -315,18 +315,18 @@ export default function EngineeringMode() {
                     <span className="text-emerald-500">{lang.level}</span>
                     <span className="text-slate-400">({lang.hours}h)</span>
                     <div className="flex gap-1">
-                      <button
+                      <button type="button"
                         onClick={() => handleAdjustLanguageHours(lang.name, -1)}
                         disabled={lang.hours <= 0}
                         className="text-emerald-500 hover:text-emerald-400 disabled:opacity-30"
                       >
-                        <MinusCircle className="w-3.5 h-3.5" />
+                        <MinusCircle className="size-3.5" />
                       </button>
-                      <button
+                      <button type="button"
                         onClick={() => handleAdjustLanguageHours(lang.name, 1)}
                         className="text-emerald-500 hover:text-emerald-400"
                       >
-                        <PlusCircle className="w-3.5 h-3.5" />
+                        <PlusCircle className="size-3.5" />
                       </button>
                     </div>
                   </div>
@@ -350,7 +350,7 @@ export default function EngineeringMode() {
       <div className="p-5 rounded-2xl border border-emerald-500/20 bg-black/80 shadow-lg flex flex-col gap-4">
         <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
           <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
-            <BookOpen className="w-4.5 h-4.5" /> Topic Mastery Assessment
+            <BookOpen className="size-4.5" /> Topic Mastery Assessment
           </h3>
           <span className="text-[9px] text-emerald-600">Computer Science Mastery</span>
         </div>
@@ -368,19 +368,19 @@ export default function EngineeringMode() {
 
               {/* Adjust Score Buttons */}
               <div className="flex items-center gap-2.5 mt-1">
-                <button
+                <button type="button"
                   onClick={() => handleAdjustMastery(m.topic, m.score - 5)}
                   disabled={m.score <= 0}
                   className="p-0.5 text-emerald-600 hover:text-emerald-400 disabled:opacity-30"
                 >
-                  <MinusCircle className="w-4 h-4" />
+                  <MinusCircle className="size-4" />
                 </button>
-                <button
+                <button type="button"
                   onClick={() => handleAdjustMastery(m.topic, m.score + 5)}
                   disabled={m.score >= 100}
                   className="p-0.5 text-emerald-600 hover:text-emerald-400 disabled:opacity-30"
                 >
-                  <PlusCircle className="w-4 h-4" />
+                  <PlusCircle className="size-4" />
                 </button>
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function EngineeringMode() {
         <div className="rounded-2xl border border-emerald-500/20 bg-black/80 p-5 flex flex-col gap-4 shadow-lg">
           <div className="flex justify-between items-center border-b border-emerald-500/10 pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
-              <BookMarked className="w-4.5 h-4.5" /> Focus Debt Ledger
+              <BookMarked className="size-4.5" /> Focus Debt Ledger
             </h3>
             <span className="text-[9px] text-emerald-600">Courses & Books</span>
           </div>
@@ -427,15 +427,15 @@ export default function EngineeringMode() {
                   className="flex items-center justify-between p-2.5 rounded bg-emerald-950/10 border border-emerald-500/5 text-xs hover:bg-emerald-950/20 transition-all group"
                 >
                   <div className="flex items-center gap-2 max-w-[70%]">
-                    <button
+                    <button type="button"
                       onClick={() => store.toggleCourseStatus(course.id)}
-                      className={`w-4 h-4 flex items-center justify-center rounded border ${
+                      className={`size-4 flex items-center justify-center rounded border ${
                         course.status === "Finished" 
                           ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" 
                           : "border-emerald-900 hover:border-emerald-500/50"
                       }`}
                     >
-                      {course.status === "Finished" && <CheckCircle className="w-3 h-3" />}
+                      {course.status === "Finished" && <CheckCircle className="size-3" />}
                     </button>
                     <span className={`truncate font-semibold ${course.status === "Finished" ? "text-emerald-700 line-through" : "text-white"}`} title={course.title}>
                       {course.title}
@@ -446,11 +446,11 @@ export default function EngineeringMode() {
                     <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${course.status === "Finished" ? "bg-emerald-500/10 text-emerald-400" : "bg-yellow-500/10 text-yellow-400"}`}>
                       {course.status}
                     </span>
-                    <button
+                    <button type="button"
                       onClick={() => store.deleteCourse(course.id)}
                       className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/5 text-rose-400 transition-all"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="size-3.5" />
                     </button>
                   </div>
                 </div>
@@ -488,7 +488,7 @@ export default function EngineeringMode() {
 
           <p className="text-[10px] font-semibold text-emerald-500 mt-2 text-center max-w-[80%]">
             {unfinishedCourses > 3 
-              ? <span className="text-rose-400 flex items-center justify-center gap-1"><AlertTriangle className="w-3 h-3"/> High Focus Debt! Finish pending courses before starting new ones.</span>
+              ? <span className="text-rose-400 flex items-center justify-center gap-1"><AlertTriangle className="size-3"/> High Focus Debt! Finish pending courses before starting new ones.</span>
               : "Focus Debt is manageable. Consistency is key."}
           </p>
         </div>

@@ -55,11 +55,11 @@ export default function DailyTaskSystem() {
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl backdrop-blur-md min-h-[400px]">
+    <div className="flex flex-col size-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden shadow-xl backdrop-blur-md min-h-[400px]">
       {/* Header */}
       <div className="p-4 border-b border-white/10 bg-slate-950/40">
         <h2 className="text-lg font-black text-white flex items-center gap-2">
-          <Check className="w-5 h-5 text-indigo-400" />
+          <Check className="size-5 text-indigo-400" />
           Daily Execution
         </h2>
         
@@ -94,16 +94,16 @@ export default function DailyTaskSystem() {
               }`}
             >
               <div className="flex items-center gap-3 flex-1 overflow-hidden">
-                <button 
+                <button type="button" 
                   onClick={() => toggleTask(task)}
                   className="flex-shrink-0 focus:outline-none transition-transform active:scale-90"
                 >
                   {task.status === 'completed' ? (
-                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="size-5 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50">
+                      <Check className="size-3.5 text-emerald-400" />
                     </div>
                   ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-600 hover:border-indigo-400 transition-colors" />
+                    <div className="size-5 rounded-full border-2 border-slate-600 hover:border-indigo-400 transition-colors" />
                   )}
                 </button>
 
@@ -122,21 +122,21 @@ export default function DailyTaskSystem() {
                 </span>
                 
                 {task.status !== 'completed' && (
-                  <button 
+                  <button type="button" 
                     onClick={() => startFocus(task.id)}
                     className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-colors"
                     title="Focus Mode"
                   >
-                    <Clock className="w-3.5 h-3.5" />
+                    <Clock className="size-3.5" />
                   </button>
                 )}
                 
-                <button 
+                <button type="button" 
                   onClick={() => deleteTask(task.id)}
                   className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors"
                   title="Delete"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="size-3.5" />
                 </button>
               </div>
             </motion.div>
@@ -145,7 +145,7 @@ export default function DailyTaskSystem() {
         
         {dailyTasks.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-slate-500 gap-2 h-full">
-            <AlertCircle className="w-8 h-8 opacity-20" />
+            <AlertCircle className="size-8 opacity-20" />
             <p className="text-xs font-semibold">No active tasks for today.</p>
           </div>
         )}
@@ -175,9 +175,9 @@ export default function DailyTaskSystem() {
           <button
             type="submit"
             disabled={!newTaskTitle.trim()}
-            className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 transition-colors"
+            className="size-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="size-4" />
           </button>
         </form>
       </div>
