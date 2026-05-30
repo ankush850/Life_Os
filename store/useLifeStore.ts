@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createClient } from '@/lib/supabase/client';
 
 export interface Task {
   id: string;
@@ -199,6 +200,9 @@ interface LifeState {
   deleteDayTaskInstance: (date: string, instanceId: string) => void;
   addDayTaskInstance: (date: string, task: { title: string; duration?: string; startTime?: string }) => void;
 
+  // Cloud Sync
+  hydrateFromCloud: (data: Record<string, unknown>) => void;
+
   // Utilities
   clearAllData: () => void;
 }
@@ -243,10 +247,13 @@ export const useLifeStore = create<LifeState>()(
         set((state) => ({
           settings: { ...state.settings, ...fields },
         })),
-      logout: () =>
+      logout: () => {
+        const supabase = createClient();
+        supabase.auth.signOut();
         set((state) => ({
           settings: { ...state.settings, isLoggedIn: false },
-        })),
+        }));
+      },
 
       // Tasks (Start completely empty)
       tasks: [],
@@ -600,6 +607,26 @@ export const useLifeStore = create<LifeState>()(
             status: 'pending',
           });
           return { dayTasks: updatedDayTasks };
+        }),
+
+      // Cloud Sync: hydrate store with data loaded from Supabase
+      hydrateFromCloud: (data: Record<string, unknown>) =>
+        set((state) => {
+          const hydrated: Record<string, unknown> = {};
+          // Only hydrate keys that exist in the store and are present in cloud data
+          const allowedKeys = [
+            'tasks', 'expenses', 'habits', 'events', 'dailyTargets',
+            'engineeringDsa', 'engineeringLanguages', 'engineeringMastery',
+            'engineeringCourses', 'monthlyMissions', 'projects',
+            'focusSeconds', 'focusPausedSeconds', 'focusTaskId',
+            'gridTasks', 'dayTasks',
+          ];
+          for (const key of allowedKeys) {
+            if (data[key] !== undefined) {
+              hydrated[key] = data[key];
+            }
+          }
+          return { ...state, ...hydrated };
         }),
 
       // Clear all
