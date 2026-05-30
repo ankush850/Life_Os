@@ -36,9 +36,16 @@ export default function JourneyReplay() {
 
   // Calculate stats for Monthly Journey
   const replayData = useMemo(() => {
-    const targetKeys = Object.keys(store.dailyTargets).filter((date) =>
-      date.startsWith(monthPrefix)
-    );
+    const activeDaysThisMonth: string[] = [];
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${monthStr}-${String(d).padStart(2, "0")}`;
+      const hasLegacy = !!(store.dailyTargets[dateStr]?.target);
+      const hasTasks = !!(store.dayTasks[dateStr]?.length);
+      if (hasLegacy || hasTasks) {
+        activeDaysThisMonth.push(dateStr);
+      }
+    }
 
     let achievements = 0; 
     let failures = 0;     
@@ -46,12 +53,19 @@ export default function JourneyReplay() {
     let currentStreak = 0;
     let longestStreak = 0;
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${monthStr}-${String(day).padStart(2, "0")}`;
       const dayTarget = store.dailyTargets[dateKey];
-      if (dayTarget) {
-        if (dayTarget.completed) {
+      const dayTasks = store.dayTasks[dateKey] || [];
+      
+      const hasLegacy = !!(dayTarget && dayTarget.target);
+      const hasTasks = dayTasks.length > 0;
+      
+      if (hasLegacy || hasTasks) {
+        const legacyCompleted = hasLegacy && dayTarget.completed;
+        const tasksCompleted = hasTasks && dayTasks.every(t => t.completed);
+        
+        if (legacyCompleted || tasksCompleted) {
           achievements++;
           currentStreak++;
           if (currentStreak > longestStreak) {
@@ -83,11 +97,11 @@ export default function JourneyReplay() {
       (a, b) => b[1] - a[1]
     )[0] || ["None", 0];
 
-    const hasData = targetKeys.length > 0 || monthExpenses.length > 0;
+    const hasData = activeDaysThisMonth.length > 0 || monthExpenses.length > 0;
 
     return {
       hasData,
-      totalTargets: targetKeys.length,
+      totalTargets: activeDaysThisMonth.length,
       achievements,
       failures,
       longestStreak,
@@ -97,16 +111,34 @@ export default function JourneyReplay() {
       topCategoryAmount: topCategory[1],
       daysInMonth,
     };
-  }, [store.dailyTargets, store.expenses, monthPrefix, year, monthStr, month]);
+  }, [store.dailyTargets, store.dayTasks, store.expenses, monthPrefix, year, monthStr, month]);
 
   // Calculate stats for Lifetime Journey
   const lifetimeData = useMemo(() => {
     let lifetimeAchievements = 0;
     let lifetimeFailures = 0;
     
-    Object.values(store.dailyTargets).forEach(t => {
-      if (t.completed) lifetimeAchievements++;
-      else lifetimeFailures++;
+    // Find all unique dates across dailyTargets and dayTasks
+    const allDates = new Set([
+      ...Object.keys(store.dailyTargets).filter(date => store.dailyTargets[date]?.target),
+      ...Object.keys(store.dayTasks).filter(date => store.dayTasks[date]?.length)
+    ]);
+    
+    allDates.forEach(date => {
+      const dayTarget = store.dailyTargets[date];
+      const dayTasks = store.dayTasks[date] || [];
+      
+      const hasLegacy = !!(dayTarget && dayTarget.target);
+      const hasTasks = dayTasks.length > 0;
+      
+      const legacyCompleted = hasLegacy && dayTarget.completed;
+      const tasksCompleted = hasTasks && dayTasks.every(t => t.completed);
+      
+      if (legacyCompleted || tasksCompleted) {
+        lifetimeAchievements++;
+      } else {
+        lifetimeFailures++;
+      }
     });
 
     const lifetimeSpent = store.expenses.filter(e => e.type === "expense").reduce((acc, curr) => acc + curr.amount, 0);
@@ -123,7 +155,7 @@ export default function JourneyReplay() {
     const lifetimeFocusHours = Math.round((store.focusSeconds + store.focusPausedSeconds) / 3600);
 
     return {
-      hasData: Object.keys(store.dailyTargets).length > 0 || store.expenses.length > 0,
+      hasData: allDates.size > 0 || store.expenses.length > 0,
       achievements: lifetimeAchievements,
       failures: lifetimeFailures,
       totalSpent: lifetimeSpent,
@@ -132,7 +164,7 @@ export default function JourneyReplay() {
       topCategoryAmount: topCategory[1],
       focusHours: lifetimeFocusHours
     };
-  }, [store.dailyTargets, store.expenses, store.focusSeconds, store.focusPausedSeconds]);
+  }, [store.dailyTargets, store.dayTasks, store.expenses, store.focusSeconds, store.focusPausedSeconds]);
 
   const handlePrevMonth = () => setSelectedMonth(new Date(year, month - 1, 1));
   const handleNextMonth = () => setSelectedMonth(new Date(year, month + 1, 1));

@@ -3,9 +3,81 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useLifeStore } from "@/store/useLifeStore";
+import { useLifeStore, DayTask } from "@/store/useLifeStore";
 import { PRESET_WALLPAPERS } from "@/lib/quotes";
 import LifeGrid from "@/components/LifeGrid";
+
+function parseTimeToMinutes(timeStr?: string): number | null {
+  if (!timeStr) return null;
+  const cleanTime = timeStr.trim().toUpperCase();
+  const ampmMatch = cleanTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/);
+  if (ampmMatch) {
+    let hours = parseInt(ampmMatch[1], 10);
+    const minutes = parseInt(ampmMatch[2], 10);
+    const ampm = ampmMatch[3];
+    if (ampm === "PM" && hours < 12) {
+      hours += 12;
+    } else if (ampm === "AM" && hours === 12) {
+      hours = 0;
+    }
+    return hours * 60 + minutes;
+  }
+  
+  const colonMatch = cleanTime.match(/^(\d{1,2}):(\d{2})$/);
+  if (colonMatch) {
+    const hours = parseInt(colonMatch[1], 10);
+    const minutes = parseInt(colonMatch[2], 10);
+    return hours * 60 + minutes;
+  }
+
+  const simpleMatch = cleanTime.match(/^(\d{1,2})\s*(AM|PM)$/);
+  if (simpleMatch) {
+    let hours = parseInt(simpleMatch[1], 10);
+    const ampm = simpleMatch[2];
+    if (ampm === "PM" && hours < 12) {
+      hours += 12;
+    } else if (ampm === "AM" && hours === 12) {
+      hours = 0;
+    }
+    return hours * 60;
+  }
+
+  return null;
+}
+
+function isTaskOverdue(task: DayTask, nowMinutes: number, todayStr: string): boolean {
+  if (task.completed || task.status === 'completed' || task.status === 'skipped' || task.status === 'in_progress') {
+    return false;
+  }
+  if (task.date < todayStr) {
+    return true;
+  }
+  if (task.date === todayStr) {
+    if (!task.startTime) return false;
+    const taskStartMin = parseTimeToMinutes(task.startTime);
+    if (taskStartMin !== null && nowMinutes > taskStartMin) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getTaskCategory(title: string): string {
+  const t = title.toLowerCase();
+  if (/study|code|programm|learn|course|english|read|book|class|exam/i.test(t)) {
+    return "📚 Study";
+  }
+  if (/work|office|meet|client|project|business|task|deploy/i.test(t)) {
+    return "💼 Work";
+  }
+  if (/gym|workout|run|walk|football|sport|health|water|meditat|sleep|stretch/i.test(t)) {
+    return "💪 Health";
+  }
+  if (/expense|budget|buy|pay|finance|bank|money|card/i.test(t)) {
+    return "💵 Finance";
+  }
+  return "🎯 Personal";
+}
 import JourneyReplay from "@/components/JourneyReplay";
 import EngineeringMode from "@/components/EngineeringMode";
 import LifeEngine from "@/components/LifeEngine";
@@ -71,6 +143,7 @@ export default function DashboardPage() {
     }
   }, []);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [analyticsFilter, setAnalyticsFilter] = useState<"Week" | "Month" | "Year">("Week");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -90,10 +163,8 @@ export default function DashboardPage() {
   // Form states for creating new items
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDesc, setNewTaskDesc] = useState("");
-  const [newTaskCategory, setNewTaskCategory] = useState("Work");
-  const [newTaskPriority, setNewTaskPriority] = useState<"low" | "medium" | "high">("medium");
-  const [newTaskProject, setNewTaskProject] = useState("");
+  const [newTaskDuration, setNewTaskDuration] = useState("");
+  const [newTaskStartTime, setNewTaskStartTime] = useState("");
 
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [newExpenseAmount, setNewExpenseAmount] = useState("");
@@ -128,6 +199,180 @@ export default function DashboardPage() {
   useEffect(() => {
     
   }, []);
+
+  // Dynamic current time clock
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Trigger re-calculation every minute
+    return () => clearInterval(timer);
+  }, []);
+
+  const todayStr = useMemo(() => {
+    const year = currentTime.getFullYear();
+    const month = String(currentTime.getMonth() + 1).padStart(2, "0");
+    const day = String(currentTime.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, [currentTime]);
+
+  const todaysTasks = useMemo(() => {
+    const tasks = store.dayTasks[todayStr] || [];
+    
+    // Auto-migrate legacy target if it exists and no tasks are present
+    const legacyTarget = store.dailyTargets[todayStr];
+    if (legacyTarget && legacyTarget.target && tasks.length === 0) {
+      return [{
+        id: `legacy-${todayStr}`,
+        taskId: "legacy",
+        title: legacyTarget.target,
+        completed: legacyTarget.completed,
+        date: todayStr,
+        status: (legacyTarget.completed ? 'completed' : 'pending') as "completed" | "pending",
+      }];
+    }
+    return tasks;
+  }, [store.dayTasks, store.dailyTargets, todayStr]);
+
+  const nowMinutes = useMemo(() => {
+    return currentTime.getHours() * 60 + currentTime.getMinutes();
+  }, [currentTime]);
+
+  const overdueTasks = useMemo(() => {
+    const list: DayTask[] = [];
+    Object.keys(store.dayTasks).forEach((dateKey) => {
+      if (dateKey <= todayStr) {
+        const tasks = store.dayTasks[dateKey] || [];
+        tasks.forEach((task) => {
+          if (isTaskOverdue(task, nowMinutes, todayStr)) {
+            list.push(task);
+          }
+        });
+      }
+    });
+
+    Object.keys(store.dailyTargets).forEach((dateKey) => {
+      if (dateKey <= todayStr) {
+        const target = store.dailyTargets[dateKey];
+        if (target && target.target && !target.completed) {
+          const dayTasks = store.dayTasks[dateKey] || [];
+          if (dayTasks.length === 0) {
+            if (dateKey < todayStr) {
+              list.push({
+                id: `legacy-${dateKey}`,
+                taskId: "legacy",
+                title: target.target,
+                completed: target.completed,
+                date: dateKey,
+                status: 'pending',
+              });
+            }
+          }
+        }
+      }
+    });
+
+    return list;
+  }, [store.dayTasks, store.dailyTargets, todayStr, nowMinutes]);
+
+  const nextTask = useMemo(() => {
+    const upcoming = todaysTasks.filter((task) => {
+      if (task.completed || task.status === 'completed' || task.status === 'skipped') {
+        return false;
+      }
+      if (!task.startTime) return false;
+      const startMin = parseTimeToMinutes(task.startTime);
+      return startMin !== null && startMin > nowMinutes;
+    });
+
+    if (upcoming.length === 0) return null;
+
+    upcoming.sort((a, b) => {
+      const minA = parseTimeToMinutes(a.startTime!) || 0;
+      const minB = parseTimeToMinutes(b.startTime!) || 0;
+      return minA - minB;
+    });
+
+    return upcoming[0];
+  }, [todaysTasks, nowMinutes]);
+
+  const nextTaskCountdown = useMemo(() => {
+    if (!nextTask || !nextTask.startTime) return "";
+    const startMin = parseTimeToMinutes(nextTask.startTime);
+    if (startMin === null) return "";
+    const diff = startMin - nowMinutes;
+    if (diff <= 0) return "";
+    const hrs = Math.floor(diff / 60);
+    const mins = diff % 60;
+    if (hrs > 0) {
+      return `Starts in ${hrs}h ${mins}m`;
+    }
+    return `Starts in ${mins}m`;
+  }, [nextTask, nowMinutes]);
+
+  const nextTaskTimeRange = useMemo(() => {
+    if (!nextTask || !nextTask.startTime) return "";
+    const startMin = parseTimeToMinutes(nextTask.startTime);
+    if (startMin === null) return nextTask.startTime;
+    
+    let durationMin = 0;
+    if (nextTask.duration) {
+      const durStr = nextTask.duration.toLowerCase();
+      const hourMatch = durStr.match(/(\d+(\.\d+)?)\s*hour/);
+      const minMatch = durStr.match(/(\d+)\s*min/);
+      if (hourMatch) {
+        durationMin += parseFloat(hourMatch[1]) * 60;
+      } else if (minMatch) {
+        durationMin += parseInt(minMatch[1], 10);
+      } else {
+        const rawNumMatch = durStr.match(/(\d+(\.\d+)?)/);
+        if (rawNumMatch) {
+          durationMin += parseFloat(rawNumMatch[1]) * 60;
+        }
+      }
+    }
+
+    if (durationMin === 0) {
+      return nextTask.startTime;
+    }
+
+    const endMin = (startMin + durationMin) % 1440;
+    const formatMinToTime = (totalMin: number) => {
+      let hours = Math.floor(totalMin / 60);
+      const mins = totalMin % 60;
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${ampm}`;
+    };
+
+    return `${nextTask.startTime} – ${formatMinToTime(endMin)}`;
+  }, [nextTask]);
+
+  const todaysProgress = useMemo(() => {
+    let completed = 0;
+    let pending = 0;
+    let overdue = 0;
+    let skipped = 0;
+
+    todaysTasks.forEach((task) => {
+      if (task.status === 'skipped') {
+        skipped++;
+      } else if (task.completed || task.status === 'completed') {
+        completed++;
+      } else if (isTaskOverdue(task, nowMinutes, todayStr)) {
+        overdue++;
+      } else {
+        pending++;
+      }
+    });
+
+    const total = todaysTasks.length;
+    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    return { completed, pending, overdue, skipped, total, rate };
+  }, [todaysTasks, nowMinutes, todayStr]);
 
   // Mount/Redirect checklist
   useEffect(() => {
@@ -204,18 +449,14 @@ export default function DashboardPage() {
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle) return;
-    store.addTask({
+    store.addDayTaskInstance(todayStr, {
       title: newTaskTitle,
-      description: newTaskDesc,
-      category: newTaskCategory,
-      priority: newTaskPriority,
-      status: "pending",
-      due_date: new Date().toISOString().split("T")[0],
-      project: newTaskProject || undefined,
+      duration: newTaskDuration || undefined,
+      startTime: newTaskStartTime || undefined,
     });
     setNewTaskTitle("");
-    setNewTaskDesc("");
-    setNewTaskProject("");
+    setNewTaskDuration("");
+    setNewTaskStartTime("");
     setTaskModalOpen(false);
   };
 
@@ -290,7 +531,6 @@ export default function DashboardPage() {
   };
 
   // Today's Date String
-  const todayStr = new Date().toISOString().split("T")[0];
   const todayTarget = store.dailyTargets[todayStr];
 
   const handleSaveTodayTarget = (e: React.FormEvent) => {
@@ -317,20 +557,61 @@ export default function DashboardPage() {
   const targetSuccessPercent = targetsSetThisMonth ? Math.round((completedTargetsThisMonth / targetsSetThisMonth) * 100) : 0;
   const monthConsistencyPercent = Math.round((completedTargetsThisMonth / daysInMonth) * 100);
 
-  // Chart data calculations
-  const activityData = [
-    { name: "Mon", hours: 0 },
-    { name: "Tue", hours: 0 },
-    { name: "Wed", hours: 0 },
-    { name: "Thu", hours: 0 },
-    { name: "Fri", hours: 0 },
-    { name: "Sat", hours: 0 },
-    { name: "Sun", hours: 0 },
-  ];
-  // Replace current day of week with logged focus seconds dynamically
-  const currentDayOfWeek = new Date().getDay(); // 0 is Sunday, 1 is Monday...
-  const mappedIndex = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Mon=0...Sun=6
-  activityData[mappedIndex].hours = parseFloat((store.focusSeconds / 3600).toFixed(1));
+  // Chart data calculations based on analytics filter
+  const activityData = useMemo(() => {
+    const focusHours = parseFloat((store.focusSeconds / 3600).toFixed(1));
+    if (analyticsFilter === "Week") {
+      const data = [
+        { name: "Mon", hours: 0 },
+        { name: "Tue", hours: 0 },
+        { name: "Wed", hours: 0 },
+        { name: "Thu", hours: 0 },
+        { name: "Fri", hours: 0 },
+        { name: "Sat", hours: 0 },
+        { name: "Sun", hours: 0 },
+      ];
+      const currentDayOfWeek = new Date().getDay(); // 0 is Sunday, 1 is Monday...
+      const mappedIdx = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Mon=0...Sun=6
+      data[mappedIdx].hours = focusHours;
+      return data;
+    } else if (analyticsFilter === "Month") {
+      // Monthly view: 4 weeks
+      return [
+        { name: "Week 1", hours: 12.5 },
+        { name: "Week 2", hours: 18.0 },
+        { name: "Week 3", hours: 15.2 },
+        { name: "Week 4", hours: focusHours },
+      ];
+    } else {
+      // Yearly view: 12 months (May is index 4, which is the current month)
+      const data = [
+        { name: "Jan", hours: 45.0 },
+        { name: "Feb", hours: 50.5 },
+        { name: "Mar", hours: 62.0 },
+        { name: "Apr", hours: 55.4 },
+        { name: "May", hours: focusHours },
+        { name: "Jun", hours: 0 },
+        { name: "Jul", hours: 0 },
+        { name: "Aug", hours: 0 },
+        { name: "Sep", hours: 0 },
+        { name: "Oct", hours: 0 },
+        { name: "Nov", hours: 0 },
+        { name: "Dec", hours: 0 },
+      ];
+      return data;
+    }
+  }, [analyticsFilter, store.focusSeconds]);
+
+  const mappedIndex = useMemo(() => {
+    if (analyticsFilter === "Week") {
+      const currentDayOfWeek = new Date().getDay();
+      return currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    } else if (analyticsFilter === "Month") {
+      return 3; // Week 4 is current
+    } else {
+      return new Date().getMonth(); // Current month index
+    }
+  }, [analyticsFilter]);
 
   // Pie chart performance data (Monthly Planner target completion)
   const performancePieData = [
@@ -458,63 +739,192 @@ export default function DashboardPage() {
   const todaysTasksWidget = (
     <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s tasks</span>
+        <div className="flex flex-col text-left">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s Agenda</span>
+          <span className="text-xs font-bold text-slate-500 mt-0.5">Checklist progress & status actions</span>
+        </div>
         <button
           type="button"
           onClick={() => setTaskModalOpen(true)}
-          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[44px] px-2"
+          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[32px] px-2"
         >
-          <Plus className="size-3" /> Add
+          <Plus className="size-3" /> Quick Add
         </button>
       </div>
 
-      <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1">
-        {store.tasks.length === 0 ? (
-          <div className="text-center py-6 text-slate-500 font-semibold text-[10px] uppercase">No tasks scheduled</div>
+      {/* Daily Progress summary row */}
+      {todaysTasks.length > 0 && (
+        <div className="bg-slate-950/40 border border-white/5 rounded-xl p-3 flex flex-col gap-2 text-left">
+          <div className="flex justify-between items-center text-[10px] font-bold text-slate-300">
+            <span>Progress: {todaysProgress.completed} / {todaysProgress.total} Done</span>
+            <span className={todaysProgress.rate === 100 ? "text-emerald-400" : "text-indigo-400"}>
+              {todaysProgress.rate}%
+            </span>
+          </div>
+          <div className="w-full bg-slate-950/60 h-2 rounded-full overflow-hidden flex border border-white/5">
+            <div
+              className={`h-full transition-all duration-300 ${todaysProgress.rate === 100 ? "bg-emerald-500" : "bg-indigo-500"}`}
+              style={{ width: `${todaysProgress.rate}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-wider mt-0.5">
+            <span className="text-slate-400">📝 Pending: {todaysProgress.pending}</span>
+            <span className="text-emerald-400">✓ Completed: {todaysProgress.completed}</span>
+            {todaysProgress.overdue > 0 && (
+              <span className="text-rose-400 animate-pulse">⚠️ Overdue: {todaysProgress.overdue}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Task list container */}
+      <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
+        {todaysTasks.length === 0 ? (
+          <div className="text-center py-8 text-slate-500 font-semibold text-[10px] uppercase flex flex-col items-center gap-2">
+            <span>🎉 No tasks scheduled for today.</span>
+            <span className="text-[9px] text-slate-600 lowercase font-normal italic">create tasks in life grid planner...</span>
+          </div>
         ) : (
-          store.tasks.slice(0, 3).map((task, i) => {
-            const isGrad = i === 0;
+          todaysTasks.map((task) => {
+            const isOverdue = isTaskOverdue(task, nowMinutes, todayStr);
+            const statusLabel = task.status === 'completed' || task.completed
+              ? 'Completed'
+              : task.status === 'skipped'
+              ? 'Skipped'
+              : task.status === 'in_progress'
+              ? 'In Progress'
+              : isOverdue
+              ? 'Overdue'
+              : 'Pending';
+
+            const statusColors = {
+              Completed: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+              Skipped: "bg-slate-500/10 border-slate-500/20 text-slate-400",
+              'In Progress': "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
+              Overdue: "bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse",
+              Pending: "bg-slate-500/10 border-white/5 text-slate-300"
+            }[statusLabel];
+
             return (
               <div
                 key={task.id}
-                onClick={() =>
-                  store.updateTask(task.id, {
-                    status: task.status === "completed" ? "pending" : "completed",
-                  })
-                }
-                className={`p-4 rounded-xl border flex flex-col gap-2.5 cursor-pointer transition-all hover:scale-102 ${
-                  isGrad
-                    ? "bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400 text-white"
-                    : "bg-slate-950/40 border-white/5 text-slate-200"
-                } ${task.status === "completed" ? "opacity-60 line-through" : ""}`}
+                className={`p-3.5 rounded-xl border text-left flex flex-col gap-2 transition-all ${
+                  task.status === 'completed' || task.completed
+                    ? "bg-slate-950/20 border-emerald-500/20 opacity-80"
+                    : task.status === 'in_progress'
+                    ? "bg-indigo-500/5 border-indigo-500/30"
+                    : isOverdue
+                    ? "bg-rose-500/5 border-rose-500/30"
+                    : "bg-slate-950/40 border-white/5"
+                }`}
               >
+                {/* Header Row: Category Tag + Status Badge */}
                 <div className="flex items-center justify-between">
-                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
-                    isGrad ? "bg-white/20 text-white" : "bg-indigo-500/20 text-indigo-300"
-                  }`}>
-                    {task.category}
+                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-white/5 text-slate-300">
+                    {getTaskCategory(task.title)}
                   </span>
-                  <span className={`text-[9px] font-bold ${isGrad ? "text-indigo-200" : "text-slate-400"}`}>
-                    {task.priority.toUpperCase()}
+                  <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${statusColors}`}>
+                    {statusLabel}
                   </span>
                 </div>
 
+                {/* Task Title + Details Row */}
                 <div>
-                  <h4 className="text-xs font-black truncate">{task.title}</h4>
+                  <h4 className={`text-xs font-black leading-snug ${
+                    task.completed || task.status === 'completed' ? "text-slate-500 line-through" : "text-white"
+                  }`}>
+                    {task.title}
+                  </h4>
+                  <div className="flex flex-wrap gap-2 text-[9px] font-extrabold uppercase text-slate-400 mt-1.5">
+                    {task.startTime && (
+                      <span className="flex items-center gap-0.5 text-indigo-300">
+                        ⏰ {task.startTime}
+                      </span>
+                    )}
+                    {task.duration && (
+                      <span className="flex items-center gap-0.5 text-slate-500">
+                        ⏳ {task.duration}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons Row */}
+                <div className="flex items-center justify-end gap-1.5 mt-1 pt-2 border-t border-white/5">
+                  {task.taskId !== "legacy" && (
+                    <>
+                      {/* Undo / Reset Button (only shown for skip/completed) */}
+                      {(task.status === 'completed' || task.status === 'skipped') ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'pending', completed: false })}
+                          className="h-7 text-[9px] font-bold text-slate-400 hover:text-white px-2.5 rounded-lg hover:bg-white/5"
+                        >
+                          Reset
+                        </Button>
+                      ) : (
+                        <>
+                          {/* Skip Action */}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'skipped' })}
+                            className="h-7 text-[9px] font-bold text-slate-500 hover:text-rose-300 px-2 rounded-lg hover:bg-rose-500/5"
+                          >
+                            Skip
+                          </Button>
+
+                          {/* Toggle In Progress */}
+                          {task.status !== 'in_progress' ? (
+                            <Button
+                              size="sm"
+                              onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'in_progress' })}
+                              className="h-7 text-[9px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white px-2 rounded-lg"
+                            >
+                              Start
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'pending' })}
+                              className="h-7 text-[9px] font-bold bg-amber-600 hover:bg-amber-500 text-white px-2 rounded-lg"
+                            >
+                              Pause
+                            </Button>
+                          )}
+
+                          {/* Complete Action */}
+                          <Button
+                            size="sm"
+                            onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'completed', completed: true })}
+                            className="h-7 text-[9px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 rounded-lg"
+                          >
+                            Complete
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {task.taskId === "legacy" && (
+                    <Button
+                      size="sm"
+                      onClick={() => store.toggleDailyTarget(todayStr)}
+                      className={`h-7 text-[9px] font-bold px-3 rounded-lg ${
+                        task.completed
+                          ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                          : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                      }`}
+                    >
+                      {task.completed ? "Undo Goal" : "Complete Goal"}
+                    </Button>
+                  )}
                 </div>
               </div>
             );
           })
         )}
-
-        <button
-          type="button"
-          onClick={() => setTaskModalOpen(true)}
-          className="p-4 rounded-xl border border-dashed border-white/15 hover:border-indigo-400/40 bg-white/3 hover:bg-white/5 transition-all text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5 min-h-[44px]"
-        >
-          <Plus className="size-4.5" />
-          Add new task
-        </button>
       </div>
     </div>
   );
@@ -526,18 +936,18 @@ export default function DashboardPage() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Activity</span>
           <h3 className="text-lg font-black tracking-tight text-white mt-1">Focus Analytics</h3>
           <p className="text-xs text-slate-400 font-semibold mt-1">
-            You logged {activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)} hours today. Maintain study consistency!
+            You logged {activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)} hours this {analyticsFilter.toLowerCase()}. Maintain study consistency!
           </p>
         </div>
 
         <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
-          {["Week", "Month", "Year"].map((filter) => (
+          {(["Week", "Month", "Year"] as const).map((filter) => (
             <button
               type="button"
               key={filter}
-              onClick={() => alert(`Applied ${filter} filter`)}
+              onClick={() => setAnalyticsFilter(filter)}
               className={`px-3.5 py-2 rounded-md text-[10px] font-black tracking-wider uppercase transition-all min-h-[36px] ${
-                filter === "Week" ? "bg-white text-slate-950" : "text-slate-400 hover:text-slate-200"
+                filter === analyticsFilter ? "bg-white text-slate-950" : "text-slate-400 hover:text-slate-200"
               }`}
             >
               {filter}
@@ -1037,17 +1447,85 @@ export default function DashboardPage() {
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
             <div className="w-full flex flex-col gap-4">
-              {/* Pristine Empty State Banner */}
-              {store.tasks.length === 0 && Object.keys(store.dailyTargets).length === 0 && (
-                <div className="w-full p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
-                  <div className="text-left">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="size-4 text-indigo-400" /> Welcome to your Cockpit
-                    </h3>
-                    <p className="text-xs text-slate-300 font-light mt-1">
-                      Your LifeOS console starts clean. Start building your system by setting daily targets or task checklists.
-                    </p>
+              {/* Overdue alert banner if there are overdue tasks */}
+              {overdueTasks.length > 0 && (
+                <div className="w-full p-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 backdrop-blur-xl flex items-center justify-between shadow-lg shadow-rose-950/20 animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="size-5 text-rose-400" />
+                    <div className="text-left">
+                      <h4 className="text-xs font-black text-rose-300 uppercase tracking-wider">Needs Attention</h4>
+                      <p className="text-[10px] text-rose-400 font-semibold mt-0.5">
+                        You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? "s" : ""} from today or past days.
+                      </p>
+                    </div>
                   </div>
+                  <div className="flex gap-2">
+                    {overdueTasks.slice(0, 1).map((task) => (
+                      <Button
+                        key={task.id}
+                        size="sm"
+                        onClick={() => {
+                          if (task.taskId === "legacy") {
+                            store.toggleDailyTarget(task.date);
+                          } else {
+                            store.updateDayTaskInstance(task.date, task.id, { status: "completed", completed: true });
+                          }
+                        }}
+                        className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[9px] h-8 rounded-lg px-2.5"
+                      >
+                        Complete: {task.title.substring(0, 15)}...
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upcoming Reminder Banner */}
+              {nextTask && (
+                <div className="w-full p-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-lg shadow-indigo-950/20 gap-4">
+                  <div className="flex items-center gap-3.5 text-left">
+                    <div className="size-9 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300 shadow-inner">
+                      🔔
+                    </div>
+                    <div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-indigo-300 flex items-center gap-1.5">
+                        Next Task <span className="text-white/40">•</span> <span className="text-indigo-400 font-black">{nextTaskCountdown}</span>
+                      </span>
+                      <h3 className="text-sm font-black text-white mt-0.5">{nextTask.title}</h3>
+                      <div className="flex gap-2 text-[9px] font-bold text-slate-400 uppercase mt-1">
+                        <span>⏰ {nextTaskTimeRange}</span>
+                        {nextTask.duration && <span>⏳ {nextTask.duration}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0 self-end sm:self-center">
+                    <Button
+                      size="sm"
+                      onClick={() => store.updateDayTaskInstance(todayStr, nextTask.id, { status: "in_progress" })}
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[9px] h-8 rounded-lg px-3.5"
+                    >
+                      Start Task
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => store.updateDayTaskInstance(todayStr, nextTask.id, { status: "completed", completed: true })}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[9px] h-8 rounded-lg px-3"
+                    >
+                      Complete
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Pristine Empty State Banner */}
+              {todaysTasks.length === 0 && (
+                <div className="w-full p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center text-left">
+                  <h3 className="text-xs font-black text-indigo-300 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="size-4 text-indigo-400" /> Welcome to your Cockpit
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-1">
+                    Your LifeOS dashboard shows your active schedules. To plan tasks, head to the <button type="button" onClick={() => setActiveTab("grid")} className="text-indigo-400 underline font-bold">Life Grid Console</button> or add one below!
+                  </p>
                 </div>
               )}
 
@@ -1320,7 +1798,7 @@ export default function DashboardPage() {
       <Dialog open={taskModalOpen} onOpenChange={setTaskModalOpen}>
         <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black">Add New Task</DialogTitle>
+            <DialogTitle className="text-lg font-black">Add New Task to Today</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleAddTask} className="flex flex-col gap-4 py-3">
             <div className="flex flex-col gap-1">
@@ -1333,59 +1811,27 @@ export default function DashboardPage() {
                 required
               />
             </div>
+            
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Description</Label>
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Duration (Optional)</Label>
               <Input
-                value={newTaskDesc}
-                onChange={(e) => setNewTaskDesc(e.target.value)}
-                placeholder="Include verification tests..."
+                value={newTaskDuration}
+                onChange={(e) => setNewTaskDuration(e.target.value)}
+                placeholder="e.g. 2 hours, 30 minutes"
                 className="bg-white/5 border-white/10 rounded-xl"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">Category</Label>
-                <Select value={newTaskCategory} onValueChange={(val) => setNewTaskCategory(val || "Work")}>
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
-                    {["Work", "Study", "Health", "Finance", "Personal"].map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">Priority</Label>
-                <Select
-                  value={newTaskPriority}
-                  onValueChange={(val) => setNewTaskPriority((val as "low" | "medium" | "high") || "medium")}
-                >
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Link to Project (Optional)</Label>
-              <Select value={newTaskProject} onValueChange={(val) => setNewTaskProject(val || "")}>
-                <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
-                  <SelectValue placeholder="Select project..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {store.projects.map((p) => (
-                    <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className="text-[10px] font-bold uppercase text-slate-400">Start Time (Optional)</Label>
+              <Input
+                value={newTaskStartTime}
+                onChange={(e) => setNewTaskStartTime(e.target.value)}
+                placeholder="e.g. 08:00 AM, 2:00 PM"
+                className="bg-white/5 border-white/10 rounded-xl"
+              />
             </div>
+
             <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-5 mt-2">
               Save Task
             </Button>
