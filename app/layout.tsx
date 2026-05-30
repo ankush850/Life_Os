@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LifeOS — Productivity & Growth Dashboard",
   description: "Gamified monthly planning, expense tracking, daily habit logging, focus hours, and visual analytics to keep you motivated.",
+  icons: "/logo.ico",
 };
 
 export default function RootLayout({
