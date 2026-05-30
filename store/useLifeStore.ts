@@ -80,6 +80,29 @@ export interface MonthlyMission {
   targetMonth: string; // YYYY-MM
 }
 
+export interface GridTask {
+  id: string;
+  title: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  repeatType: 'Daily' | 'Weekdays' | 'Weekends' | 'Custom';
+  customDays?: number[]; // 0-6
+  duration?: string;
+  startTime?: string;
+  seriesId: string;
+}
+
+export interface DayTask {
+  id: string;
+  taskId: string;
+  title: string;
+  completed: boolean;
+  date: string; // YYYY-MM-DD
+  duration?: string;
+  startTime?: string;
+  status?: 'pending' | 'in_progress' | 'completed' | 'skipped';
+}
+
 interface UserSettings {
   name: string;
   email: string;
@@ -165,6 +188,16 @@ interface LifeState {
   projects: Project[];
   addProject: (project: Omit<Project, 'id'>) => void;
   deleteProject: (id: string) => void;
+
+  // Recurring Task System
+  gridTasks: GridTask[];
+  dayTasks: Record<string, DayTask[]>;
+  addGridTaskSeries: (task: Omit<GridTask, 'id' | 'seriesId'>) => void;
+  deleteGridTaskSeries: (seriesId: string) => void;
+  updateGridTaskSeries: (seriesId: string, fields: Partial<GridTask>) => void;
+  updateDayTaskInstance: (date: string, instanceId: string, fields: Partial<DayTask>) => void;
+  deleteDayTaskInstance: (date: string, instanceId: string) => void;
+  addDayTaskInstance: (date: string, task: { title: string; duration?: string; startTime?: string }) => void;
 
   // Utilities
   clearAllData: () => void;
@@ -415,6 +448,160 @@ export const useLifeStore = create<LifeState>()(
           projects: state.projects.filter((p) => p.id !== id),
         })),
 
+      // Recurring Task System
+      gridTasks: [],
+      dayTasks: {},
+
+      addGridTaskSeries: (task) =>
+        set((state) => {
+          const seriesId = Math.random().toString(36).substring(2, 9);
+          const parentId = seriesId;
+          const newGridTask: GridTask = {
+            ...task,
+            id: parentId,
+            seriesId,
+          };
+          
+          // Generate matching dates
+          const dates: string[] = [];
+          const start = new Date(task.startDate);
+          const end = new Date(task.endDate);
+          const current = new Date(start);
+          while (current <= end) {
+            const dayOfWeek = current.getDay(); // 0-6
+            let matches = false;
+            
+            if (task.repeatType === 'Daily') {
+              matches = true;
+            } else if (task.repeatType === 'Weekdays') {
+              matches = dayOfWeek >= 1 && dayOfWeek <= 5;
+            } else if (task.repeatType === 'Weekends') {
+              matches = dayOfWeek === 0 || dayOfWeek === 6;
+            } else if (task.repeatType === 'Custom' && task.customDays) {
+              matches = task.customDays.includes(dayOfWeek);
+            }
+            
+            if (matches) {
+              dates.push(current.toISOString().split('T')[0]);
+            }
+            current.setDate(current.getDate() + 1);
+          }
+
+          const updatedDayTasks = { ...state.dayTasks };
+          dates.forEach((dateStr) => {
+            if (!updatedDayTasks[dateStr]) {
+              updatedDayTasks[dateStr] = [];
+            }
+            updatedDayTasks[dateStr].push({
+              id: Math.random().toString(36).substring(2, 9),
+              taskId: parentId,
+              title: task.title,
+              completed: false,
+              date: dateStr,
+              duration: task.duration,
+              startTime: task.startTime,
+              status: 'pending',
+            });
+          });
+
+          return {
+            gridTasks: [...state.gridTasks, newGridTask],
+            dayTasks: updatedDayTasks,
+          };
+        }),
+
+      deleteGridTaskSeries: (seriesId) =>
+        set((state) => {
+          const updatedDayTasks = { ...state.dayTasks };
+          Object.keys(updatedDayTasks).forEach((dateStr) => {
+            updatedDayTasks[dateStr] = updatedDayTasks[dateStr].filter(
+              (instance) => instance.taskId !== seriesId
+            );
+          });
+          return {
+            gridTasks: state.gridTasks.filter((t) => t.seriesId !== seriesId),
+            dayTasks: updatedDayTasks,
+          };
+        }),
+
+      updateGridTaskSeries: (seriesId, fields) =>
+        set((state) => {
+          const updatedGridTasks = state.gridTasks.map((t) =>
+            t.seriesId === seriesId ? { ...t, ...fields } : t
+          );
+          
+          const updatedDayTasks = { ...state.dayTasks };
+          // If title or duration or startTime changed, update all instances
+          Object.keys(updatedDayTasks).forEach((dateStr) => {
+            updatedDayTasks[dateStr] = updatedDayTasks[dateStr].map((instance) => {
+              if (instance.taskId === seriesId) {
+                return {
+                  ...instance,
+                  title: fields.title !== undefined ? fields.title : instance.title,
+                  duration: fields.duration !== undefined ? fields.duration : instance.duration,
+                  startTime: fields.startTime !== undefined ? fields.startTime : instance.startTime,
+                };
+              }
+              return instance;
+            });
+          });
+          
+          return {
+            gridTasks: updatedGridTasks,
+            dayTasks: updatedDayTasks,
+          };
+        }),
+
+      updateDayTaskInstance: (date, instanceId, fields) =>
+        set((state) => {
+          const updatedDayTasks = { ...state.dayTasks };
+          if (updatedDayTasks[date]) {
+            updatedDayTasks[date] = updatedDayTasks[date].map((instance) => {
+              if (instance.id === instanceId) {
+                const updated = { ...instance, ...fields };
+                if (fields.status !== undefined) {
+                  updated.completed = fields.status === 'completed';
+                } else if (fields.completed !== undefined) {
+                  updated.status = fields.completed ? 'completed' : 'pending';
+                }
+                return updated;
+              }
+              return instance;
+            });
+          }
+          return { dayTasks: updatedDayTasks };
+        }),
+
+      deleteDayTaskInstance: (date, instanceId) =>
+        set((state) => {
+          const updatedDayTasks = { ...state.dayTasks };
+          if (updatedDayTasks[date]) {
+            updatedDayTasks[date] = updatedDayTasks[date].filter(
+              (instance) => instance.id !== instanceId
+            );
+          }
+          return { dayTasks: updatedDayTasks };
+        }),
+
+      addDayTaskInstance: (date, task) =>
+        set((state) => {
+          const updatedDayTasks = { ...state.dayTasks };
+          if (!updatedDayTasks[date]) {
+            updatedDayTasks[date] = [];
+          }
+          updatedDayTasks[date].push({
+            id: Math.random().toString(36).substring(2, 9),
+            taskId: "single",
+            title: task.title,
+            completed: false,
+            date,
+            duration: task.duration,
+            startTime: task.startTime,
+            status: 'pending',
+          });
+          return { dayTasks: updatedDayTasks };
+        }),
+
       // Clear all
       clearAllData: () =>
         set(() => ({
@@ -432,6 +619,8 @@ export const useLifeStore = create<LifeState>()(
           focusSeconds: 0,
           focusPausedSeconds: 0,
           isFocusRunning: false,
+          gridTasks: [],
+          dayTasks: {},
         })),
     }),
     {
@@ -453,6 +642,8 @@ export const useLifeStore = create<LifeState>()(
         focusSeconds: state.focusSeconds,
         focusPausedSeconds: state.focusPausedSeconds,
         focusTaskId: state.focusTaskId,
+        gridTasks: state.gridTasks,
+        dayTasks: state.dayTasks,
       }),
     }
   )
