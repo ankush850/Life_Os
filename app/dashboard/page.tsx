@@ -1,11 +1,58 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useLifeStore, DayTask } from "@/store/useLifeStore";
 import { PRESET_WALLPAPERS } from "@/lib/quotes";
 import LifeGrid from "@/components/LifeGrid";
+import JourneyReplay from "@/components/JourneyReplay";
+import EngineeringMode from "@/components/EngineeringMode";
+import LifeEngine from "@/components/LifeEngine";
+import FocusMode from "@/components/FocusMode";
+import DailyTaskSystem from "@/components/DailyTaskSystem";
+import MonthlyPlanner from "@/components/MonthlyPlanner";
+import FinancialOS from "@/components/FinancialOS";
+import {
+  Sparkles,
+  CheckCircle2,
+  Calendar as CalendarIcon,
+  Wallet,
+  BarChart3,
+  LogOut,
+  Sliders,
+  Plus,
+  Play,
+  Pause,
+  RotateCcw,
+  TrendingUp,
+  Trash2,
+  Upload,
+  Target,
+  Check,
+  AlertCircle,
+  Terminal,
+  Layers,
+  Brain,
+  Menu,
+  X,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  Cell,
+  PieChart,
+  Pie,
+} from "recharts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
 
 function parseTimeToMinutes(timeStr?: string): number | null {
   if (!timeStr) return null;
@@ -78,54 +125,6 @@ function getTaskCategory(title: string): string {
   }
   return "🎯 Personal";
 }
-import JourneyReplay from "@/components/JourneyReplay";
-import EngineeringMode from "@/components/EngineeringMode";
-import LifeEngine from "@/components/LifeEngine";
-import FocusMode from "@/components/FocusMode";
-import DailyTaskSystem from "@/components/DailyTaskSystem";
-import MonthlyPlanner from "@/components/MonthlyPlanner";
-import FinancialOS from "@/components/FinancialOS";
-import {
-  Sparkles,
-  CheckCircle2,
-  Calendar as CalendarIcon,
-  Wallet,
-  BarChart3,
-  LogOut,
-  Sliders,
-  Plus,
-  Play,
-  Pause,
-  RotateCcw,
-  TrendingUp,
-  Trash2,
-  Upload,
-  Target,
-  Check,
-  AlertCircle,
-  Terminal,
-  Layers,
-  Brain,
-  Menu,
-  X,
-} from "lucide-react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  Tooltip,
-  Cell,
-  PieChart,
-  Pie,
-} from "recharts";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardPage() {
   const { push } = useRouter();
@@ -142,10 +141,45 @@ export default function DashboardPage() {
       return () => unsubFinish();
     }
   }, []);
+  
   const [activeTab, setActiveTab] = useState("dashboard");
   const [analyticsFilter, setAnalyticsFilter] = useState<"Week" | "Month" | "Year">("Week");
   const [isEngineeringMode, setIsEngineeringMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Horizontal scroll states for desktop navigation
+  const navScrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  const checkScroll = (element: HTMLDivElement | null) => {
+    if (!element) return;
+    const { scrollLeft, scrollWidth, clientWidth } = element;
+    setShowLeftFade(scrollLeft > 5);
+    setShowRightFade(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  useEffect(() => {
+    const el = navScrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      checkScroll(el);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    checkScroll(el);
+
+    const resizeObserver = new ResizeObserver(() => {
+      checkScroll(el);
+    });
+    resizeObserver.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, [activeTab, hasHydrated]);
 
   // Customization Dialog State
   const [isCustomizing, setIsCustomizing] = useState(false);
@@ -417,7 +451,7 @@ export default function DashboardPage() {
   const formatTime = (totalSecs: number) => {
     const hrs = Math.floor(totalSecs / 3600);
     const mins = Math.floor((totalSecs % 3600) / 60);
-    return `${hrs} h ${mins} m`;
+    return `${hrs}h ${mins}m`;
   };
 
   const activePercent = (store.focusSeconds / (store.focusSeconds + store.focusPausedSeconds || 1)) * 100;
@@ -530,7 +564,6 @@ export default function DashboardPage() {
     setDayDetailModalOpen(false);
   };
 
-  // Today's Date String
   const todayTarget = store.dailyTargets[todayStr];
 
   const handleSaveTodayTarget = (e: React.FormEvent) => {
@@ -583,7 +616,7 @@ export default function DashboardPage() {
         { name: "Week 4", hours: focusHours },
       ];
     } else {
-      // Yearly view: 12 months (May is index 4, which is the current month)
+      // Yearly view: 12 months
       const data = [
         { name: "Jan", hours: 45.0 },
         { name: "Feb", hours: 50.5 },
@@ -615,56 +648,54 @@ export default function DashboardPage() {
 
   // Pie chart performance data (Monthly Planner target completion)
   const performancePieData = [
-    { name: "Completed Days", value: completedTargetsThisMonth || 0, color: "#10b981" },
+    { name: "Completed Days", value: completedTargetsThisMonth || 0, color: "#D4AF7A" },
     { name: "Remaining Days", value: Math.max(0, daysInMonth - completedTargetsThisMonth) || 1, color: "rgba(255,255,255,0.05)" },
   ];
-
-  // Expenses calculations (filtered by current selected month)
-
-  const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
   // ==============================
   // DASHBOARD WIDGETS RENDER VARIABLES
   // ==============================
 
   const focusHourTrackerWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-3.5">
-      <div className="flex flex-col">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s working hours</span>
-        <span className="text-3xl font-extrabold tracking-tight mt-1">{formatTime(store.focusSeconds)}</span>
+    <div className="rounded-3xl liquid-glass p-6 shadow-xl flex flex-col gap-4">
+      <div className="flex flex-col text-left">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E7CBA9]">Sanctuary Session</span>
+        <span className="text-4xl font-extrabold tracking-tight mt-1 text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          {formatTime(store.focusSeconds)}
+        </span>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <div className="w-full bg-slate-950/60 h-2.5 rounded-full overflow-hidden flex">
-          <div className="bg-emerald-500 h-full transition-all" style={{ width: `${activePercent}%` }}></div>
-          <div className="bg-rose-500 h-full transition-all" style={{ width: `${100 - activePercent}%` }}></div>
+        <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden flex border border-white/5">
+          <div className="bg-[#D4AF7A] h-full transition-all duration-500" style={{ width: `${activePercent}%` }}></div>
+          <div className="bg-white/10 h-full transition-all duration-500" style={{ width: `${100 - activePercent}%` }}></div>
         </div>
-        <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase">
+        <div className="flex justify-between text-[9px] font-bold text-white/50 uppercase tracking-widest">
           <span className="flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-emerald-400"></span>Active ({Math.round(activePercent)}%)
+            <span className="size-1.5 rounded-full bg-[#D4AF7A]"></span>Active ({Math.round(activePercent)}%)
           </span>
           <span className="flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-rose-400"></span>Paused ({Math.round(100 - activePercent)}%)
+            <span className="size-1.5 rounded-full bg-white/20"></span>Paused ({Math.round(100 - activePercent)}%)
           </span>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <Button
           onClick={() => store.setIsFocusRunning(!store.isFocusRunning)}
-          className={`flex-1 font-bold py-5 rounded-xl text-xs gap-1.5 transition-all shadow-lg min-h-[44px] ${
+          className={`flex-1 font-bold py-5 rounded-full text-xs uppercase tracking-widest gap-1.5 transition-all shadow-lg min-h-[44px] ${
             store.isFocusRunning
-              ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
-              : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
+              ? "bg-white/10 hover:bg-white/15 text-white"
+              : "bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33]"
           }`}
         >
           {store.isFocusRunning ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-          {store.isFocusRunning ? "Pause timer" : "Resume session"}
+          {store.isFocusRunning ? "Pause Session" : "Enter Flow"}
         </Button>
         <button
           type="button"
           onClick={store.resetFocusTimer}
-          className="h-11 w-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-slate-300 min-h-[44px]"
+          className="h-11 w-11 flex items-center justify-center rounded-full bg-white/5 border border-white/8 hover:bg-white/10 transition-all text-white/70 hover:text-white min-h-[44px]"
           title="Reset Session Timer"
         >
           <RotateCcw className="size-4.5" />
@@ -674,62 +705,72 @@ export default function DashboardPage() {
   );
 
   const todaysGoalWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[180px]">
-      <div className="flex items-center gap-1.5">
-        <Target className="size-4 text-indigo-400 animate-pulse" />
-        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
+    <div className="rounded-3xl liquid-glass p-6 shadow-xl flex flex-col gap-6 min-h-[220px] text-left">
+      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <div className="flex items-center gap-2">
+          <Target className="size-4.5 text-[#D4AF7A] animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E7CBA9]">Today&apos;s Mission</span>
+        </div>
+        {todayTarget && (
+          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
+            🔥 {store.habits.reduce((acc, h) => Math.max(acc, h.streak), 0)} Day Streak
+          </span>
+        )}
       </div>
 
       {todayTarget ? (
-        <div className="flex flex-col gap-3">
-          <div className="p-3.5 bg-slate-950/40 border border-white/5 rounded-xl text-left">
-            <p className="text-xs font-black text-white leading-relaxed">&ldquo;{todayTarget.target}&rdquo;</p>
-            <div className="flex items-center gap-1.5 mt-2.5 text-[9px] font-bold uppercase">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Primary Milestone</span>
+            <p className="text-xl font-light text-white leading-relaxed italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              &ldquo;{todayTarget.target}&rdquo;
+            </p>
+            <div className="flex items-center gap-1.5 mt-2.5 text-[9px] font-bold uppercase tracking-widest">
               {todayTarget.completed ? (
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <Check className="size-3 text-emerald-400" /> Completed Target
+                <span className="text-[#D4AF7A] flex items-center gap-1">
+                  <Check className="size-3 text-[#D4AF7A]" /> Completed
                 </span>
               ) : (
-                <span className="text-slate-400 flex items-center gap-1">
-                  <AlertCircle className="size-3 text-slate-500" /> Goal Pending
+                <span className="text-white/40 flex items-center gap-1">
+                  <AlertCircle className="size-3 text-white/30" /> Active
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               onClick={() => store.toggleDailyTarget(todayStr)}
-              className={`flex-1 font-bold py-4 rounded-xl text-xs min-h-[44px] ${
+              className={`flex-1 font-bold py-4 rounded-full text-xs uppercase tracking-widest min-h-[44px] ${
                 todayTarget.completed
-                  ? "bg-slate-800 text-slate-300 border border-white/5 hover:bg-slate-700"
-                  : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  ? "bg-white/5 text-white border border-white/10 hover:bg-white/10"
+                  : "bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33]"
               }`}
             >
-              {todayTarget.completed ? "Mark Pending" : "Mark Completed"}
+              {todayTarget.completed ? "Reopen Target" : "Complete Mission"}
             </Button>
             <Button
               onClick={() => handleDayClick(todayStr)}
-              className="bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 p-4 rounded-xl min-h-[44px]"
+              className="bg-white/5 border border-white/10 hover:bg-white/10 text-white p-4 rounded-full min-h-[44px] text-xs font-bold uppercase tracking-widest"
             >
               Edit
             </Button>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSaveTodayTarget} className="flex flex-col gap-3">
-          <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
-            No targets set for today. Set a milestone to keep motivated!
+        <form onSubmit={handleSaveTodayTarget} className="flex flex-col gap-4">
+          <p className="text-xs text-white/50 font-light leading-relaxed">
+            No primary milestone defined for today. Set a trajectory to maintain momentum.
           </p>
           <Input
             value={todayTargetInputText}
             onChange={(e) => setTodayTargetInputText(e.target.value)}
-            placeholder="Write today's focus target..."
-            className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white font-bold placeholder:text-slate-500 transition-all min-h-[40px]"
+            placeholder="Define today's focus target..."
+            className="bg-white/3 border-white/10 text-xs rounded-xl focus:border-[#D4AF7A] text-white placeholder:text-white/30 transition-all min-h-[44px]"
             required
           />
-          <Button type="submit" className="mt-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs shadow-lg shadow-indigo-500/20 min-h-[44px]">
-            Set Today&apos;s Goal
+          <Button type="submit" className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-4.5 text-xs uppercase tracking-widest shadow-lg min-h-[44px]">
+            Set Mission
           </Button>
         </form>
       )}
@@ -737,16 +778,16 @@ export default function DashboardPage() {
   );
 
   const todaysTasksWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
+    <div className="rounded-3xl liquid-glass p-5 shadow-lg flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col text-left">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s Agenda</span>
-          <span className="text-xs font-bold text-slate-500 mt-0.5">Checklist progress & status actions</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E7CBA9]">Rituals Checklist</span>
+          <span className="text-xs font-bold text-white/40 mt-0.5">Today&apos;s schedule actions</span>
         </div>
         <button
           type="button"
           onClick={() => setTaskModalOpen(true)}
-          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[32px] px-2"
+          className="text-[10px] font-bold text-[#D4AF7A] hover:text-white flex items-center gap-1 min-h-[32px] px-2 cursor-pointer"
         >
           <Plus className="size-3" /> Quick Add
         </button>
@@ -754,35 +795,35 @@ export default function DashboardPage() {
 
       {/* Daily Progress summary row */}
       {todaysTasks.length > 0 && (
-        <div className="bg-slate-950/40 border border-white/5 rounded-xl p-3 flex flex-col gap-2 text-left">
-          <div className="flex justify-between items-center text-[10px] font-bold text-slate-300">
-            <span>Progress: {todaysProgress.completed} / {todaysProgress.total} Done</span>
-            <span className={todaysProgress.rate === 100 ? "text-emerald-400" : "text-indigo-400"}>
+        <div className="bg-white/2 border border-white/5 rounded-2xl p-3 flex flex-col gap-2 text-left">
+          <div className="flex justify-between items-center text-[10px] font-bold text-white/70">
+            <span>Completed: {todaysProgress.completed} / {todaysProgress.total}</span>
+            <span className={todaysProgress.rate === 100 ? "text-[#D4AF7A]" : "text-white"}>
               {todaysProgress.rate}%
             </span>
           </div>
-          <div className="w-full bg-slate-950/60 h-2 rounded-full overflow-hidden flex border border-white/5">
+          <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden flex border border-white/5">
             <div
-              className={`h-full transition-all duration-300 ${todaysProgress.rate === 100 ? "bg-emerald-500" : "bg-indigo-500"}`}
+              className={`h-full transition-all duration-300 ${todaysProgress.rate === 100 ? "bg-[#D4AF7A]" : "bg-white/50"}`}
               style={{ width: `${todaysProgress.rate}%` }}
             ></div>
           </div>
-          <div className="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-wider mt-0.5">
-            <span className="text-slate-400">📝 Pending: {todaysProgress.pending}</span>
-            <span className="text-emerald-400">✓ Completed: {todaysProgress.completed}</span>
+          <div className="flex justify-between text-[8px] font-bold text-white/30 uppercase tracking-widest mt-0.5">
+            <span>Pending: {todaysProgress.pending}</span>
+            <span>Completed: {todaysProgress.completed}</span>
             {todaysProgress.overdue > 0 && (
-              <span className="text-rose-400 animate-pulse">⚠️ Overdue: {todaysProgress.overdue}</span>
+              <span className="text-rose-400 animate-pulse">Overdue: {todaysProgress.overdue}</span>
             )}
           </div>
         </div>
       )}
 
       {/* Task list container */}
-      <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
+      <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-1">
         {todaysTasks.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 font-semibold text-[10px] uppercase flex flex-col items-center gap-2">
+          <div className="text-center py-8 text-white/30 font-semibold text-[10px] uppercase tracking-widest flex flex-col items-center gap-2">
             <span>🎉 No tasks scheduled for today.</span>
-            <span className="text-[9px] text-slate-600 lowercase font-normal italic">create tasks in life grid planner...</span>
+            <span className="text-[9px] text-white/20 lowercase font-normal italic">schedule tasks in life architecture...</span>
           </div>
         ) : (
           todaysTasks.map((task) => {
@@ -799,50 +840,50 @@ export default function DashboardPage() {
 
             const statusColors = {
               Completed: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-              Skipped: "bg-slate-500/10 border-slate-500/20 text-slate-400",
-              'In Progress': "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
+              Skipped: "bg-white/5 border-white/10 text-white/40",
+              'In Progress': "bg-[#D4AF7A]/10 border-[#D4AF7A]/20 text-[#D4AF7A]",
               Overdue: "bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse",
-              Pending: "bg-slate-500/10 border-white/5 text-slate-300"
+              Pending: "bg-white/5 border-white/5 text-white/60"
             }[statusLabel];
 
             return (
               <div
                 key={task.id}
-                className={`p-3.5 rounded-xl border text-left flex flex-col gap-2 transition-all ${
+                className={`p-3 rounded-2xl border text-left flex flex-col gap-2 transition-all ${
                   task.status === 'completed' || task.completed
-                    ? "bg-slate-950/20 border-emerald-500/20 opacity-80"
+                    ? "bg-white/2 border-white/5 opacity-60"
                     : task.status === 'in_progress'
-                    ? "bg-indigo-500/5 border-indigo-500/30"
+                    ? "bg-[#D4AF7A]/5 border-[#D4AF7A]/20"
                     : isOverdue
-                    ? "bg-rose-500/5 border-rose-500/30"
-                    : "bg-slate-950/40 border-white/5"
+                    ? "bg-rose-500/5 border-rose-500/25"
+                    : "bg-white/3 border-white/5"
                 }`}
               >
                 {/* Header Row: Category Tag + Status Badge */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-white/5 text-slate-300">
+                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded-md bg-white/5 text-white/50 tracking-wider">
                     {getTaskCategory(task.title)}
                   </span>
-                  <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${statusColors}`}>
+                  <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full border ${statusColors}`}>
                     {statusLabel}
                   </span>
                 </div>
 
                 {/* Task Title + Details Row */}
                 <div>
-                  <h4 className={`text-xs font-black leading-snug ${
-                    task.completed || task.status === 'completed' ? "text-slate-500 line-through" : "text-white"
+                  <h4 className={`text-xs font-semibold leading-snug ${
+                    task.completed || task.status === 'completed' ? "text-white/40 line-through font-light" : "text-white"
                   }`}>
                     {task.title}
                   </h4>
-                  <div className="flex flex-wrap gap-2 text-[9px] font-extrabold uppercase text-slate-400 mt-1.5">
+                  <div className="flex flex-wrap gap-2 text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">
                     {task.startTime && (
-                      <span className="flex items-center gap-0.5 text-indigo-300">
+                      <span className="flex items-center gap-0.5 text-[#D4AF7A]">
                         ⏰ {task.startTime}
                       </span>
                     )}
                     {task.duration && (
-                      <span className="flex items-center gap-0.5 text-slate-500">
+                      <span className="flex items-center gap-0.5">
                         ⏳ {task.duration}
                       </span>
                     )}
@@ -853,34 +894,31 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-end gap-1.5 mt-1 pt-2 border-t border-white/5">
                   {task.taskId !== "legacy" && (
                     <>
-                      {/* Undo / Reset Button (only shown for skip/completed) */}
                       {(task.status === 'completed' || task.status === 'skipped') ? (
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'pending', completed: false })}
-                          className="h-7 text-[9px] font-bold text-slate-400 hover:text-white px-2.5 rounded-lg hover:bg-white/5"
+                          className="h-7 text-[8px] font-bold uppercase tracking-widest text-white/40 hover:text-white px-2.5 rounded-full hover:bg-white/5"
                         >
                           Reset
                         </Button>
                       ) : (
                         <>
-                          {/* Skip Action */}
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'skipped' })}
-                            className="h-7 text-[9px] font-bold text-slate-500 hover:text-rose-300 px-2 rounded-lg hover:bg-rose-500/5"
+                            className="h-7 text-[8px] font-bold uppercase tracking-widest text-white/30 hover:text-rose-300 px-2 rounded-full hover:bg-rose-500/5"
                           >
                             Skip
                           </Button>
 
-                          {/* Toggle In Progress */}
                           {task.status !== 'in_progress' ? (
                             <Button
                               size="sm"
                               onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'in_progress' })}
-                              className="h-7 text-[9px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white px-2 rounded-lg"
+                              className="h-7 text-[8px] font-bold uppercase tracking-widest bg-white/5 hover:bg-white/10 text-white px-3 rounded-full border border-white/10"
                             >
                               Start
                             </Button>
@@ -888,19 +926,18 @@ export default function DashboardPage() {
                             <Button
                               size="sm"
                               onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'pending' })}
-                              className="h-7 text-[9px] font-bold bg-amber-600 hover:bg-amber-500 text-white px-2 rounded-lg"
+                              className="h-7 text-[8px] font-bold uppercase tracking-widest bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 px-3 rounded-full border border-amber-500/20"
                             >
                               Pause
                             </Button>
                           )}
 
-                          {/* Complete Action */}
                           <Button
                             size="sm"
                             onClick={() => store.updateDayTaskInstance(todayStr, task.id, { status: 'completed', completed: true })}
-                            className="h-7 text-[9px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 rounded-lg"
+                            className="h-7 text-[8px] font-bold uppercase tracking-widest bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] px-3.5 rounded-full"
                           >
-                            Complete
+                            Done
                           </Button>
                         </>
                       )}
@@ -911,10 +948,10 @@ export default function DashboardPage() {
                     <Button
                       size="sm"
                       onClick={() => store.toggleDailyTarget(todayStr)}
-                      className={`h-7 text-[9px] font-bold px-3 rounded-lg ${
+                      className={`h-7 text-[8px] font-bold uppercase tracking-widest px-3 rounded-full ${
                         task.completed
-                          ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                          : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                          ? "bg-white/5 text-white/50 border border-white/5 hover:bg-white/10"
+                          : "bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33]"
                       }`}
                     >
                       {task.completed ? "Undo Goal" : "Complete Goal"}
@@ -930,24 +967,24 @@ export default function DashboardPage() {
   );
 
   const focusAnalyticsWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-4 h-full min-h-[400px]">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+    <div className="rounded-3xl liquid-glass p-6 shadow-xl flex flex-col gap-6 h-full min-h-[400px]">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 text-left">
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Activity</span>
-          <h3 className="text-lg font-black tracking-tight text-white mt-1">Focus Analytics</h3>
-          <p className="text-xs text-slate-400 font-semibold mt-1">
-            You logged {activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)} hours this {analyticsFilter.toLowerCase()}. Maintain study consistency!
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E7CBA9]">Flow Metrics</span>
+          <h3 className="text-2xl font-light tracking-tight text-white mt-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Focus Analytics</h3>
+          <p className="text-xs text-white/50 font-normal mt-1 leading-relaxed">
+            You logged <span className="text-[#D4AF7A] font-bold">{activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)}h</span> of deep focus this {analyticsFilter.toLowerCase()}.
           </p>
         </div>
 
-        <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
+        <div className="flex bg-white/5 p-0.5 rounded-full border border-white/5 self-start mr-2 mt-1">
           {(["Week", "Month", "Year"] as const).map((filter) => (
             <button
               type="button"
               key={filter}
               onClick={() => setAnalyticsFilter(filter)}
-              className={`px-3.5 py-2 rounded-md text-[10px] font-black tracking-wider uppercase transition-all min-h-[36px] ${
-                filter === analyticsFilter ? "bg-white text-slate-950" : "text-slate-400 hover:text-slate-200"
+              className={`px-4 py-2 rounded-full text-[9px] font-black tracking-wider uppercase transition-all min-h-[32px] cursor-pointer ${
+                filter === analyticsFilter ? "bg-[#D4AF7A] text-[#071B33]" : "text-white/60 hover:text-white"
               }`}
             >
               {filter}
@@ -962,7 +999,7 @@ export default function DashboardPage() {
             <BarChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <XAxis
                 dataKey="name"
-                stroke="#94a3b8"
+                stroke="rgba(255,255,255,0.3)"
                 fontSize={10}
                 fontWeight="bold"
                 tickLine={false}
@@ -970,15 +1007,15 @@ export default function DashboardPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "rgba(15, 23, 42, 0.9)",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  backgroundColor: "#071B33",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(255,255,255,0.08)",
                   fontSize: "11px",
                   color: "#fff",
                   fontWeight: "600",
                 }}
-                labelClassName="text-indigo-400 font-bold"
-                cursor={{ fill: "rgba(255, 255, 255, 0.03)", radius: 4 }}
+                labelClassName="text-[#D4AF7A] font-bold"
+                cursor={{ fill: "rgba(255, 255, 255, 0.02)", radius: 12 }}
               />
               <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
                 {activityData.map((entry, index) => (
@@ -986,45 +1023,45 @@ export default function DashboardPage() {
                     key={`cell-${entry.name}`}
                     fill={
                       index === mappedIndex
-                        ? "url(#blueGrad)"
-                        : "rgba(99, 102, 241, 0.45)"
+                        ? "url(#goldGrad)"
+                        : "rgba(212, 175, 122, 0.25)"
                     }
                   />
                 ))}
               </Bar>
               <defs>
-                <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#a855f7" />
+                <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#D4AF7A" />
+                  <stop offset="100%" stopColor="#E7CBA9" />
                 </linearGradient>
               </defs>
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-xl bg-white/2 min-h-[220px]">
-            <AlertCircle className="size-8 text-indigo-400/60 mb-2 animate-pulse" />
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-2xl bg-white/2 min-h-[220px]">
+            <AlertCircle className="size-8 text-[#D4AF7A] mb-2 animate-pulse" />
             <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Awaiting Telemetry Data</h4>
-            <p className="text-[10px] text-slate-500 font-semibold mt-1 max-w-[200px] leading-relaxed">
-              Set targets or log transactions for at least 3 days to unlock analytics graphs.
+            <p className="text-[10px] text-white/50 font-normal mt-1 max-w-[200px] leading-relaxed">
+              Log focus session time to view analytics trends.
             </p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-white/10 pt-4 text-xs font-semibold text-slate-400">
-        <div className="flex items-center gap-1">
-          <TrendingUp className="size-4 text-indigo-400" />
-          <span>Today focus indicator</span>
+      <div className="flex items-center justify-between border-t border-white/5 pt-4 text-xs font-semibold text-white/40 uppercase tracking-widest">
+        <div className="flex items-center gap-1.5 text-[#D4AF7A]">
+          <TrendingUp className="size-4" />
+          <span>Telemetry Ok</span>
         </div>
-        <span>Weekly Target: 40h</span>
+        <span>Goal: 40h</span>
       </div>
     </div>
   );
 
   const plannerConsistencyWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 text-center items-center justify-center">
-      <div className="text-left w-full">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Planner Consistency</span>
+    <div className="rounded-3xl liquid-glass p-6 shadow-xl flex flex-col gap-6 text-center items-center justify-center">
+      <div className="text-left w-full border-b border-white/5 pb-2">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E7CBA9]">Sanctuary Consistency</span>
       </div>
 
       <div className="relative size-36 flex items-center justify-center">
@@ -1048,81 +1085,75 @@ export default function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute flex flex-col items-center">
-              <span className="text-2xl font-black text-white">{monthConsistencyPercent}%</span>
-              <span className="text-[8px] text-slate-400 font-bold uppercase">Consistency</span>
+              <span className="text-2xl font-light text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{monthConsistencyPercent}%</span>
+              <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest">Rate</span>
             </div>
           </>
         ) : (
           <div className="size-32 rounded-full border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-2 bg-white/2">
-            <span className="text-[8px] text-slate-500 font-black uppercase">Awaiting Telemetry</span>
+            <span className="text-[8px] text-white/30 font-black uppercase">Awaiting Data</span>
           </div>
         )}
       </div>
 
-      <div className="text-xs text-slate-400 font-semibold mb-2">
-        {completedTargetsThisMonth} completed / {daysInMonth} days this month
+      <div className="text-xs text-white/50 font-normal">
+        {completedTargetsThisMonth} targets met / {daysInMonth} days this month
       </div>
 
-      <div className="w-full space-y-2.5 text-left text-[10px] font-bold uppercase text-slate-400">
-        <div className="space-y-1">
+      <div className="w-full space-y-4 text-left text-[9px] font-bold uppercase tracking-widest text-white/50">
+        <div className="space-y-1.5">
           <div className="flex justify-between">
             <span>Goal Success Rate</span>
-            <span className="text-emerald-400">{targetSuccessPercent}%</span>
+            <span className="text-[#D4AF7A] font-extrabold">{targetSuccessPercent}%</span>
           </div>
           <Progress value={targetSuccessPercent} className="w-full flex-col gap-0 bg-transparent">
-            <ProgressTrack className="bg-white/5 h-2">
-              <ProgressIndicator className="bg-emerald-500" />
+            <ProgressTrack className="bg-white/5 h-1.5">
+              <ProgressIndicator className="bg-[#D4AF7A]" />
             </ProgressTrack>
           </Progress>
-          <span className="text-[8px] text-slate-500 leading-none">
-            Completed {completedTargetsThisMonth} out of {targetsSetThisMonth} targets set.
-          </span>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex justify-between">
             <span>Month Coverage</span>
-            <span className="text-indigo-400">{Math.round((targetsSetThisMonth / daysInMonth) * 100)}%</span>
+            <span className="text-white/80">{Math.round((targetsSetThisMonth / daysInMonth) * 100)}%</span>
           </div>
           <Progress value={(targetsSetThisMonth / daysInMonth) * 100} className="w-full flex-col gap-0 bg-transparent">
-            <ProgressTrack className="bg-white/5 h-2">
-              <ProgressIndicator className="bg-indigo-500" />
+            <ProgressTrack className="bg-white/5 h-1.5">
+              <ProgressIndicator className="bg-white/35" />
             </ProgressTrack>
           </Progress>
-          <span className="text-[8px] text-slate-500 leading-none">
-            Targets set for {targetsSetThisMonth} out of {daysInMonth} calendar days.
-          </span>
         </div>
       </div>
     </div>
   );
 
   const byProjectWidget = (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">By project</span>
+    <div className="rounded-3xl liquid-glass p-5 shadow-xl flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E7CBA9]">Portfolio</span>
         <button
           type="button"
           onClick={() => setProjectModalOpen(true)}
-          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[44px] px-2"
+          className="text-[10px] font-bold text-[#D4AF7A] hover:text-white flex items-center gap-1 min-h-[32px] px-2 cursor-pointer"
         >
-          <Plus className="size-3" /> New
+          <Plus className="size-3" /> Add Project
         </button>
       </div>
 
-      <div className="space-y-1.5 max-h-[130px] overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-[140px] overflow-y-auto pr-1">
         {store.projects.length === 0 ? (
-          <div className="text-center py-3 text-slate-500 font-semibold text-[10px] uppercase">No active projects</div>
+          <div className="text-center py-4 text-white/30 font-semibold text-[9px] uppercase tracking-widest">No active folders</div>
         ) : (
           store.projects.map((project) => (
             <div
               key={project.id}
-              className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
+              className="flex items-center justify-between p-3 rounded-2xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all group"
             >
-              <div className="flex items-center gap-2">
-                <div className="size-2 rounded-full bg-indigo-400"></div>
+              <div className="flex items-center gap-2.5">
+                <div className="size-2 rounded-full bg-[#D4AF7A]"></div>
                 <div className="text-left">
-                  <h4 className="text-xs font-bold leading-tight">{project.name}</h4>
+                  <h4 className="text-xs font-semibold text-white leading-tight">{project.name}</h4>
                 </div>
               </div>
 
@@ -1132,7 +1163,7 @@ export default function DashboardPage() {
                   e.stopPropagation();
                   store.deleteProject(project.id);
                 }}
-                className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all min-h-[32px]"
+                className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-1.5 hover:bg-white/5 rounded-full text-rose-400 transition-all min-h-[32px]"
               >
                 <Trash2 className="size-3" />
               </button>
@@ -1143,109 +1174,105 @@ export default function DashboardPage() {
     </div>
   );
 
+
+
   if (!hasHydrated || !store.settings.isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <div className="size-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+        <div className="size-8 rounded-full border-4 border-[#D4AF7A] border-t-transparent animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div
-      className={`min-h-screen relative flex flex-col transition-all duration-1000 bg-cover bg-center font-sans overflow-x-hidden text-slate-100 ${
-        isEngineeringMode ? "engineering-cockpit" : ""
+      className={`min-h-screen relative flex flex-col transition-all duration-1000 font-sans overflow-x-hidden text-slate-100 ${
+        isEngineeringMode ? "creator-lab-cockpit" : ""
       }`}
       style={{
-        backgroundImage: isEngineeringMode ? "none" : `url(${activeBg})`,
-        backgroundColor: isEngineeringMode ? "#000000" : undefined,
+        backgroundColor: "#071B33",
       }}
     >
       {/* HUD Scan Line Effect when in Engineering Mode */}
       {isEngineeringMode && (
-        <div className="absolute inset-x-0 top-0 h-0.5 bg-emerald-500/20 shadow-[0_0_12px_rgba(52,211,153,0.4)] pointer-events-none animate-scan z-20"></div>
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-[#D4AF7A]/20 shadow-[0_0_12px_rgba(212,175,122,0.4)] pointer-events-none animate-scan z-20"></div>
       )}
 
-      {/* Dynamic Overlay & Blur */}
+      {/* Dynamic Overlay Gradient */}
       <div
-        className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none transition-opacity duration-1000"
-        style={{
-          backgroundImage: `url(${store.settings.bgImage || PRESET_WALLPAPERS[0].url})`,
-          opacity: 1,
-          filter: `blur(${store.settings.bgBlur}px) brightness(${100 - store.settings.bgOpacity}%)`,
-        }}
+        className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#071B33] via-[#0B2447] to-[#102A43] transition-opacity duration-1000"
       />
 
       {/* Focus Mode Overlay */}
       <FocusMode />
 
-      {/* Main Grid Wrapper */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto p-4 flex flex-col flex-1 gap-4">
+      {/* Main Layout Wrapper */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto p-4 flex flex-col flex-1 gap-6">
         
-        {/* HEADER */}
-        {/* Desktop Header Layout */}
-        <header className="hidden lg:flex w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-2.5 items-center justify-between shadow-lg gap-4">
+        {/* Floating navbar */}
+        <header className="hidden lg:flex w-full rounded-full liquid-glass px-8 py-3.5 items-center justify-between shadow-2xl gap-4">
           
-          {/* Left Section: Logo + Nav */}
-          <div className="flex items-center flex-1 min-w-0 xl:gap-8 gap-4">
-            {/* Logo */}
-            <div className="flex items-center gap-3 shrink-0">
-              <Image src="/logo.png" alt="LifeOS Logo" width={32} height={32} className="rounded-lg object-contain drop-shadow-md" />
-              <span className="font-extrabold text-xl tracking-tight text-indigo-400 hidden sm:block">
-                LifeOS
+          {/* Logo & Navigation */}
+          <div className="flex items-center flex-1 min-w-0 gap-4">
+            <div className="flex items-center gap-2 shrink-0 cursor-pointer select-none" onClick={() => setActiveTab("dashboard")}>
+              <span className="font-medium text-xl tracking-wider text-[#D4AF7A] uppercase" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                LIFE OS
               </span>
             </div>
 
-            {/* Navigation Links */}
-            <nav className="flex items-center gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar pr-2">
-              {[
-                { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-                { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
-                { id: "planner", label: "Planner", icon: CalendarIcon },
-                { id: "grid", label: "Life Grid", icon: Layers },
-                { id: "expenses", label: "Expenses", icon: Wallet },
-                { id: "intelligence", label: "Life Engine", icon: Brain },
-                { id: "journey", label: "Journey Replay", icon: Sparkles },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button type="button"
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 xl:gap-2 px-2.5 xl:px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap shrink-0 transition-all duration-300 ${
-                      activeTab === tab.id
-                        ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
-                    }`}
-                  >
-                    <Icon className="size-3.5" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
+            {/* Responsive Horizontal Sliding Navigation */}
+            <div className="relative flex-1 min-w-0 mx-2 overflow-hidden">
+              {/* Left Fade Indicator */}
+              <div 
+                className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#071b33]/90 to-transparent pointer-events-none z-10 transition-opacity duration-300 ${showLeftFade ? "opacity-100" : "opacity-0"}`} 
+              />
+
+              {/* Scroll Container */}
+              <div 
+                ref={navScrollRef}
+                className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap py-1"
+              >
+                {[
+                  { id: "dashboard", label: "Sanctuary", icon: BarChart3 },
+                  { id: "tasks", label: "Daily Rituals", icon: CheckCircle2 },
+                  { id: "planner", label: "Planning Board", icon: CalendarIcon },
+                  { id: "grid", label: "Life Architecture", icon: Layers },
+                  { id: "expenses", label: "Wealth Studio", icon: Wallet },
+                  { id: "intelligence", label: "Life Intelligence Center", icon: Brain },
+                  { id: "journey", label: "Journey Replay", icon: Sparkles },
+                  { id: "engineering", label: "Creator Lab", icon: Terminal },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button type="button"
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full font-bold text-xs uppercase tracking-widest whitespace-nowrap shrink-0 transition-all duration-300 cursor-pointer ${
+                        activeTab === tab.id
+                          ? "bg-white/10 text-white border border-white/10 shadow-lg"
+                          : "text-white/40 hover:text-white border border-transparent"
+                      }`}
+                    >
+                      <Icon className="size-3.5 text-[#D4AF7A]" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Fade Indicator */}
+              <div 
+                className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#071b33]/90 to-transparent pointer-events-none z-10 transition-opacity duration-300 ${showRightFade ? "opacity-100" : "opacity-0"}`} 
+              />
+            </div>
           </div>
 
-          {/* Right Section: Dev Console, Utils, Profile */}
+          {/* Right Section: Settings, Profile */}
           <div className="flex items-center justify-end shrink-0 xl:gap-6 gap-3">
             
-            {/* Dev Console Button */}
-            <button type="button"
-              onClick={() => setActiveTab("engineering")}
-              className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${
-                activeTab === "engineering"
-                  ? "bg-white/10 text-white shadow-sm backdrop-blur-md border border-white/10"
-                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              <Terminal className="size-3.5" />
-              <span>Dev Console</span>
-            </button>
-            
-            {/* Utilities (ENG Toggle & Settings) */}
-            <div className="flex items-center gap-3 xl:gap-4 bg-slate-950/20 px-3 py-2 rounded-2xl shrink-0">
+            <div className="flex items-center gap-3 xl:gap-4 bg-white/3 px-4 py-2 rounded-full border border-white/5 shrink-0">
               <div className="flex items-center gap-2">
-                <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-emerald-400" : "text-slate-500"}`}>
+                <span className={`text-[9px] font-black uppercase tracking-widest ${isEngineeringMode ? "text-[#D4AF7A]" : "text-white/30"}`}>
                   Eng
                 </span>
                 <button type="button"
@@ -1258,14 +1285,14 @@ export default function DashboardPage() {
                   }}
                   className={`w-9 h-5 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 cursor-pointer ${
                     isEngineeringMode
-                      ? "bg-emerald-950/60 border-emerald-500/50"
-                      : "bg-slate-900/60 border-white/10"
+                      ? "bg-[#D4AF7A]/20 border-[#D4AF7A]/50"
+                      : "bg-white/5 border-white/10"
                   }`}
-                  title="Toggle Engineering Monochrome Terminal HUD"
+                  title="Toggle Creator Lab Terminal Interface"
                 >
                   <div
                     className={`size-3.5 rounded-full transition-all duration-300 ${
-                      isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
+                      isEngineeringMode ? "bg-[#D4AF7A] translate-x-4 shadow-[0_0_8px_rgba(212,175,122,0.8)]" : "bg-white/30"
                     }`}
                   />
                 </button>
@@ -1275,29 +1302,29 @@ export default function DashboardPage() {
               
               <button type="button"
                 onClick={() => setIsCustomizing(true)}
-                className="shrink-0 text-slate-400 hover:text-white transition-all cursor-pointer"
+                className="shrink-0 text-white/50 hover:text-white transition-all cursor-pointer"
                 title="Customize Wallpaper & Theme"
               >
                 <Sliders className="size-4" />
               </button>
             </div>
 
-            {/* User Profile */}
-            <div className="flex items-center gap-3 bg-slate-950/30 pl-3 xl:pl-4 pr-1.5 py-1.5 rounded-2xl border border-white/5 hover:bg-slate-950/50 transition-all cursor-pointer group shrink-0 max-w-[140px] xl:max-w-[200px]">
+            {/* Profile widget */}
+            <div className="flex items-center gap-3 bg-white/2 pl-4 pr-1.5 py-1.5 rounded-full border border-white/5 hover:bg-white/5 transition-all cursor-pointer group shrink-0 max-w-[140px] xl:max-w-[200px]">
               <div className="text-right hidden xl:block overflow-hidden min-w-0">
-                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors truncate">{store.settings.name}</p>
-                <p className="text-[9px] text-slate-500 font-bold tracking-wide uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
+                <p className="text-xs font-bold leading-none mb-1 text-slate-200 group-hover:text-white transition-colors truncate">{store.settings.name || "Ankush"}</p>
+                <p className="text-[8px] text-white/40 font-bold tracking-widest uppercase leading-none truncate">{store.settings.email.split('@')[0]}</p>
               </div>
               <div className="flex items-center shrink-0">
-                <div className="size-8 shrink-0 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-xs text-indigo-200 shadow-inner">
-                  {store.settings.name.split(" ").map((n) => n[0]).join("")}
+                <div className="size-8 shrink-0 rounded-full bg-[#D4AF7A]/15 border border-[#D4AF7A]/40 flex items-center justify-center font-black text-xs text-[#D4AF7A] shadow-inner">
+                  {(store.settings.name || "Ankush").split(" ").map((n) => n[0]).join("")}
                 </div>
                 <button type="button"
                   onClick={() => {
                     store.logout();
                     push("/login");
                   }}
-                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300 cursor-pointer"
+                  className="opacity-0 w-0 overflow-hidden group-hover:w-8 group-hover:opacity-100 group-hover:ml-2 h-8 shrink-0 rounded-full bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center text-rose-400 transition-all duration-300 cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="size-3.5" />
@@ -1308,24 +1335,24 @@ export default function DashboardPage() {
         </header>
 
         {/* Mobile Header Layout */}
-        <header className="lg:hidden flex w-full rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 px-4 py-3 items-center justify-between shadow-lg z-30">
+        <header className="lg:hidden flex w-full rounded-2xl liquid-glass px-4 py-3 items-center justify-between shadow-lg z-30">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="LifeOS Logo" width={28} height={28} className="rounded-lg object-contain" />
-            <span className="font-extrabold text-lg tracking-tight text-indigo-400">
-              LifeOS
+            <span className="font-medium text-xl tracking-wider text-white uppercase" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              LIFE OS
             </span>
           </div>
 
           <button type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="size-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-widest text-[#D4AF7A] hover:text-white hover:bg-white/10 transition-all cursor-pointer"
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {isMobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            <span>Menu</span>
           </button>
         </header>
 
-        {/* Mobile Slide-out Menu Drawer */}
+        {/* Mobile menu drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -1335,21 +1362,20 @@ export default function DashboardPage() {
               className="lg:hidden fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-2xl pt-24 px-6 pb-6 flex flex-col justify-between overflow-y-auto"
             >
               <div className="flex flex-col gap-6">
-                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] border-b border-white/5 pb-2">
-                  System Navigation
+                <span className="text-[10px] font-bold text-[#D4AF7A] uppercase tracking-[0.2em] border-b border-white/5 pb-2">
+                  Navigation Menu
                 </span>
                 
-                {/* Navigation Links */}
                 <nav className="flex flex-col gap-2">
                   {[
-                    { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-                    { id: "tasks", label: "Daily Tasks", icon: CheckCircle2 },
-                    { id: "planner", label: "Planner", icon: CalendarIcon },
-                    { id: "grid", label: "Life Grid", icon: Layers },
-                    { id: "expenses", label: "Expenses", icon: Wallet },
-                    { id: "intelligence", label: "Life Engine", icon: Brain },
+                    { id: "dashboard", label: "Sanctuary", icon: BarChart3 },
+                    { id: "tasks", label: "Daily Rituals", icon: CheckCircle2 },
+                    { id: "planner", label: "Planning Board", icon: CalendarIcon },
+                    { id: "grid", label: "Life Architecture", icon: Layers },
+                    { id: "expenses", label: "Wealth Studio", icon: Wallet },
+                    { id: "intelligence", label: "Life Intelligence Center", icon: Brain },
                     { id: "journey", label: "Journey Replay", icon: Sparkles },
-                    { id: "engineering", label: "Dev Console", icon: Terminal },
+                    { id: "engineering", label: "Creator Lab", icon: Terminal },
                   ].map((tab) => {
                     const Icon = tab.icon;
                     return (
@@ -1359,71 +1385,24 @@ export default function DashboardPage() {
                           setActiveTab(tab.id);
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer ${
-                          activeTab === tab.id
-                            ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10 border border-indigo-500/20"
-                            : "text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-transparent"
-                        }`}
+                        className="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200 cursor-pointer text-white/70 hover:text-white bg-white/3 border border-white/5 hover:border-white/10"
                       >
-                        <Icon className="size-4" />
+                        <Icon className="size-4 text-[#D4AF7A]" />
                         {tab.label}
                       </button>
                     );
                   })}
                 </nav>
-
-                {/* System Controls */}
-                <div className="flex flex-col gap-4 bg-white/5 border border-white/5 p-4 rounded-2xl mt-2">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-                    System Controls
-                  </span>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-300">Engineering Mode</span>
-                    <button type="button"
-                      aria-label="Toggle Engineering Mode"
-                      onClick={() => {
-                        setIsEngineeringMode(!isEngineeringMode);
-                        if (!isEngineeringMode) {
-                          setActiveTab("engineering");
-                        }
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-10 h-6 shrink-0 rounded-full transition-all duration-300 relative border flex items-center p-0.5 cursor-pointer ${
-                        isEngineeringMode
-                          ? "bg-emerald-950/60 border-emerald-500/50"
-                          : "bg-slate-900/60 border-white/10"
-                      }`}
-                    >
-                      <div
-                        className={`size-4.5 rounded-full transition-all duration-300 ${
-                          isEngineeringMode ? "bg-emerald-400 translate-x-4 shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-slate-500"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <div className="h-px bg-white/5"></div>
-                  <button type="button"
-                    onClick={() => {
-                      setIsCustomizing(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white cursor-pointer"
-                  >
-                    <span>Customize Wallpaper & Theme</span>
-                    <Sliders className="size-4 text-slate-400" />
-                  </button>
-                </div>
               </div>
 
-              {/* Mobile User Profile Section */}
-              <div className="flex items-center justify-between bg-white/5 border border-white/5 p-4 rounded-2xl mt-6">
+              <div className="flex items-center justify-between bg-white/3 border border-white/5 p-4 rounded-2xl mt-6">
                 <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center font-black text-sm text-indigo-200 shadow-inner">
-                    {store.settings.name.split(" ").map((n) => n[0]).join("")}
+                  <div className="size-10 rounded-full bg-[#D4AF7A]/15 border border-[#D4AF7A]/40 flex items-center justify-center font-black text-sm text-[#D4AF7A] shadow-inner">
+                    {(store.settings.name || "Ankush").split(" ").map((n) => n[0]).join("")}
                   </div>
                   <div className="text-left overflow-hidden max-w-[150px]">
-                    <p className="text-xs font-bold leading-none mb-1 text-slate-200 truncate">{store.settings.name}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase truncate">{store.settings.email}</p>
+                    <p className="text-xs font-bold leading-none mb-1 text-slate-200 truncate">{store.settings.name || "Ankush"}</p>
+                    <p className="text-[8px] text-white/40 font-bold uppercase truncate">{store.settings.email}</p>
                   </div>
                 </div>
                 <button type="button"
@@ -1431,7 +1410,7 @@ export default function DashboardPage() {
                     store.logout();
                     push("/login");
                   }}
-                  className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <LogOut className="size-3.5" />
                   Sign Out
@@ -1442,20 +1421,21 @@ export default function DashboardPage() {
         </AnimatePresence>
 
         {/* MAIN BODY CONTENTS */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-6">
 
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
-            <div className="w-full flex flex-col gap-4">
-              {/* Overdue alert banner if there are overdue tasks */}
+            <div className="w-full flex flex-col gap-6">
+              
+              {/* Overdue Alert banner */}
               {overdueTasks.length > 0 && (
-                <div className="w-full p-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 backdrop-blur-xl flex items-center justify-between shadow-lg shadow-rose-950/20 animate-pulse">
+                <div className="w-full p-4 rounded-3xl border border-rose-500/20 bg-rose-500/5 backdrop-blur-xl flex items-center justify-between shadow-lg shadow-rose-950/20 animate-pulse">
                   <div className="flex items-center gap-3">
                     <AlertCircle className="size-5 text-rose-400" />
                     <div className="text-left">
-                      <h4 className="text-xs font-black text-rose-300 uppercase tracking-wider">Needs Attention</h4>
+                      <h4 className="text-xs font-bold text-rose-300 uppercase tracking-widest">Needs Attention</h4>
                       <p className="text-[10px] text-rose-400 font-semibold mt-0.5">
-                        You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? "s" : ""} from today or past days.
+                        You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? "s" : ""} in rituals.
                       </p>
                     </div>
                   </div>
@@ -1471,7 +1451,7 @@ export default function DashboardPage() {
                             store.updateDayTaskInstance(task.date, task.id, { status: "completed", completed: true });
                           }
                         }}
-                        className="bg-rose-600 hover:bg-rose-500 text-white font-bold text-[9px] h-8 rounded-lg px-2.5"
+                        className="bg-rose-650 hover:bg-rose-600 text-white font-bold text-[8px] uppercase tracking-widest h-8 rounded-full px-3"
                       >
                         Complete: {task.title.substring(0, 15)}...
                       </Button>
@@ -1482,17 +1462,17 @@ export default function DashboardPage() {
 
               {/* Upcoming Reminder Banner */}
               {nextTask && (
-                <div className="w-full p-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-lg shadow-indigo-950/20 gap-4">
-                  <div className="flex items-center gap-3.5 text-left">
-                    <div className="size-9 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300 shadow-inner">
+                <div className="w-full p-5 rounded-3xl border border-[#D4AF7A]/20 bg-gradient-to-r from-[#D4AF7A]/5 to-[#E7CBA9]/5 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-xl gap-4 text-left">
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-full bg-[#D4AF7A]/15 border border-[#D4AF7A]/30 flex items-center justify-center text-[#D4AF7A] shadow-inner text-sm">
                       🔔
                     </div>
                     <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-indigo-300 flex items-center gap-1.5">
-                        Next Task <span className="text-white/40">•</span> <span className="text-indigo-400 font-black">{nextTaskCountdown}</span>
+                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#E7CBA9] flex items-center gap-1.5">
+                        Next Ritual <span className="text-white/20">•</span> <span>{nextTaskCountdown}</span>
                       </span>
-                      <h3 className="text-sm font-black text-white mt-0.5">{nextTask.title}</h3>
-                      <div className="flex gap-2 text-[9px] font-bold text-slate-400 uppercase mt-1">
+                      <h3 className="text-sm font-semibold text-white mt-0.5">{nextTask.title}</h3>
+                      <div className="flex gap-2 text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">
                         <span>⏰ {nextTaskTimeRange}</span>
                         {nextTask.duration && <span>⏳ {nextTask.duration}</span>}
                       </div>
@@ -1502,14 +1482,14 @@ export default function DashboardPage() {
                     <Button
                       size="sm"
                       onClick={() => store.updateDayTaskInstance(todayStr, nextTask.id, { status: "in_progress" })}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[9px] h-8 rounded-lg px-3.5"
+                      className="bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold text-[8px] uppercase tracking-widest h-8 rounded-full px-3.5"
                     >
-                      Start Task
+                      Start Focus
                     </Button>
                     <Button
                       size="sm"
                       onClick={() => store.updateDayTaskInstance(todayStr, nextTask.id, { status: "completed", completed: true })}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[9px] h-8 rounded-lg px-3"
+                      className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] font-bold text-[8px] uppercase tracking-widest h-8 rounded-full px-3.5"
                     >
                       Complete
                     </Button>
@@ -1517,19 +1497,35 @@ export default function DashboardPage() {
                 </div>
               )}
 
+              {/* Luxury Greeting Header */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between text-left gap-4 mt-2 mb-2 animate-fade-rise">
+                <div>
+                  <h2 className="text-3xl font-light text-white leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    Good Evening, <span className="text-[#D4AF7A] font-medium">{store.settings.name || "Ankush"}</span>
+                  </h2>
+                  <p className="text-xs text-white/50 font-medium tracking-widest uppercase mt-1">
+                    Welcome back to your command sanctuary.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-[#D4AF7A]">
+                  <span className="size-2 bg-[#D4AF7A] rounded-full animate-pulse" />
+                  Telemetry Active // Sanctuary V1.0
+                </div>
+              </div>
+
               {/* Pristine Empty State Banner */}
               {todaysTasks.length === 0 && (
-                <div className="w-full p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center text-left">
-                  <h3 className="text-xs font-black text-indigo-300 uppercase tracking-wider flex items-center gap-2">
-                    <Sparkles className="size-4 text-indigo-400" /> Welcome to your Cockpit
+                <div className="w-full p-6 rounded-3xl border border-[#D4AF7A]/25 bg-[#D4AF7A]/5 backdrop-blur-xl flex flex-col justify-center text-left">
+                  <h3 className="text-xs font-bold text-[#E7CBA9] uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Sparkles className="size-4 text-[#D4AF7A]" /> Welcome to your Cockpit
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-semibold mt-1">
-                    Your LifeOS dashboard shows your active schedules. To plan tasks, head to the <button type="button" onClick={() => setActiveTab("grid")} className="text-indigo-400 underline font-bold">Life Grid Console</button> or add one below!
+                  <p className="text-xs text-white/60 font-normal mt-1 leading-relaxed">
+                    Your operating environment starts clean. Plan rituals in <button type="button" onClick={() => setActiveTab("grid")} className="text-[#D4AF7A] underline font-bold cursor-pointer">Life Architecture</button> or add one below to customize today&apos;s agenda.
                   </p>
                 </div>
               )}
 
-              {/* MOBILE & TABLET LAYOUT (Vertical Stack) */}
+              {/* MOBILE & TABLET LAYOUT */}
               <div className="flex lg:hidden flex-col gap-6 w-full">
                 {todaysGoalWidget}
                 {focusAnalyticsWidget}
@@ -1540,46 +1536,46 @@ export default function DashboardPage() {
               </div>
 
               {/* DESKTOP LAYOUT (3 Columns) */}
-              <div className="hidden lg:grid grid-cols-12 gap-4 items-start w-full">
-                {/* Left Column (Span 3) */}
-                <div className="col-span-3 flex flex-col gap-4">
+              <div className="hidden lg:grid lg:grid-cols-[320px_1fr_450px] gap-6 items-start w-full">
+                {/* Left Column */}
+                <div className="flex flex-col gap-6">
                   {focusHourTrackerWidget}
                   {todaysGoalWidget}
+                  {byProjectWidget}
+                </div>
+
+                {/* Center Column */}
+                <div className="flex flex-col gap-6">
                   {todaysTasksWidget}
                 </div>
 
-                {/* Center Column (Span 6) */}
-                <div className="col-span-6 flex flex-col gap-4">
+                {/* Right Column */}
+                <div className="flex flex-col gap-6">
                   {focusAnalyticsWidget}
-                </div>
-
-                {/* Right Column (Span 3) */}
-                <div className="col-span-3 flex flex-col gap-4">
                   {plannerConsistencyWidget}
-                  {byProjectWidget}
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 2: TASKS & HABITS */}
+          {/* TAB 2: DAILY RITUALS */}
           {activeTab === "tasks" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start w-full">
-              {/* Tasks Workspace (Span 8) */}
-              <div className="lg:col-span-8 flex flex-col gap-4 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+              {/* Daily Rituals Workspace */}
+              <div className="lg:col-span-8 flex flex-col gap-6 h-full text-left">
                 <DailyTaskSystem />
               </div>
 
-              {/* Habits Workspace (Span 4) */}
-              <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[400px] w-full">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              {/* Habits Workspace */}
+              <div className="lg:col-span-4 rounded-3xl liquid-glass p-6 shadow-xl flex flex-col gap-5 min-h-[400px] w-full text-left">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
                   <div>
-                    <h2 className="text-lg font-black text-white">Daily Habits</h2>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5">Toggle checkboxes to build streaks</p>
+                    <h2 className="text-xl font-light text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Daily Habits</h2>
+                    <p className="text-[10px] text-white/40 font-semibold mt-0.5 uppercase tracking-widest">Commit daily to build streak cycles</p>
                   </div>
                   <button type="button"
                     onClick={() => setHabitModalOpen(true)}
-                    className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5"
+                    className="text-xs font-bold text-[#D4AF7A] hover:text-white flex items-center gap-0.5 cursor-pointer"
                   >
                     <Plus className="size-3.5" /> Add
                   </button>
@@ -1587,38 +1583,38 @@ export default function DashboardPage() {
 
                 <div className="space-y-2">
                   {store.habits.length === 0 ? (
-                    <div className="text-center py-5 text-slate-500 font-semibold text-[10px] uppercase">No habits set. Initiate streaks!</div>
+                    <div className="text-center py-5 text-white/30 font-semibold text-[9px] uppercase tracking-widest">No habits declared yet</div>
                   ) : (
                     store.habits.map((habit) => {
                       const isCompletedToday = habit.completedDates.includes(todayStr);
                       return (
                         <div
                           key={habit.id}
-                          className="flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-white/5 hover:bg-white/5 transition-all group"
+                          className="flex items-center justify-between p-3.5 rounded-2xl bg-white/2 border border-white/5 hover:bg-white/5 transition-all group"
                         >
                           <div className="flex items-center gap-3">
                             <button type="button"
                               onClick={() => store.toggleHabit(habit.id, todayStr)}
-                              className={`size-4 rounded border-2 flex items-center justify-center transition-all ${
+                              className={`size-4 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                                 isCompletedToday
-                                  ? "bg-emerald-500 border-emerald-400 text-white"
+                                  ? "bg-[#D4AF7A] border-[#D4AF7A] text-[#071B33]"
                                   : "border-white/20 hover:border-white/40"
                               }`}
                             >
                               {isCompletedToday && "✓"}
                             </button>
                             <div className="text-left">
-                              <h4 className="text-xs font-bold text-white">{habit.name}</h4>
+                              <h4 className="text-xs font-semibold text-white leading-none">{habit.name}</h4>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black text-emerald-400 flex items-center gap-0.5">
+                            <span className="text-[10px] font-black text-[#D4AF7A] flex items-center gap-0.5">
                               🔥 {habit.streak}
                             </span>
                             <button type="button"
                               onClick={() => store.deleteHabit(habit.id)}
-                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded-full text-rose-450 transition-all cursor-pointer"
                             >
                               <Trash2 className="size-3.5" />
                             </button>
@@ -1634,42 +1630,42 @@ export default function DashboardPage() {
 
           {/* TAB: PLANNER */}
           {activeTab === "planner" && (
-            <div className="w-full">
+            <div className="w-full text-left">
               <MonthlyPlanner />
             </div>
           )}
 
-          {/* TAB 3: LIFE GRID */}
+          {/* TAB: LIFE ARCHITECTURE */}
           {activeTab === "grid" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[400px] w-full">
+            <div className="rounded-3xl liquid-glass p-6 shadow-xl min-h-[400px] w-full text-left">
               <LifeGrid onOpenDayDetails={handleDayClick} />
             </div>
           )}
 
-          {/* TAB 4: EXPENSES */}
+          {/* TAB: WEALTH STUDIO */}
           {activeTab === "expenses" && (
-            <div className="w-full">
+            <div className="w-full text-left">
               <FinancialOS />
             </div>
           )}
 
-          {/* TAB 5: JOURNEY REPLAY */}
+          {/* TAB: JOURNEY REPLAY */}
           {activeTab === "journey" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg min-h-[400px] w-full">
+            <div className="rounded-3xl liquid-glass p-6 shadow-xl min-h-[400px] w-full text-left">
               <JourneyReplay />
             </div>
           )}
 
-          {/* TAB 6: ENGINEERING MODE */}
+          {/* TAB: CREATOR LAB */}
           {activeTab === "engineering" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg min-h-[400px] w-full">
+            <div className="rounded-3xl border border-white/5 bg-[#030d1a] p-6 shadow-2xl min-h-[400px] w-full text-left">
               <EngineeringMode />
             </div>
           )}
 
-          {/* TAB 7: INTELLIGENCE (LIFE ENGINE) */}
+          {/* TAB: LIFE INTELLIGENCE CENTER */}
           {activeTab === "intelligence" && (
-            <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg min-h-[500px] w-full">
+            <div className="rounded-3xl liquid-glass p-6 shadow-xl min-h-[500px] w-full text-left">
               <LifeEngine />
             </div>
           )}
@@ -1679,36 +1675,33 @@ export default function DashboardPage() {
       </div>
 
       {/* FOOTER */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-wide">
-        &copy; {new Date().getFullYear()} LifeOS - Day-by-Day performance tracker
+      <footer className="relative z-10 w-full max-w-7xl mx-auto p-6 text-center text-white/30 text-[9px] font-bold uppercase tracking-widest font-mono">
+        &copy; {new Date().getFullYear()} LIFE OS — Premium Architectural Cockpit
       </footer>
 
       {/* DIALOG 1: BACKGROUND CUSTOMIZER */}
       <Dialog open={isCustomizing} onOpenChange={setIsCustomizing}>
-        <DialogContent className="sm:max-w-[425px] bg-slate-900/95 border border-white/10 text-white rounded-2xl backdrop-blur-2xl">
+        <DialogContent className="sm:max-w-[425px] bg-[#071b33] border border-white/10 text-white rounded-3xl backdrop-blur-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black tracking-tight">Customize Dashboard Theme</DialogTitle>
-            <DialogDescription className="text-slate-400 text-xs">
-              Personalize background layouts to maximize motivation and screen accessibility.
+            <DialogTitle className="text-lg font-light tracking-wide" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Configure Workspace</DialogTitle>
+            <DialogDescription className="text-white/40 text-xs font-semibold">
+              Adjust styling overrides to personalize workspace focus and ergonomics.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 py-4">
-            
-            {/* Input URL */}
+          <div className="flex flex-col gap-4 py-4 text-left">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Background Image URL</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-[#E7CBA9]">Image URL Override</Label>
               <Input
                 value={bgInput}
                 onChange={(e) => setBgInput(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="bg-white/5 border-white/10 rounded-xl text-slate-200"
+                className="bg-white/3 border-white/10 rounded-xl text-slate-200 focus:border-[#D4AF7A]"
               />
             </div>
 
-            {/* Local Upload */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Or Upload Image File</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Or Upload File</Label>
               <div className="flex items-center justify-center border border-dashed border-white/15 rounded-xl p-4 bg-white/3 hover:bg-white/5 cursor-pointer relative transition-all">
                 <input
                   type="file"
@@ -1717,22 +1710,21 @@ export default function DashboardPage() {
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
                 <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                  <Upload className="size-4 text-indigo-400" />
+                  <Upload className="size-4 text-[#D4AF7A]" />
                   <span>Choose local file...</span>
                 </div>
               </div>
             </div>
 
-            {/* Presets Grid */}
             <div className="flex flex-col gap-2">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Select Preset Wallpaper</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Preset Backgrounds</Label>
               <div className="grid grid-cols-4 gap-2">
                 {PRESET_WALLPAPERS.map((wp) => (
                   <button type="button"
                     key={wp.title}
                     onClick={() => setBgInput(wp.url)}
-                    className={`aspect-video rounded-lg bg-cover bg-center border transition-all ${
-                      bgInput === wp.url ? "border-indigo-400 scale-105 shadow-md shadow-indigo-950/40" : "border-transparent opacity-75 hover:opacity-100"
+                    className={`aspect-video rounded-lg bg-cover bg-center border transition-all cursor-pointer ${
+                      bgInput === wp.url ? "border-[#D4AF7A] scale-105" : "border-transparent opacity-75 hover:opacity-100"
                     }`}
                     style={{ backgroundImage: `url(${wp.url})` }}
                     title={wp.title}
@@ -1741,11 +1733,10 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Sliders for Blur and Dark Tint */}
-            <div className="flex flex-col gap-4 border-t border-white/10 pt-4">
+            <div className="flex flex-col gap-4 border-t border-white/5 pt-4">
               <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  <span>Background Blur</span>
+                <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-white/40">
+                  <span>Blur Scale</span>
                   <span>{blurVal}px</span>
                 </div>
                 <input
@@ -1754,13 +1745,13 @@ export default function DashboardPage() {
                   max="20"
                   value={blurVal}
                   onChange={(e) => setBlurVal(parseInt(e.target.value))}
-                  className="w-full accent-indigo-500 bg-slate-950"
+                  className="w-full accent-[#D4AF7A] bg-slate-950"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  <span>Dark Overlay Tint</span>
+                <div className="flex justify-between text-[9px] font-bold uppercase tracking-widest text-white/40">
+                  <span>Tint Value</span>
                   <span>{opacityVal}%</span>
                 </div>
                 <input
@@ -1769,26 +1760,25 @@ export default function DashboardPage() {
                   max="100"
                   value={opacityVal}
                   onChange={(e) => setOpacityVal(parseInt(e.target.value))}
-                  className="w-full accent-indigo-500 bg-slate-950"
+                  className="w-full accent-[#D4AF7A] bg-slate-950"
                 />
               </div>
             </div>
-
           </div>
 
-          <div className="flex gap-2.5 mt-2">
+          <div className="flex gap-3 mt-2">
             <Button
               variant="outline"
               onClick={() => setIsCustomizing(false)}
-              className="flex-1 rounded-xl font-bold py-5 border-white/10 bg-transparent text-slate-300 hover:bg-white/5"
+              className="flex-1 rounded-full font-bold py-5 border-white/10 bg-transparent text-white/60 hover:bg-white/5 text-xs uppercase tracking-widest"
             >
               Cancel
             </Button>
             <Button
               onClick={handleBgSave}
-              className="flex-1 rounded-xl font-bold py-5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90"
+              className="flex-1 rounded-full font-bold py-5 bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] text-xs uppercase tracking-widest"
             >
-              Save Customizer
+              Save Overrides
             </Button>
           </div>
         </DialogContent>
@@ -1796,44 +1786,47 @@ export default function DashboardPage() {
 
       {/* DIALOG 2: ADD TASK */}
       <Dialog open={taskModalOpen} onOpenChange={setTaskModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black">Add New Task to Today</DialogTitle>
+            <DialogTitle className="text-lg font-light tracking-wide text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Register Focus Target</DialogTitle>
+            <DialogDescription className="text-white/40 text-xs font-semibold">
+              Enter details to schedule a new task ritual under today&apos;s active flow.
+            </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleAddTask} className="flex flex-col gap-4 py-3">
-            <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Task Title</Label>
+          <form onSubmit={handleAddTask} className="flex flex-col gap-4 py-3 text-left">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-[#E7CBA9]">Ritual Title</Label>
               <Input
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="Finish LifeOS implementation Plan..."
-                className="bg-white/5 border-white/10 rounded-xl"
+                placeholder="Finish LifeOS implementation..."
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A] text-white"
                 required
               />
             </div>
             
-            <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Duration (Optional)</Label>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Duration (Optional)</Label>
               <Input
                 value={newTaskDuration}
                 onChange={(e) => setNewTaskDuration(e.target.value)}
                 placeholder="e.g. 2 hours, 30 minutes"
-                className="bg-white/5 border-white/10 rounded-xl"
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A] text-white"
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Start Time (Optional)</Label>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Start Time (Optional)</Label>
               <Input
                 value={newTaskStartTime}
                 onChange={(e) => setNewTaskStartTime(e.target.value)}
                 placeholder="e.g. 08:00 AM, 2:00 PM"
-                className="bg-white/5 border-white/10 rounded-xl"
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A] text-white"
               />
             </div>
 
-            <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-5 mt-2">
-              Save Task
+            <Button type="submit" className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-5 mt-2 uppercase tracking-widest text-xs">
+              Save Ritual
             </Button>
           </form>
         </DialogContent>
@@ -1841,46 +1834,46 @@ export default function DashboardPage() {
 
       {/* DIALOG 3: ADD LEDGER ITEM */}
       <Dialog open={expenseModalOpen} onOpenChange={setExpenseModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black">Add Financial Transaction</DialogTitle>
+            <DialogTitle className="text-lg font-light text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Register Transaction</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleAddExpense} className="flex flex-col gap-4 py-3">
+          <form onSubmit={handleAddExpense} className="flex flex-col gap-4 py-3 text-left">
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">Transaction Type</Label>
+                <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Type</Label>
                 <Select
                   value={newExpenseType}
                   onValueChange={(val) => setNewExpenseType((val as "income" | "expense") || "expense")}
                 >
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
+                  <SelectTrigger className="bg-white/3 border-white/10 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white">
+                  <SelectContent className="bg-[#071b33] border-white/10 text-white">
                     <SelectItem value="expense">Expense (-)</SelectItem>
                     <SelectItem value="income">Income (+)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-bold uppercase text-slate-400">Amount ($)</Label>
+                <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Amount ($)</Label>
                 <Input
                   type="number"
                   value={newExpenseAmount}
                   onChange={(e) => setNewExpenseAmount(e.target.value)}
                   placeholder="45.00"
-                  className="bg-white/5 border-white/10 rounded-xl"
+                  className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A] text-white"
                   required
                 />
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Category</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Category</Label>
               <Select value={newExpenseCategory} onValueChange={(val) => setNewExpenseCategory(val || "Food")}>
-                <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
+                <SelectTrigger className="bg-white/3 border-white/10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                <SelectContent className="bg-[#071b33] border-white/10 text-white">
                   {["Food", "Travel", "Shopping", "Education", "Bills", "Entertainment", "Salary", "Freelance", "Investment", "Other"].map((cat) => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
@@ -1888,15 +1881,15 @@ export default function DashboardPage() {
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Description</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Description</Label>
               <Input
                 value={newExpenseDesc}
                 onChange={(e) => setNewExpenseDesc(e.target.value)}
                 placeholder="Dinner with team, office supplies, etc."
-                className="bg-white/5 border-white/10 rounded-xl"
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A] text-white"
               />
             </div>
-            <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-5 mt-2">
+            <Button type="submit" className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-5 mt-2 uppercase tracking-widest text-xs">
               Add to Ledger
             </Button>
           </form>
@@ -1905,22 +1898,22 @@ export default function DashboardPage() {
 
       {/* DIALOG 4: ADD HABIT */}
       <Dialog open={habitModalOpen} onOpenChange={setHabitModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black">Register Daily Habit</DialogTitle>
+            <DialogTitle className="text-lg font-light text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Register Daily Habit</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleAddHabit} className="flex flex-col gap-4 py-3">
-            <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Habit Name</Label>
+          <form onSubmit={handleAddHabit} className="flex flex-col gap-4 py-3 text-left">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-[#E7CBA9]">Habit Name</Label>
               <Input
                 value={newHabitName}
                 onChange={(e) => setNewHabitName(e.target.value)}
-                placeholder="Drink 3L Water, 30m Coding, gym session..."
-                className="bg-white/5 border-white/10 rounded-xl"
+                placeholder="Gym session, reading, hydration cycle..."
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A]"
                 required
               />
             </div>
-            <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-5 mt-2">
+            <Button type="submit" className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-5 mt-2 uppercase tracking-widest text-xs">
               Save Habit
             </Button>
           </form>
@@ -1929,67 +1922,65 @@ export default function DashboardPage() {
 
       {/* DIALOG 5: ADD PROJECT */}
       <Dialog open={projectModalOpen} onOpenChange={setProjectModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black">Create Project Folder</DialogTitle>
+            <DialogTitle className="text-lg font-light text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Create Project Folder</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleAddProject} className="flex flex-col gap-4 py-3">
+          <form onSubmit={handleAddProject} className="flex flex-col gap-4 py-3 text-left">
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Project Name</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Project Name</Label>
               <Input
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
-                placeholder="LifeOS UI/UX design, Rust compiler study..."
-                className="bg-white/5 border-white/10 rounded-xl"
+                placeholder="LIFE OS, studio redesign..."
+                className="bg-white/3 border-white/10 rounded-xl focus:border-[#D4AF7A]"
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Category Tag</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Category Tag</Label>
               <Select value={newProjectCategory} onValueChange={(val) => setNewProjectCategory(val || "Design")}>
-                <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
+                <SelectTrigger className="bg-white/3 border-white/10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
+                <SelectContent className="bg-[#071b33] border-white/10 text-white">
                   {["Design", "Coding", "Meeting", "Writing", "Learning"].map((cat) => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" className="bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-5 mt-2">
-              Initialize Project Folder
+            <Button type="submit" className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-5 mt-2 uppercase tracking-widest text-xs">
+              Initialize Folder
             </Button>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* DIALOG 6: DAY DETAIL MODAL (Planner of each day + Target set/completed logic) */}
+      {/* DIALOG 6: DAY DETAIL MODAL */}
       <Dialog open={dayDetailModalOpen} onOpenChange={setDayDetailModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-white rounded-2xl max-w-lg">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black flex items-center gap-2">
-              <CalendarIcon className="size-5 text-indigo-400" />
-              Planner: {selectedCalendarDate}
+            <DialogTitle className="text-lg font-light text-white flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <CalendarIcon className="size-5 text-[#D4AF7A]" />
+              Planning Board: {selectedCalendarDate}
             </DialogTitle>
-            <DialogDescription className="text-slate-400 text-xs">
-              Set a specific focus target and log milestones for this date.
+            <DialogDescription className="text-white/40 text-xs font-semibold">
+              Establish a milestone target and record specific events for this date.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-5 py-2">
-            
-            {/* Daily Target Section */}
-            <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-slate-950/40 border border-white/5">
-              <Label className="text-[10px] font-black uppercase text-indigo-300 flex items-center gap-1.5">
-                <Target className="size-3.5 text-indigo-400" />
+          <div className="flex flex-col gap-5 py-2 text-left">
+            <div className="flex flex-col gap-2.5 p-4 rounded-2xl bg-white/2 border border-white/5">
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-[#E7CBA9] flex items-center gap-1.5">
+                <Target className="size-3.5 text-[#D4AF7A]" />
                 Daily Target Goal
               </Label>
               <Input
                 value={dayTargetText}
                 onChange={(e) => setDayTargetText(e.target.value)}
-                placeholder="e.g. Solve 3 LeetCode, finish next page..."
-                className="bg-white/5 border-white/10 text-xs rounded-xl"
+                placeholder="e.g. Solve 3 LeetCode, finish designs..."
+                className="bg-white/3 border-white/10 text-xs rounded-xl focus:border-[#D4AF7A]"
               />
               <div className="flex items-center gap-2 mt-1">
                 <input
@@ -1997,43 +1988,41 @@ export default function DashboardPage() {
                   id="dayTargetCompleted"
                   checked={dayTargetCompleted}
                   onChange={(e) => setDayTargetCompleted(e.target.checked)}
-                  className="size-4 rounded border-white/20 text-emerald-500 focus:ring-0 bg-transparent cursor-pointer"
+                  className="size-4 rounded-full border-white/20 text-[#D4AF7A] focus:ring-0 bg-transparent cursor-pointer"
                 />
-                <Label htmlFor="dayTargetCompleted" className="text-slate-300 text-xs font-bold cursor-pointer">
+                <Label htmlFor="dayTargetCompleted" className="text-white/60 text-xs font-semibold cursor-pointer">
                   Mark daily target as completed
                 </Label>
               </div>
-              <Button onClick={handleSaveDayTarget} className="w-full bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs mt-1">
+              <Button onClick={handleSaveDayTarget} className="w-full bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] rounded-full font-bold py-4 text-xs mt-1 uppercase tracking-widest">
                 Save Daily Target
               </Button>
             </div>
 
-            {/* Scheduled Events for this day */}
             <div className="flex flex-col gap-3">
-              <Label className="text-[10px] font-bold uppercase text-slate-400">Scheduled Milestones</Label>
+              <Label className="text-[9px] font-bold uppercase tracking-widest text-white/40">Scheduled Milestones</Label>
               
-              {/* Event list */}
               <div className="max-h-[140px] overflow-y-auto space-y-1.5 pr-1">
                 {store.events.filter(e => e.date === selectedCalendarDate).length === 0 ? (
-                  <div className="text-center py-4 text-slate-500 font-bold text-[10px] uppercase">No events scheduled</div>
+                  <div className="text-center py-4 text-white/30 font-semibold text-[8px] uppercase tracking-widest">No milestones scheduled</div>
                 ) : (
                   store.events
                     .filter(e => e.date === selectedCalendarDate)
                     .map((evt) => (
                       <div
                         key={evt.id}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 text-xs"
+                        className="flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 text-xs"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="size-1.5 rounded-full bg-indigo-400"></span>
-                          <span className="font-bold text-slate-200">{evt.title}</span>
-                          <span className="text-[8px] bg-indigo-500/25 px-1.5 py-0.5 rounded text-indigo-300 font-bold">
+                          <span className="size-1.5 rounded-full bg-[#D4AF7A]"></span>
+                          <span className="font-semibold text-white">{evt.title}</span>
+                          <span className="text-[8px] bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-white/60 font-bold uppercase tracking-widest">
                             {evt.category}
                           </span>
                         </div>
                         <button type="button"
                           onClick={() => store.deleteEvent(evt.id)}
-                          className="p-1 hover:bg-white/5 rounded text-red-400 transition-all"
+                          className="p-1 hover:bg-white/5 rounded-full text-rose-450 transition-all cursor-pointer"
                         >
                           <Trash2 className="size-3.5" />
                         </button>
@@ -2042,7 +2031,6 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Event sub-form */}
               <form
                 onSubmit={(e) => {
                   handleAddEvent(e);
@@ -2053,35 +2041,34 @@ export default function DashboardPage() {
                 <Input
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
-                  placeholder="New event title..."
-                  className="bg-white/5 border-white/10 text-xs rounded-xl flex-1"
+                  placeholder="New milestone title..."
+                  className="bg-white/3 border-white/10 text-xs rounded-xl flex-1 focus:border-[#D4AF7A]"
                   required
                 />
                 <Select value={newEventCategory} onValueChange={(val) => setNewEventCategory(val || "Work")}>
-                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl w-[90px] text-xs">
+                  <SelectTrigger className="bg-white/3 border-white/10 rounded-xl w-[90px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-white/10 text-white text-xs">
+                  <SelectContent className="bg-[#071b33] border-white/10 text-white text-xs">
                     {["Work", "Study", "Personal", "Health", "Social"].map((cat) => (
                       <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="submit" className="bg-slate-800 border border-white/10 hover:bg-slate-700 py-4 px-3 rounded-xl">
+                <Button type="submit" className="bg-white/5 border border-white/10 hover:bg-white/10 text-white py-4 px-3 rounded-xl uppercase font-bold text-[9px] tracking-widest">
                   Add
                 </Button>
               </form>
             </div>
-
           </div>
 
           <div className="flex gap-2.5 mt-3 border-t border-white/5 pt-3">
             <Button
               variant="outline"
               onClick={() => setDayDetailModalOpen(false)}
-              className="w-full rounded-xl font-bold py-5 border-white/10 bg-transparent text-slate-300 hover:bg-white/5 text-xs"
+              className="w-full rounded-full font-bold py-5 border-white/10 bg-transparent text-white/50 hover:bg-white/5 text-xs uppercase tracking-widest"
             >
-              Close Planner
+              Close Board
             </Button>
           </div>
         </DialogContent>

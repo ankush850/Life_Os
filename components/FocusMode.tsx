@@ -58,15 +58,15 @@ export default function FocusMode() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
+        exit={{ opacity: 0, scale: 0.98 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
-        className="fixed inset-0 z-[100] bg-slate-950 text-white flex flex-col items-center justify-center p-8"
+        className="fixed inset-0 z-[100] bg-gradient-to-b from-[#071B33] via-[#0B2447] to-[#102A43] text-white flex flex-col items-center justify-center p-8"
       >
         <button type="button" 
           onClick={handleClose}
-          className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+          className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/50 hover:text-white transition-all cursor-pointer"
         >
           <X className="size-6" />
         </button>
@@ -78,16 +78,17 @@ export default function FocusMode() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-indigo-400 font-extrabold tracking-[0.3em] uppercase text-sm"
+              className="text-[#D4AF7A] font-bold tracking-[0.3em] uppercase text-xs"
             >
-              Focus Mode
+              Focus Sanctuary
             </motion.span>
             
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl md:text-6xl font-black text-white"
+              className="text-4xl md:text-5xl font-light text-white"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {activeTask ? activeTask.title : "Unassigned Focus Session"}
             </motion.h1>
@@ -98,7 +99,7 @@ export default function FocusMode() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, type: "spring" }}
-            className="text-6xl sm:text-[8rem] md:text-[12rem] font-mono font-black tracking-tighter leading-none text-indigo-400 drop-shadow-2xl"
+            className="text-7xl sm:text-[9rem] md:text-[11rem] font-light tracking-tighter leading-none text-[#D4AF7A] drop-shadow-2xl"
           >
             {formatTime(focusSeconds)}
           </motion.div>
@@ -112,27 +113,27 @@ export default function FocusMode() {
           >
             <button type="button"
               onClick={() => setIsFocusRunning(!isFocusRunning)}
-              className="size-20 rounded-full bg-white/10 flex items-center justify-center border border-white/20 hover:bg-white/20 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)]"
+              className="size-20 rounded-full bg-white/5 flex items-center justify-center border border-white/15 hover:bg-white/10 hover:scale-105 transition-all shadow-2xl cursor-pointer"
             >
               {isFocusRunning ? (
                 <Pause className="size-8 text-white fill-white" />
               ) : (
-                <Play className="size-8 text-white fill-white translate-x-1" />
+                <Play className="size-8 text-[#D4AF7A] fill-[#D4AF7A] translate-x-0.5" />
               )}
             </button>
 
             <button type="button"
               onClick={resetFocusTimer}
-              className="size-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/50 hover:text-rose-400 transition-all text-slate-400"
+              className="size-16 rounded-full bg-white/3 flex items-center justify-center border border-white/5 hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400 transition-all text-white/40 cursor-pointer"
               title="Reset Timer"
             >
-              <Square className="size-6" />
+              <Square className="size-5 fill-white/10" />
             </button>
 
             {activeTask && activeTask.status !== 'completed' && (
               <button type="button"
                 onClick={handleComplete}
-                className="size-20 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50 hover:bg-emerald-500/40 hover:scale-105 transition-all text-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+                className="size-20 rounded-full bg-[#D4AF7A]/10 flex items-center justify-center border border-[#D4AF7A]/30 hover:bg-[#D4AF7A]/20 hover:scale-105 transition-all text-[#D4AF7A] shadow-2xl cursor-pointer"
                 title="Complete Task"
               >
                 <CheckCircle2 className="size-10" />

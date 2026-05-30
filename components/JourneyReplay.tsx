@@ -176,45 +176,45 @@ export default function JourneyReplay() {
   const activeData = viewMode === "monthly" ? replayData : lifetimeData;
 
   return (
-    <div className="flex flex-col gap-6 w-full print-container">
+    <div className="flex flex-col gap-6 w-full print-container text-left">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-4 no-print">
         <div>
-          <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Award className="size-5 text-indigo-400" />
+          <h2 className="text-xl font-light text-white flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <Award className="size-5 text-[#D4AF7A]" />
             {viewMode === "monthly" ? "Monthly Journey Replay" : "Lifetime Legacy Archives"}
           </h2>
-          <p className="text-xs text-slate-400 font-semibold mt-1">
+          <p className="text-xs text-white/50 font-normal mt-1">
             {viewMode === "monthly" ? "Compile month-end consistency data and archive snapshot stats." : "Your total aggregated analytics and lifetime achievements."}
           </p>
         </div>
 
         <div className="flex items-center gap-4">
           {/* Toggle View Mode */}
-          <div className="flex items-center bg-slate-950/40 p-1 rounded-xl border border-white/5">
+          <div className="flex items-center bg-white/2 p-1 rounded-full border border-white/5">
             <button type="button"
               onClick={() => setViewMode("monthly")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "monthly" ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${viewMode === "monthly" ? "bg-white/10 text-white" : "text-white/40 hover:text-white"}`}
             >
               Monthly
             </button>
             <button type="button"
               onClick={() => setViewMode("lifetime")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === "lifetime" ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${viewMode === "lifetime" ? "bg-white/10 text-white" : "text-white/40 hover:text-white"}`}
             >
               Lifetime
             </button>
           </div>
 
           {viewMode === "monthly" && (
-            <div className="flex items-center gap-3 bg-slate-950/30 border border-white/5 p-1 rounded-xl">
-              <button type="button" onClick={handlePrevMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
+            <div className="flex items-center gap-3 bg-white/2 border border-white/5 p-1 rounded-full">
+              <button type="button" onClick={handlePrevMonth} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all cursor-pointer">
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="font-extrabold text-xs uppercase tracking-[0.15em] text-slate-200 px-2 min-w-[120px] text-center">
+              <span className="font-bold text-xs uppercase tracking-widest text-white/80 px-2 min-w-[120px] text-center">
                 {monthLabel}
               </span>
-              <button type="button" onClick={handleNextMonth} className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-all">
+              <button type="button" onClick={handleNextMonth} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all cursor-pointer">
                 <ChevronRight className="size-4" />
               </button>
             </div>
@@ -223,13 +223,13 @@ export default function JourneyReplay() {
       </div>
 
       {!activeData.hasData ? (
-        <div className="rounded-2xl border border-white/5 bg-slate-950/20 p-12 text-center flex flex-col items-center justify-center gap-4 no-print">
-          <div className="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500">
+        <div className="rounded-3xl border border-white/5 bg-white/1 p-12 text-center flex flex-col items-center justify-center gap-4 no-print">
+          <div className="size-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30">
             <Calendar className="size-6" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">No Telemetry Recorded</h3>
-            <p className="text-xs text-slate-500 font-semibold mt-1 max-w-sm mx-auto">
+            <p className="text-xs text-white/40 font-semibold mt-1 max-w-sm mx-auto italic">
               We cannot compile a replay card without metrics. Check-in daily targets or transactions to unlock summary snapshots.
             </p>
           </div>
@@ -240,26 +240,26 @@ export default function JourneyReplay() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto w-full print-card"
+          className="max-w-3xl mx-auto w-full print-card text-left"
         >
           {/* Replay Visual Card */}
-          <div className="relative rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-slate-950 via-slate-950 to-indigo-950/20 p-6 shadow-2xl overflow-hidden group print-bg">
-            <div className="absolute -right-20 -top-20 size-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/15 transition-all no-print"></div>
-            <div className="absolute -left-20 -bottom-20 size-48 bg-purple-500/5 rounded-full blur-3xl pointer-events-none no-print"></div>
+          <div className="relative rounded-3xl liquid-glass p-8 shadow-2xl overflow-hidden group print-bg">
+            <div className="absolute -right-20 -top-20 size-48 bg-[#D4AF7A]/5 rounded-full blur-3xl pointer-events-none group-hover:bg-[#D4AF7A]/10 transition-all no-print"></div>
+            <div className="absolute -left-20 -bottom-20 size-48 bg-[#E7CBA9]/3 rounded-full blur-3xl pointer-events-none no-print"></div>
 
             <div className="absolute right-6 top-6 flex items-center gap-1.5 opacity-20 print-opacity-100">
-              <Sparkles className="size-4 text-indigo-400" />
-              <span className="font-extrabold text-[10px] tracking-[0.2em] text-white print-text-black uppercase">LifeOS Snapshot</span>
+              <Sparkles className="size-4 text-[#D4AF7A]" />
+              <span className="font-bold text-[10px] tracking-[0.2em] text-white print-text-black uppercase">LifeOS Snapshot</span>
             </div>
 
             <div className="border-b border-white/5 pb-6 print-border-black">
-              <span className="text-[10px] font-bold text-indigo-400 print-text-indigo-600 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-[#D4AF7A] print-text-indigo-600 uppercase tracking-widest">
                 {viewMode === "monthly" ? "Performance Archive" : "Lifetime Legacy"}
               </span>
-              <h3 className="text-3xl font-black text-white print-text-black mt-1">
+              <h3 className="text-3xl font-light text-white print-text-black mt-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 {viewMode === "monthly" ? monthLabel : "All-Time Statistics"}
               </h3>
-              <p className="text-xs text-slate-400 print-text-slate-600 font-semibold mt-1">
+              <p className="text-xs text-white/50 print-text-slate-600 font-semibold mt-1">
                 {viewMode === "monthly" 
                   ? "Consistency telemetry report compiled from digital check-ins." 
                   : "Total historical aggregation of your life's telemetry."}
@@ -268,45 +268,45 @@ export default function JourneyReplay() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
               
-              <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
-                <span className="text-[10px] font-black text-emerald-400 print-text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="size-4" /> {viewMode === "monthly" ? "Monthly Achievements" : "Lifetime Achievements"}
+              <div className="p-5 rounded-2xl bg-white/2 border border-white/5 print-border-black flex flex-col gap-1.5">
+                <span className="text-[9px] font-bold text-[#D4AF7A] uppercase tracking-widest flex items-center gap-1.5">
+                  <Award className="size-4 text-[#D4AF7A]" /> {viewMode === "monthly" ? "Monthly Achievements" : "Lifetime Achievements"}
                 </span>
-                <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
-                  {activeData.achievements} <span className="text-sm text-slate-500 font-semibold">Targets Hit</span>
-                </span>
-              </div>
-
-              <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
-                <span className="text-[10px] font-black text-rose-400 print-text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertTriangle className="size-4" /> {viewMode === "monthly" ? "Unfinished Targets" : "Lifetime Misses"}
-                </span>
-                <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
-                  {activeData.failures} <span className="text-sm text-slate-500 font-semibold">Targets Missed</span>
+                <span className="text-4xl font-light text-white print-text-black tracking-tight">
+                  {activeData.achievements} <span className="text-xs text-white/30 font-bold uppercase tracking-wider">Targets Hit</span>
                 </span>
               </div>
 
-              <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
-                <span className="text-[10px] font-black text-indigo-400 print-text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
-                  {viewMode === "monthly" ? <Zap className="size-4" /> : <Globe className="size-4" />} 
+              <div className="p-5 rounded-2xl bg-white/2 border border-white/5 print-border-black flex flex-col gap-1.5">
+                <span className="text-[9px] font-bold text-rose-455 uppercase tracking-widest flex items-center gap-1.5">
+                  <AlertTriangle className="size-4 text-rose-450" /> {viewMode === "monthly" ? "Unfinished Targets" : "Lifetime Misses"}
+                </span>
+                <span className="text-4xl font-light text-white print-text-black tracking-tight">
+                  {activeData.failures} <span className="text-xs text-white/30 font-bold uppercase tracking-wider">Targets Missed</span>
+                </span>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white/2 border border-white/5 print-border-black flex flex-col gap-1.5">
+                <span className="text-[9px] font-bold text-[#D4AF7A] uppercase tracking-widest flex items-center gap-1.5">
+                  {viewMode === "monthly" ? <Zap className="size-4 text-[#D4AF7A]" /> : <Globe className="size-4 text-[#D4AF7A]" />} 
                   {viewMode === "monthly" ? "Focus Streak" : "Lifetime Focus"}
                 </span>
-                <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
+                <span className="text-4xl font-light text-white print-text-black tracking-tight">
                   {viewMode === "monthly" ? replayData.longestStreak : lifetimeData.focusHours} 
-                  <span className="text-sm text-slate-500 font-semibold">
+                  <span className="text-xs text-white/30 font-bold uppercase tracking-wider">
                     {viewMode === "monthly" ? "Max Days" : "Hours"}
                   </span>
                 </span>
               </div>
 
-              <div className="p-5 rounded-xl bg-white/5 border border-white/10 print-border-black flex flex-col gap-1.5">
-                <span className="text-[10px] font-black text-yellow-400 print-text-yellow-600 uppercase tracking-wider flex items-center gap-1.5">
-                  <DollarSign className="size-4" /> Ledger Overhead
+              <div className="p-5 rounded-2xl bg-white/2 border border-white/5 print-border-black flex flex-col gap-1.5">
+                <span className="text-[9px] font-bold text-[#D4AF7A] uppercase tracking-widest flex items-center gap-1.5">
+                  <DollarSign className="size-4 text-[#D4AF7A]" /> Ledger Overhead
                 </span>
-                <span className="text-4xl font-extrabold text-white print-text-black tracking-tight">
+                <span className="text-4xl font-light text-white print-text-black tracking-tight">
                   ${activeData.totalSpent.toLocaleString()}{" "}
                 </span>
-                <span className="text-xs text-slate-400 print-text-slate-600 font-semibold mt-1">
+                <span className="text-xs text-white/40 print-text-slate-600 font-semibold mt-1">
                   Top Category: {activeData.topCategoryName} (${activeData.topCategoryAmount.toLocaleString()})
                 </span>
               </div>
@@ -316,16 +316,16 @@ export default function JourneyReplay() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 pt-6 print-border-black">
               <div className="flex items-center gap-2">
                 {activeData.totalSpent > activeData.totalIncome && activeData.totalIncome > 0 ? (
-                  <span className="text-[10px] font-black uppercase text-rose-400 print-text-rose-600 flex items-center gap-1 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-full">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-rose-400 flex items-center gap-1 bg-rose-500/10 border border-rose-500/20 px-3.5 py-1.5 rounded-full">
                     <TrendingUp className="size-3.5" /> Deficit {viewMode === "monthly" ? "Month" : "Overall"}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-black uppercase text-emerald-400 print-text-emerald-600 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                    <TrendingDown className="size-3.5" /> Financial Stability
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#D4AF7A] flex items-center gap-1 bg-[#D4AF7A]/10 border border-[#D4AF7A]/20 px-3.5 py-1.5 rounded-full">
+                    <TrendingDown className="size-3.5 text-[#D4AF7A]" /> Financial Stability
                   </span>
                 )}
                 {viewMode === "monthly" && (
-                  <span className="text-[10px] font-mono text-slate-500 ml-2">
+                  <span className="text-[10px] font-mono text-white/30 ml-2">
                     COVERAGE: {Math.round((replayData.totalTargets / replayData.daysInMonth) * 100)}%
                   </span>
                 )}
@@ -334,7 +334,7 @@ export default function JourneyReplay() {
               <div className="flex gap-2 w-full sm:w-auto no-print">
                 <Button
                   onClick={handleExportPDF}
-                  className="flex-1 sm:flex-none bg-indigo-500 hover:bg-indigo-600 font-bold py-5 px-6 text-xs gap-2 rounded-xl shadow-lg shadow-indigo-500/20"
+                  className="flex-1 sm:flex-none bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] font-bold py-5 px-6 text-xs gap-2 rounded-full shadow-lg uppercase tracking-widest cursor-pointer transition-colors"
                 >
                   <Download className="size-4" /> Export as PDF
                 </Button>

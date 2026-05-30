@@ -394,7 +394,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               <span
                 className={`font-mono text-xs font-bold size-6 rounded flex items-center justify-center border transition-all ${
                   isToday
-                    ? "bg-indigo-500/20 border-indigo-400 text-indigo-300 shadow-[0_0_8px_rgba(99,102,241,0.3)]"
+                    ? "bg-[#D4AF7A]/10 border-[#D4AF7A]/30 text-[#D4AF7A] shadow-[0_0_8px_rgba(212,175,122,0.15)]"
                     : "bg-slate-950/40 border-white/5 text-slate-400"
                 }`}
               >
@@ -402,7 +402,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               </span>
               <span
                 className={`text-[10px] font-extrabold uppercase ${
-                  isToday ? "text-indigo-400" : "text-slate-500"
+                  isToday ? "text-[#D4AF7A]" : "text-white/40"
                 }`}
               >
                 {row.dayName}
@@ -427,14 +427,14 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                   {row.completedCount} / {row.tasksCount} Tasks
                 </span>
                 {row.tasksCount > 0 && (
-                  <span className={pct === 100 ? "text-emerald-400" : "text-indigo-400"}>
+                  <span className={pct === 100 ? "text-[#D4AF7A]" : "text-[#D4AF7A]/80"}>
                     {pct}%
                   </span>
                 )}
               </div>
               <div className="w-full bg-slate-950/60 h-1.5 rounded-full overflow-hidden flex border border-white/5">
                 <div
-                  className={`h-full transition-all duration-300 ${pct === 100 ? "bg-emerald-500" : "bg-indigo-500"}`}
+                  className={`h-full transition-all duration-300 ${pct === 100 ? "bg-[#D4AF7A]" : "bg-[#D4AF7A]/50"}`}
                   style={{ width: `${pct}%` }}
                 ></div>
               </div>
@@ -499,7 +499,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border ${
                 allDone
                   ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
-                  : "bg-slate-950/40 border-white/5 text-slate-400 hover:border-indigo-500/30 hover:text-indigo-300"
+                  : "bg-white/2 border-white/5 text-white/50 hover:border-[#D4AF7A]/30 hover:text-[#D4AF7A]"
               }`}
             >
               {allDone ? (
@@ -509,7 +509,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 </>
               ) : (
                 <>
-                  <span className="size-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                  <span className="size-1.5 rounded-full bg-[#D4AF7A] animate-pulse" />
                   Pending
                 </>
               )}
@@ -568,9 +568,9 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       {/* Month Navigation Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-4">
         <div>
-          <h2 className="text-xl font-black text-white flex items-center gap-2">
-            <Calendar className="size-5 text-indigo-400" />
-            Life Grid Console
+          <h2 className="text-xl font-light text-white flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <Calendar className="size-5 text-[#D4AF7A]" />
+            Life Architecture
           </h2>
           <p className="text-xs text-slate-400 font-semibold mt-1">
             Spreadsheet-speed recurring planner. Expand day rows to manage multi-task agendas, set targets, or trigger AI NLP scheduling.
@@ -599,10 +599,10 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       </div>
 
       {/* AI Quick Schedule Input Panel */}
-      <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
-        <div className="flex items-center justify-between border-b border-white/5 pb-2">
-          <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 text-indigo-400">
-            <Sparkles className="size-4 text-indigo-400 animate-pulse" /> AI Quick Recurring Task Scheduler
+      <div className="rounded-3xl liquid-glass p-5 shadow-2xl flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <h3 className="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-[#D4AF7A]">
+            <Sparkles className="size-4 text-[#D4AF7A] animate-pulse" /> AI Quick Recurring Task Scheduler
           </h3>
           <span className="text-[9px] text-slate-500 font-mono">NATURAL LANGUAGE NLP COCKPIT</span>
         </div>
@@ -612,16 +612,17 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
             value={nlpInput}
             onChange={(e) => setNlpInput(e.target.value)}
             placeholder="e.g., Study for 3 hours daily, play football for 30 minutes, work on my hobby from June 1 to June 30"
-            className="flex-1 bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500 text-white font-semibold placeholder:text-slate-600 transition-all min-h-[44px]"
+            className="flex-1 bg-white/3 border-white/10 text-xs rounded-xl focus:border-[#D4AF7A] text-white font-semibold placeholder:text-white/20 transition-all min-h-[44px]"
+            required
           />
-          <Button
+          <button
             type="button"
             onClick={handleAIParse}
             disabled={!nlpInput.trim()}
-            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs py-5 px-6 min-h-[44px]"
+            className="bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] disabled:opacity-50 font-bold rounded-full text-xs py-3 px-6 min-h-[44px] uppercase tracking-wider cursor-pointer transition-colors"
           >
             Parse Plans
-          </Button>
+          </button>
         </div>
 
         {/* AI Parsed Tasks Preview Area */}
@@ -631,9 +632,9 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="p-4 rounded-xl bg-slate-950/40 border border-indigo-500/20 flex flex-col gap-3.5"
+              className="p-4 rounded-2xl bg-white/2 border border-[#D4AF7A]/20 flex flex-col gap-3.5"
             >
-              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-[#D4AF7A] uppercase tracking-widest">
                 Confirm schedule trajectory:
               </span>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -674,9 +675,9 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-slate-950/20 border border-white/5 flex flex-col justify-center gap-1">
           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <Activity className="size-3.5 text-indigo-400" /> Monthly Completion %
+            <Activity className="size-3.5 text-[#D4AF7A]" /> Monthly Completion %
           </span>
-          <span className="text-xl font-black text-indigo-400 mt-0.5">
+          <span className="text-xl font-light text-[#D4AF7A] mt-0.5">
             {analytics.monthlyCompletionRate}%
           </span>
         </div>
@@ -755,7 +756,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                     {/* Expandable subrow checklist */}
                     {isExpanded && (
                       <tr className="bg-slate-950/40">
-                        <td colSpan={columns.length} className="p-4 border-t border-b border-indigo-500/10">
+                        <td colSpan={columns.length} className="p-4 border-t border-b border-white/5">
                           <div className="flex flex-col gap-4">
                             
                             {/* Subrow Checklist Header */}
@@ -787,7 +788,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                                     }));
                                     setAddTaskModalOpen(true);
                                   }}
-                                  className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 min-h-[32px] px-2"
+                                  className="text-[10px] font-bold text-[#D4AF7A] hover:text-[#E7CBA9] flex items-center gap-1.5 min-h-[32px] px-2 cursor-pointer transition-colors"
                                 >
                                   <Plus className="size-3.5" /> Add Task
                                 </button>
@@ -800,7 +801,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                                 <div
                                   key={task.id}
                                   onClick={(e) => e.stopPropagation()} // Stop row toggle when clicking anywhere on checklist card
-                                  className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/40 border border-white/5 hover:border-white/10 transition-all"
+                                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/2 border border-white/5 hover:border-white/10 transition-all"
                                 >
                                   <div className="flex items-center gap-3">
                                     <button
@@ -839,7 +840,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                                   <button
                                     type="button"
                                     onClick={() => handleOpenEditModal(task, row.original.dateStr)}
-                                    className="p-2 text-slate-400 hover:text-indigo-400 transition-colors min-h-[32px] px-2.5"
+                                    className="p-2 text-white/40 hover:text-[#D4AF7A] transition-colors min-h-[32px] px-2.5 cursor-pointer"
                                     title="Edit settings"
                                   >
                                     <Edit2 className="size-3.5" />
@@ -866,10 +867,10 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
 
       {/* MODAL 1: ADD MANUAL TASK */}
       <Dialog open={addTaskModalOpen} onOpenChange={setAddTaskModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-slate-200 rounded-2xl max-w-md w-full p-6">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl max-w-md w-full p-6">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-black uppercase tracking-tight flex items-center gap-2">
-              <Calendar className="size-5 text-indigo-400" />
+            <DialogTitle className="text-lg font-light flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <Calendar className="size-5 text-[#D4AF7A]" />
               Add Task
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-400 font-semibold mt-1">
@@ -884,7 +885,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 value={manualTask.title}
                 onChange={(e) => setManualTask((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="e.g., Learn algorithmic complexities"
-                className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500"
+                className="bg-white/3 border border-white/10 text-xs rounded-xl focus:border-[#D4AF7A]/50 focus:ring-0"
                 required
               />
             </div>
@@ -895,7 +896,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 value={manualTask.duration}
                 onChange={(e) => setManualTask((prev) => ({ ...prev, duration: e.target.value }))}
                 placeholder="e.g., 2 hours, 45 minutes"
-                className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500"
+                className="bg-white/3 border border-white/10 text-xs rounded-xl focus:border-[#D4AF7A]/50 focus:ring-0"
               />
             </div>
 
@@ -905,7 +906,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 value={manualTask.startTime}
                 onChange={(e) => setManualTask((prev) => ({ ...prev, startTime: e.target.value }))}
                 placeholder="e.g., 08:00 AM, 2:00 PM"
-                className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500"
+                className="bg-white/3 border border-white/10 text-xs rounded-xl focus:border-[#D4AF7A]/50 focus:ring-0"
               />
             </div>
 
@@ -915,7 +916,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                 type="checkbox"
                 checked={manualTask.isRecurring}
                 onChange={(e) => setManualTask((prev) => ({ ...prev, isRecurring: e.target.checked }))}
-                className="size-4 rounded border-white/20 text-indigo-600 focus:ring-indigo-500"
+                className="size-4 rounded-full border-white/20 text-[#D4AF7A] focus:ring-0 bg-transparent cursor-pointer"
               />
               <Label htmlFor="is-recurring-check" className="text-xs font-bold text-slate-200 cursor-pointer">
                 Repeat this task (Recurring series)
@@ -935,10 +936,10 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                       }))
                     }
                   >
-                    <SelectTrigger className="bg-slate-900 border-white/20 text-xs rounded-xl text-white font-semibold">
+                    <SelectTrigger className="bg-white/3 border border-white/10 text-xs rounded-xl text-white font-semibold">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-white/10 text-white font-sans">
+                    <SelectContent className="bg-[#071b33] border border-white/10 text-white font-sans">
                       <SelectItem value="Daily">Daily</SelectItem>
                       <SelectItem value="Weekdays">Weekdays (Mon-Fri)</SelectItem>
                       <SelectItem value="Weekends">Weekends (Sat-Sun)</SelectItem>
@@ -960,7 +961,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                             onClick={() => toggleCustomDaySelection(index)}
                             className={`px-3 py-1.5 rounded text-[10px] font-bold border transition-all ${
                               isSelected
-                                ? "bg-indigo-500/25 border-indigo-400 text-indigo-200"
+                                ? "bg-[#D4AF7A]/25 border-[#D4AF7A]/40 text-[#D4AF7A]"
                                 : "bg-slate-950/40 border-white/5 text-slate-500"
                             }`}
                           >
@@ -979,7 +980,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                       type="date"
                       value={manualTask.startDate}
                       onChange={(e) => setManualTask((prev) => ({ ...prev, startDate: e.target.value }))}
-                      className="bg-slate-900 border-white/20 text-xs rounded-xl font-semibold text-white"
+                      className="bg-white/3 border border-white/10 text-xs rounded-xl font-semibold text-white focus:border-[#D4AF7A]/50 focus:ring-0"
                       required
                     />
                   </div>
@@ -989,7 +990,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                       type="date"
                       value={manualTask.endDate}
                       onChange={(e) => setManualTask((prev) => ({ ...prev, endDate: e.target.value }))}
-                      className="bg-slate-900 border-white/20 text-xs rounded-xl font-semibold text-white"
+                      className="bg-white/3 border border-white/10 text-xs rounded-xl font-semibold text-white focus:border-[#D4AF7A]/50 focus:ring-0"
                       required
                     />
                   </div>
@@ -1008,7 +1009,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               </Button>
               <Button
                 type="submit"
-                className="bg-indigo-500 hover:bg-indigo-600 rounded-xl text-xs font-bold text-white px-5 py-4.5"
+                className="bg-[#D4AF7A] hover:bg-[#E7CBA9] rounded-full text-xs font-bold text-[#071B33] px-5 py-4 uppercase tracking-wider cursor-pointer transition-colors"
               >
                 Add Task
               </Button>
@@ -1019,10 +1020,10 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
 
       {/* MODAL 2: CONFIGURE / BULK EDIT TASK */}
       <Dialog open={editTaskModalOpen} onOpenChange={setEditTaskModalOpen}>
-        <DialogContent className="bg-slate-900 border border-white/10 text-slate-200 rounded-2xl max-w-md w-full p-6">
+        <DialogContent className="bg-[#071b33] border border-white/10 text-white rounded-3xl max-w-md w-full p-6">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-black uppercase tracking-tight flex items-center gap-2">
-              <Edit2 className="size-5 text-indigo-400" />
+            <DialogTitle className="text-lg font-light flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <Edit2 className="size-5 text-[#D4AF7A]" />
               Configure Task
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-400 font-semibold mt-1">
@@ -1072,10 +1073,10 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                   }))
                 }
               >
-                <SelectTrigger className="bg-slate-900 border-white/20 text-xs rounded-xl text-white font-semibold">
+                <SelectTrigger className="bg-white/3 border border-white/10 text-xs rounded-xl text-white font-semibold">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white font-sans">
+                <SelectContent className="bg-[#071b33] border border-white/10 text-white font-sans">
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
@@ -1098,7 +1099,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
                   <Button
                     type="button"
                     onClick={() => handleSaveEdit("series")}
-                    className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold py-4 rounded-xl"
+                    className="flex-1 bg-[#D4AF7A] hover:bg-[#E7CBA9] text-[#071B33] text-xs font-bold py-3.5 rounded-full uppercase tracking-wider cursor-pointer transition-colors"
                   >
                     Save Entire Series
                   </Button>
