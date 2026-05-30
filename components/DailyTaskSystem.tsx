@@ -96,7 +96,7 @@ export default function DailyTaskSystem() {
               <div className="flex items-center gap-3 flex-1 overflow-hidden">
                 <button type="button" 
                   onClick={() => toggleTask(task)}
-                  className="flex-shrink-0 focus:outline-none transition-transform active:scale-90"
+                  className="flex-shrink-0 focus:outline-none transition-transform active:scale-90 p-2.5 -m-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   {task.status === 'completed' ? (
                     <div className="size-5 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50">
@@ -124,19 +124,19 @@ export default function DailyTaskSystem() {
                 {task.status !== 'completed' && (
                   <button type="button" 
                     onClick={() => startFocus(task.id)}
-                    className="p-2.5 lg:p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-colors cursor-pointer"
+                    className="h-11 w-11 lg:h-8 lg:w-8 flex items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/40 transition-colors cursor-pointer"
                     title="Focus Mode"
                   >
-                    <Clock className="size-3.5" />
+                    <Clock className="size-4.5 lg:size-3.5" />
                   </button>
                 )}
                 
                 <button type="button" 
                   onClick={() => deleteTask(task.id)}
-                  className="p-2.5 lg:p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                  className="h-11 w-11 lg:h-8 lg:w-8 flex items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors cursor-pointer"
                   title="Delete"
                 >
-                  <Trash2 className="size-3.5" />
+                  <Trash2 className="size-4.5 lg:size-3.5" />
                 </button>
               </div>
             </motion.div>
@@ -152,35 +152,37 @@ export default function DailyTaskSystem() {
       </div>
 
       {/* Add Task Input */}
-      <div className="p-3 border-t border-white/10 bg-slate-950/50">
-        <form onSubmit={handleAddTask} className="flex items-center gap-2">
+      <div className="p-3.5 border-t border-white/10 bg-slate-950/50">
+        <form onSubmit={handleAddTask} className="flex flex-col sm:flex-row sm:items-center gap-3">
           <input
             aria-label="New Task Title"
             type="text"
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             placeholder="Add a new task..."
-            className="flex-1 bg-transparent border-none text-sm font-semibold text-slate-200 placeholder:text-slate-600 focus:outline-none px-2"
+            className="w-full bg-slate-950/40 border border-white/5 sm:border-none rounded-xl sm:rounded-none py-2.5 sm:py-0 px-3 sm:px-2 text-sm font-semibold text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 sm:focus:ring-0"
           />
           
-          <select 
-            aria-label="New Task Priority"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-            className="bg-slate-900 border border-white/10 rounded-lg text-xs font-bold px-2 py-1.5 text-slate-400 focus:outline-none focus:border-indigo-500/50 cursor-pointer"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Med</option>
-            <option value="high">High</option>
-          </select>
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            <select 
+              aria-label="New Task Priority"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+              className="w-full sm:w-auto bg-slate-900 border border-white/10 rounded-xl text-xs font-bold px-3 py-2.5 text-slate-400 focus:outline-none focus:border-indigo-500/50 cursor-pointer min-h-[44px]"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Med</option>
+              <option value="high">High</option>
+            </select>
 
-          <button
-            type="submit"
-            disabled={!newTaskTitle.trim()}
-            className="size-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 transition-colors"
-          >
-            <Plus className="size-4" />
-          </button>
+            <button
+              type="submit"
+              disabled={!newTaskTitle.trim()}
+              className="w-full sm:w-11 h-11 rounded-xl bg-indigo-600 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 transition-colors min-h-[44px]"
+            >
+              <Plus className="size-5" />
+            </button>
+          </div>
         </form>
       </div>
     </div>

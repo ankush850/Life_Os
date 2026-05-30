@@ -251,7 +251,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
               <Button
                 variant="ghost"
                 onClick={() => onOpenDayDetails(row.dateStr)}
-                className="h-7 py-1 px-2.5 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold border border-white/5 text-slate-300"
+                className="h-9 sm:h-7 py-1.5 sm:py-1 px-3 sm:px-2.5 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold border border-white/5 text-slate-300 transition-all"
               >
                 Configure
               </Button>
@@ -341,7 +341,7 @@ export default function LifeGrid({ onOpenDayDetails }: LifeGridProps) {
       {/* Grid Container */}
       <div className="border border-white/10 rounded-xl overflow-hidden bg-slate-950/15 backdrop-blur-md">
         <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
-          <table className="w-full min-w-[650px] text-left border-collapse">
+          <table className="w-full min-w-0 md:min-w-[650px] text-left border-collapse">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr

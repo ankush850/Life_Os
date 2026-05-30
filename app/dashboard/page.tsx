@@ -342,6 +342,397 @@ export default function DashboardPage() {
 
   const activeBg = store.settings.bgImage || PRESET_WALLPAPERS[0].url;
 
+  // ==============================
+  // DASHBOARD WIDGETS RENDER VARIABLES
+  // ==============================
+
+  const focusHourTrackerWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-3.5">
+      <div className="flex flex-col">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s working hours</span>
+        <span className="text-3xl font-extrabold tracking-tight mt-1">{formatTime(store.focusSeconds)}</span>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <div className="w-full bg-slate-950/60 h-2.5 rounded-full overflow-hidden flex">
+          <div className="bg-emerald-500 h-full transition-all" style={{ width: `${activePercent}%` }}></div>
+          <div className="bg-rose-500 h-full transition-all" style={{ width: `${100 - activePercent}%` }}></div>
+        </div>
+        <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase">
+          <span className="flex items-center gap-1">
+            <span className="size-1.5 rounded-full bg-emerald-400"></span>Active ({Math.round(activePercent)}%)
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-1.5 rounded-full bg-rose-400"></span>Paused ({Math.round(100 - activePercent)}%)
+          </span>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          onClick={() => store.setIsFocusRunning(!store.isFocusRunning)}
+          className={`flex-1 font-bold py-5 rounded-xl text-xs gap-1.5 transition-all shadow-lg min-h-[44px] ${
+            store.isFocusRunning
+              ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
+              : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
+          }`}
+        >
+          {store.isFocusRunning ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+          {store.isFocusRunning ? "Pause timer" : "Resume session"}
+        </Button>
+        <button
+          type="button"
+          onClick={store.resetFocusTimer}
+          className="h-11 w-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-slate-300 min-h-[44px]"
+          title="Reset Session Timer"
+        >
+          <RotateCcw className="size-4.5" />
+        </button>
+      </div>
+    </div>
+  );
+
+  const todaysGoalWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 min-h-[180px]">
+      <div className="flex items-center gap-1.5">
+        <Target className="size-4 text-indigo-400 animate-pulse" />
+        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
+      </div>
+
+      {todayTarget ? (
+        <div className="flex flex-col gap-3">
+          <div className="p-3.5 bg-slate-950/40 border border-white/5 rounded-xl text-left">
+            <p className="text-xs font-black text-white leading-relaxed">&ldquo;{todayTarget.target}&rdquo;</p>
+            <div className="flex items-center gap-1.5 mt-2.5 text-[9px] font-bold uppercase">
+              {todayTarget.completed ? (
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <Check className="size-3 text-emerald-400" /> Completed Target
+                </span>
+              ) : (
+                <span className="text-slate-400 flex items-center gap-1">
+                  <AlertCircle className="size-3 text-slate-500" /> Goal Pending
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              onClick={() => store.toggleDailyTarget(todayStr)}
+              className={`flex-1 font-bold py-4 rounded-xl text-xs min-h-[44px] ${
+                todayTarget.completed
+                  ? "bg-slate-800 text-slate-300 border border-white/5 hover:bg-slate-700"
+                  : "bg-emerald-500 hover:bg-emerald-600 text-white"
+              }`}
+            >
+              {todayTarget.completed ? "Mark Pending" : "Mark Completed"}
+            </Button>
+            <Button
+              onClick={() => handleDayClick(todayStr)}
+              className="bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 p-4 rounded-xl min-h-[44px]"
+            >
+              Edit
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSaveTodayTarget} className="flex flex-col gap-3">
+          <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+            No targets set for today. Set a milestone to keep motivated!
+          </p>
+          <Input
+            value={todayTargetInputText}
+            onChange={(e) => setTodayTargetInputText(e.target.value)}
+            placeholder="Write today's focus target..."
+            className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white font-bold placeholder:text-slate-500 transition-all min-h-[40px]"
+            required
+          />
+          <Button type="submit" className="mt-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs shadow-lg shadow-indigo-500/20 min-h-[44px]">
+            Set Today&apos;s Goal
+          </Button>
+        </form>
+      )}
+    </div>
+  );
+
+  const todaysTasksWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s tasks</span>
+        <button
+          type="button"
+          onClick={() => setTaskModalOpen(true)}
+          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[44px] px-2"
+        >
+          <Plus className="size-3" /> Add
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1">
+        {store.tasks.length === 0 ? (
+          <div className="text-center py-6 text-slate-500 font-semibold text-[10px] uppercase">No tasks scheduled</div>
+        ) : (
+          store.tasks.slice(0, 3).map((task, i) => {
+            const isGrad = i === 0;
+            return (
+              <div
+                key={task.id}
+                onClick={() =>
+                  store.updateTask(task.id, {
+                    status: task.status === "completed" ? "pending" : "completed",
+                  })
+                }
+                className={`p-4 rounded-xl border flex flex-col gap-2.5 cursor-pointer transition-all hover:scale-102 ${
+                  isGrad
+                    ? "bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400 text-white"
+                    : "bg-slate-950/40 border-white/5 text-slate-200"
+                } ${task.status === "completed" ? "opacity-60 line-through" : ""}`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
+                    isGrad ? "bg-white/20 text-white" : "bg-indigo-500/20 text-indigo-300"
+                  }`}>
+                    {task.category}
+                  </span>
+                  <span className={`text-[9px] font-bold ${isGrad ? "text-indigo-200" : "text-slate-400"}`}>
+                    {task.priority.toUpperCase()}
+                  </span>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-black truncate">{task.title}</h4>
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        <button
+          type="button"
+          onClick={() => setTaskModalOpen(true)}
+          className="p-4 rounded-xl border border-dashed border-white/15 hover:border-indigo-400/40 bg-white/3 hover:bg-white/5 transition-all text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5 min-h-[44px]"
+        >
+          <Plus className="size-4.5" />
+          Add new task
+        </button>
+      </div>
+    </div>
+  );
+
+  const focusAnalyticsWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-4 h-full min-h-[400px]">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Activity</span>
+          <h3 className="text-lg font-black tracking-tight text-white mt-1">Focus Analytics</h3>
+          <p className="text-xs text-slate-400 font-semibold mt-1">
+            You logged {activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)} hours today. Maintain study consistency!
+          </p>
+        </div>
+
+        <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
+          {["Week", "Month", "Year"].map((filter) => (
+            <button
+              type="button"
+              key={filter}
+              onClick={() => alert(`Applied ${filter} filter`)}
+              className={`px-3.5 py-2 rounded-md text-[10px] font-black tracking-wider uppercase transition-all min-h-[36px] ${
+                filter === "Week" ? "bg-white text-slate-950" : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="w-full h-[260px] pt-4 flex flex-col justify-center overflow-hidden">
+        {hasTelemetryData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis
+                dataKey="name"
+                stroke="#94a3b8"
+                fontSize={10}
+                fontWeight="bold"
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(15, 23, 42, 0.9)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  fontSize: "11px",
+                  color: "#fff",
+                  fontWeight: "600",
+                }}
+                labelClassName="text-indigo-400 font-bold"
+                cursor={{ fill: "rgba(255, 255, 255, 0.03)", radius: 4 }}
+              />
+              <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
+                {activityData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={
+                      index === mappedIndex
+                        ? "url(#blueGrad)"
+                        : "rgba(99, 102, 241, 0.45)"
+                    }
+                  />
+                ))}
+              </Bar>
+              <defs>
+                <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" />
+                  <stop offset="100%" stopColor="#a855f7" />
+                </linearGradient>
+              </defs>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-xl bg-white/2 min-h-[220px]">
+            <AlertCircle className="size-8 text-indigo-400/60 mb-2 animate-pulse" />
+            <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Awaiting Telemetry Data</h4>
+            <p className="text-[10px] text-slate-500 font-semibold mt-1 max-w-[200px] leading-relaxed">
+              Set targets or log transactions for at least 3 days to unlock analytics graphs.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-white/10 pt-4 text-xs font-semibold text-slate-400">
+        <div className="flex items-center gap-1">
+          <TrendingUp className="size-4 text-indigo-400" />
+          <span>Today focus indicator</span>
+        </div>
+        <span>Weekly Target: 40h</span>
+      </div>
+    </div>
+  );
+
+  const plannerConsistencyWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 text-center items-center justify-center">
+      <div className="text-left w-full">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Planner Consistency</span>
+      </div>
+
+      <div className="relative size-36 flex items-center justify-center">
+        {hasTelemetryData ? (
+          <>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={performancePieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={55}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {performancePieData.map((entry) => (
+                    <Cell key={`cell-${entry.name}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute flex flex-col items-center">
+              <span className="text-2xl font-black text-white">{monthConsistencyPercent}%</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase">Consistency</span>
+            </div>
+          </>
+        ) : (
+          <div className="size-32 rounded-full border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-2 bg-white/2">
+            <span className="text-[8px] text-slate-500 font-black uppercase">Awaiting Telemetry</span>
+          </div>
+        )}
+      </div>
+
+      <div className="text-xs text-slate-400 font-semibold mb-2">
+        {completedTargetsThisMonth} completed / {daysInMonth} days this month
+      </div>
+
+      <div className="w-full space-y-2.5 text-left text-[10px] font-bold uppercase text-slate-400">
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span>Goal Success Rate</span>
+            <span className="text-emerald-400">{targetSuccessPercent}%</span>
+          </div>
+          <Progress value={targetSuccessPercent} className="w-full flex-col gap-0 bg-transparent">
+            <ProgressTrack className="bg-white/5 h-2">
+              <ProgressIndicator className="bg-emerald-500" />
+            </ProgressTrack>
+          </Progress>
+          <span className="text-[8px] text-slate-500 leading-none">
+            Completed {completedTargetsThisMonth} out of {targetsSetThisMonth} targets set.
+          </span>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span>Month Coverage</span>
+            <span className="text-indigo-400">{Math.round((targetsSetThisMonth / daysInMonth) * 100)}%</span>
+          </div>
+          <Progress value={(targetsSetThisMonth / daysInMonth) * 100} className="w-full flex-col gap-0 bg-transparent">
+            <ProgressTrack className="bg-white/5 h-2">
+              <ProgressIndicator className="bg-indigo-500" />
+            </ProgressTrack>
+          </Progress>
+          <span className="text-[8px] text-slate-500 leading-none">
+            Targets set for {targetsSetThisMonth} out of {daysInMonth} calendar days.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const byProjectWidget = (
+    <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">By project</span>
+        <button
+          type="button"
+          onClick={() => setProjectModalOpen(true)}
+          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 min-h-[44px] px-2"
+        >
+          <Plus className="size-3" /> New
+        </button>
+      </div>
+
+      <div className="space-y-1.5 max-h-[130px] overflow-y-auto pr-1">
+        {store.projects.length === 0 ? (
+          <div className="text-center py-3 text-slate-500 font-semibold text-[10px] uppercase">No active projects</div>
+        ) : (
+          store.projects.map((project) => (
+            <div
+              key={project.id}
+              className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-indigo-400"></div>
+                <div className="text-left">
+                  <h4 className="text-xs font-bold leading-tight">{project.name}</h4>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  store.deleteProject(project.id);
+                }}
+                className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all min-h-[32px]"
+              >
+                <Trash2 className="size-3" />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
   if (!hasHydrated || !store.settings.isLoggedIn) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
@@ -645,11 +1036,10 @@ export default function DashboardPage() {
 
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-
+            <div className="w-full flex flex-col gap-4">
               {/* Pristine Empty State Banner */}
               {store.tasks.length === 0 && Object.keys(store.dailyTargets).length === 0 && (
-                <div className="col-span-12 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
+                <div className="w-full p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-xl flex flex-col justify-center">
                   <div className="text-left">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="size-4 text-indigo-400" /> Welcome to your Cockpit
@@ -660,397 +1050,37 @@ export default function DashboardPage() {
                   </div>
                 </div>
               )}
-              
-              {/* Left Column (Span 3) */}
-              <div className="lg:col-span-3 flex flex-col gap-4">
-                
-                {/* Focus Hour Tracker */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s working hours</span>
-                    <span className="text-3xl font-extrabold tracking-tight mt-1">{formatTime(store.focusSeconds)}</span>
-                  </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <div className="w-full bg-slate-950/60 h-2.5 rounded-full overflow-hidden flex">
-                      <div className="bg-emerald-500 h-full transition-all" style={{ width: `${activePercent}%` }}></div>
-                      <div className="bg-rose-500 h-full transition-all" style={{ width: `${100 - activePercent}%` }}></div>
-                    </div>
-                    <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase">
-                      <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-emerald-400"></span>Active ({Math.round(activePercent)}%)</span>
-                      <span className="flex items-center gap-1"><span className="size-1.5 rounded-full bg-rose-400"></span>Paused ({Math.round(100 - activePercent)}%)</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => store.setIsFocusRunning(!store.isFocusRunning)}
-                      className={`flex-1 font-bold py-5 rounded-xl text-xs gap-1.5 transition-all shadow-lg ${
-                        store.isFocusRunning
-                          ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
-                          : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
-                      }`}
-                    >
-                      {store.isFocusRunning ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-                      {store.isFocusRunning ? "Pause timer" : "Resume session"}
-                    </Button>
-                    <button type="button"
-                      onClick={store.resetFocusTimer}
-                      className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-slate-300"
-                      title="Reset Session Timer"
-                    >
-                      <RotateCcw className="size-4.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Today's Target Planner Card */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-4 min-h-[180px]">
-                  <div className="flex items-center gap-1.5">
-                    <Target className="size-4 text-indigo-400 animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300">Today&apos;s Target</span>
-                  </div>
-
-                  {todayTarget ? (
-                    <div className="flex flex-col gap-3">
-                      <div className="p-3 bg-slate-950/40 border border-white/5 rounded-xl text-left">
-                        <p className="text-xs font-black text-white leading-relaxed">&ldquo;{todayTarget.target}&rdquo;</p>
-                        <div className="flex items-center gap-1.5 mt-2.5 text-[9px] font-bold uppercase">
-                          {todayTarget.completed ? (
-                            <span className="text-emerald-400 flex items-center gap-1">
-                              <Check className="size-3 text-emerald-400" /> Completed Target
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 flex items-center gap-1">
-                              <AlertCircle className="size-3 text-slate-500" /> Goal Pending
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => store.toggleDailyTarget(todayStr)}
-                          className={`flex-1 font-bold py-4 rounded-xl text-xs ${
-                            todayTarget.completed
-                              ? "bg-slate-800 text-slate-300 border border-white/5 hover:bg-slate-700"
-                              : "bg-emerald-500 hover:bg-emerald-600 text-white"
-                          }`}
-                        >
-                          {todayTarget.completed ? "Mark Pending" : "Mark Completed"}
-                        </Button>
-                        <Button
-                          onClick={() => handleDayClick(todayStr)}
-                          className="bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 p-4 rounded-xl"
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSaveTodayTarget} className="flex flex-col gap-3">
-                      <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
-                        No targets set for today. Set a milestone to keep motivated!
-                      </p>
-                      <Input
-                        value={todayTargetInputText}
-                        onChange={(e) => setTodayTargetInputText(e.target.value)}
-                        placeholder="Write today's focus target..."
-                        className="bg-slate-950/50 border-white/20 text-xs rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white font-bold placeholder:text-slate-500 transition-all"
-                        required
-                      />
-                      <Button type="submit" className="mt-2 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-bold py-4 text-xs shadow-lg shadow-indigo-500/20">
-                        Set Today&apos;s Goal
-                      </Button>
-                    </form>
-                  )}
-                </div>
-
-                {/* Today's Tasks Scrolling Card */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today&apos;s tasks</span>
-                    <button type="button"
-                      onClick={() => setTaskModalOpen(true)}
-                      className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
-                    >
-                      <Plus className="size-3" /> Add
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-1">
-                    {store.tasks.length === 0 ? (
-                      <div className="text-center py-6 text-slate-500 font-semibold text-[10px] uppercase">No tasks scheduled</div>
-                    ) : (
-                      store.tasks.slice(0, 3).map((task, i) => {
-                        const isGrad = i === 0;
-                        return (
-                          <div
-                            key={task.id}
-                            onClick={() =>
-                              store.updateTask(task.id, {
-                                status: task.status === "completed" ? "pending" : "completed",
-                              })
-                            }
-                            className={`p-4 rounded-xl border flex flex-col gap-2.5 cursor-pointer transition-all hover:scale-102 ${
-                              isGrad
-                                ? "bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400 text-white"
-                                : "bg-slate-950/40 border-white/5 text-slate-200"
-                            } ${task.status === "completed" ? "opacity-60 line-through" : ""}`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${
-                                isGrad ? "bg-white/20 text-white" : "bg-indigo-500/20 text-indigo-300"
-                              }`}>
-                                {task.category}
-                              </span>
-                              <span className={`text-[9px] font-bold ${isGrad ? "text-indigo-200" : "text-slate-400"}`}>
-                                {task.priority.toUpperCase()}
-                              </span>
-                            </div>
-
-                            <div>
-                              <h4 className="text-xs font-black truncate">{task.title}</h4>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-
-                    <button type="button"
-                      onClick={() => setTaskModalOpen(true)}
-                      className="p-4 rounded-xl border border-dashed border-white/15 hover:border-indigo-400/40 bg-white/3 hover:bg-white/5 transition-all text-xs font-bold text-slate-400 flex items-center justify-center gap-1.5"
-                    >
-                      <Plus className="size-4.5" />
-                      Add new task
-                    </button>
-                  </div>
-                </div>
-
+              {/* MOBILE & TABLET LAYOUT (Vertical Stack) */}
+              <div className="flex lg:hidden flex-col gap-6 w-full">
+                {todaysGoalWidget}
+                {focusAnalyticsWidget}
+                {plannerConsistencyWidget}
+                {byProjectWidget}
+                {todaysTasksWidget}
+                {focusHourTrackerWidget}
               </div>
 
-              {/* Center Column (Span 6) */}
-              <div className="lg:col-span-6 flex flex-col gap-6">
-                
-                {/* Activity Tracker Component */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg flex flex-col gap-4 h-full min-h-[400px]">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Activity</span>
-                      <h3 className="text-lg font-black tracking-tight text-white mt-1">Focus Analytics</h3>
-                      <p className="text-xs text-slate-400 font-semibold mt-1">
-                        You logged {activityData.reduce((acc, c) => acc + c.hours, 0).toFixed(1)} hours today. Maintain study consistency!
-                      </p>
-                    </div>
-
-                    <div className="flex bg-slate-950/60 p-0.5 rounded-md border border-white/5 self-start mr-2 mt-1">
-                      {["Week", "Month", "Year"].map((filter) => (
-                        <button type="button"
-                          key={filter}
-                          onClick={() => alert(`Applied ${filter} filter`)}
-                          className={`px-3 py-1.5 rounded-md text-[10px] font-black tracking-wider uppercase transition-all ${
-                            filter === "Week" ? "bg-white text-slate-950" : "text-slate-400 hover:text-slate-200"
-                          }`}
-                        >
-                          {filter}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recharts Bar Chart */}
-                  <div className="w-full h-[260px] pt-4 flex flex-col justify-center">
-                    {hasTelemetryData ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                          <XAxis
-                            dataKey="name"
-                            stroke="#94a3b8"
-                            fontSize={10}
-                            fontWeight="bold"
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "rgba(15, 23, 42, 0.9)",
-                              borderRadius: "12px",
-                              border: "1px solid rgba(255, 255, 255, 0.1)",
-                              fontSize: "11px",
-                              color: "#fff",
-                              fontWeight: "600",
-                            }}
-                            labelClassName="text-indigo-400 font-bold"
-                            cursor={{ fill: "rgba(255, 255, 255, 0.03)", radius: 4 }}
-                          />
-                          <Bar dataKey="hours" radius={[6, 6, 0, 0]}>
-                            {activityData.map((entry, index) => (
-                              <Cell
-                                key={`cell-${entry.name}`}
-                                fill={
-                                  index === mappedIndex
-                                    ? "url(#blueGrad)" // highlight Wednesday dynamically
-                                    : "rgba(99, 102, 241, 0.45)"
-                                }
-                              />
-                            ))}
-                          </Bar>
-                          <defs>
-                            <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#6366f1" />
-                              <stop offset="100%" stopColor="#a855f7" />
-                            </linearGradient>
-                          </defs>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-white/10 rounded-xl bg-white/2 min-h-[220px]">
-                        <AlertCircle className="size-8 text-indigo-400/60 mb-2 animate-pulse" />
-                        <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Awaiting Telemetry Data</h4>
-                        <p className="text-[10px] text-slate-500 font-semibold mt-1 max-w-[200px] leading-relaxed">
-                          Set targets or log transactions for at least 3 days to unlock analytics graphs.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Metrics Footer */}
-                  <div className="flex items-center justify-between border-t border-white/10 pt-4 text-xs font-semibold text-slate-400">
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="size-4 text-indigo-400" />
-                      <span>Today focus indicator</span>
-                    </div>
-                    <span>Weekly Target: 40h</span>
-                  </div>
+              {/* DESKTOP LAYOUT (3 Columns) */}
+              <div className="hidden lg:grid grid-cols-12 gap-4 items-start w-full">
+                {/* Left Column (Span 3) */}
+                <div className="col-span-3 flex flex-col gap-4">
+                  {focusHourTrackerWidget}
+                  {todaysGoalWidget}
+                  {todaysTasksWidget}
                 </div>
 
+                {/* Center Column (Span 6) */}
+                <div className="col-span-6 flex flex-col gap-4">
+                  {focusAnalyticsWidget}
+                </div>
+
+                {/* Right Column (Span 3) */}
+                <div className="col-span-3 flex flex-col gap-4">
+                  {plannerConsistencyWidget}
+                  {byProjectWidget}
+                </div>
               </div>
-
-              {/* Right Column (Span 3) */}
-              <div className="lg:col-span-3 flex flex-col gap-6">
-                
-                {/* Statistics Gauge (Planner consistency) */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-5 shadow-lg flex flex-col gap-4 text-center items-center justify-center">
-                  <div className="text-left w-full">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Planner Consistency</span>
-                  </div>
-
-                  {/* Custom Recharts Gauge Pie */}
-                  <div className="relative size-36 flex items-center justify-center">
-                    {hasTelemetryData ? (
-                      <>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={performancePieData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={45}
-                              outerRadius={55}
-                              paddingAngle={3}
-                              dataKey="value"
-                            >
-                              {performancePieData.map((entry) => (
-                                <Cell key={`cell-${entry.name}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <div className="absolute flex flex-col items-center">
-                          <span className="text-2xl font-black text-white">{monthConsistencyPercent}%</span>
-                          <span className="text-[8px] text-slate-400 font-bold uppercase">Consistency</span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="size-32 rounded-full border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-2 bg-white/2">
-                        <span className="text-[8px] text-slate-500 font-black uppercase">Awaiting Telemetry</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="text-xs text-slate-400 font-semibold mb-2">
-                    {completedTargetsThisMonth} completed / {daysInMonth} days this month
-                  </div>
-
-                  {/* Visual Progress bars for Target Performance and Consistency */}
-                  <div className="w-full space-y-2.5 text-left text-[10px] font-bold uppercase text-slate-400">
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span>Goal Success Rate</span>
-                        <span className="text-emerald-400">{targetSuccessPercent}%</span>
-                      </div>
-                      <Progress value={targetSuccessPercent} className="w-full flex-col gap-0 bg-transparent">
-                        <ProgressTrack className="bg-white/5 h-2">
-                          <ProgressIndicator className="bg-emerald-500" />
-                        </ProgressTrack>
-                      </Progress>
-                      <span className="text-[8px] text-slate-500 leading-none">
-                        Completed {completedTargetsThisMonth} out of {targetsSetThisMonth} targets set.
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <span>Month Coverage</span>
-                        <span className="text-indigo-400">{Math.round((targetsSetThisMonth / daysInMonth) * 100)}%</span>
-                      </div>
-                      <Progress value={(targetsSetThisMonth / daysInMonth) * 100} className="w-full flex-col gap-0 bg-transparent">
-                        <ProgressTrack className="bg-white/5 h-2">
-                          <ProgressIndicator className="bg-indigo-500" />
-                        </ProgressTrack>
-                      </Progress>
-                      <span className="text-[8px] text-slate-500 leading-none">
-                        Targets set for {targetsSetThisMonth} out of {daysInMonth} calendar days.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* By project */}
-                <div className="rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 shadow-lg flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">By project</span>
-                    <button type="button"
-                      onClick={() => setProjectModalOpen(true)}
-                      className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
-                    >
-                      <Plus className="size-3" /> New
-                    </button>
-                  </div>
-
-                  <div className="space-y-1.5 max-h-[130px] overflow-y-auto pr-1">
-                    {store.projects.length === 0 ? (
-                      <div className="text-center py-3 text-slate-500 font-semibold text-[10px] uppercase">No active projects</div>
-                    ) : (
-                      store.projects.map((project) => (
-                        <div
-                          key={project.id}
-                          className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="size-2 rounded-full bg-indigo-400"></div>
-                            <div className="text-left">
-                              <h4 className="text-xs font-bold leading-tight">{project.name}</h4>
-                            </div>
-                          </div>
-
-                          <button type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              store.deleteProject(project.id);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/5 rounded text-red-400 transition-all"
-                          >
-                            <Trash2 className="size-3" />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
             </div>
           )}
 

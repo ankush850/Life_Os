@@ -277,22 +277,22 @@ export default function FinancialOS() {
                   key={exp.id}
                   className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center border border-white/10 text-slate-300">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center border border-white/10 text-slate-300 flex-shrink-0">
                       <PieChart className="size-4" />
                     </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">{exp.description || exp.category}</h4>
+                    <div className="text-left min-w-0">
+                      <h4 className="text-sm font-bold text-white truncate max-w-[120px] sm:max-w-[240px]" title={exp.description || exp.category}>{exp.description || exp.category}</h4>
                       <p className="text-[10px] text-slate-400 font-semibold uppercase">{exp.category} &bull; {exp.date}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-shrink-0">
                     <span className="text-sm font-black text-rose-400">-{formatCurrency(exp.amount)}</span>
                     <button type="button"
                       onClick={() => deleteExpense(exp.id)}
-                      className="lg:opacity-0 lg:group-hover:opacity-100 opacity-100 p-2.5 lg:p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-all cursor-pointer"
+                      className="h-11 w-11 lg:h-8 lg:w-8 flex items-center justify-center rounded-lg hover:bg-rose-500/20 text-rose-400 transition-all cursor-pointer"
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-4.5" />
                     </button>
                   </div>
                 </motion.div>
